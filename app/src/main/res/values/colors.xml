@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <color name="colorPrimary">@color/lightBlack</color>
+    <color name="colorPrimaryDark">@color/primaryBlack</color>
+    <color name="colorAccent">#EEE6AB</color>
+    
+    <color name="primaryBlack">#36393B</color>
+    <color name="lightBlack">#45484B</color>
+
+    <color name="primaryColorAlpha">#AA36393B</color>
+
+    <color name="lightDarkGray">#b2b2b2</color>
+    <color name="primaryGray">#9A9A9A</color>
+    <color name="gray">#A9A8A8</color>
+    <color name="darkGray">#636363</color>
+    <color name="dimGray">#D5D5D5</color>
+
+    <color name="lightRed">#FF6C6C</color>
+    <color name="primaryRed">#CE0A31</color>
+    <color name="darkRed">#8D2036</color>
+
+
+    <color name="lightGreen">#E4E4C5</color>
+    <color name="primaryGreen">#B9D48B</color>
+
+    <color name="primaryOrange">#FF5E00</color>
+
+    <color name="primaryBlue">#5295FA</color>
+    <color name="lightBlue">#77BBFA</color>
+    <color name="darkBlue">#3355FA</color>
+    <color name="dimBlue">#bccde6</color>
+
+    <color name="indicatorColor">@color/colorAccent</color>
+
+    <color name="alphaBlack">#55000000</color>
+    <color name="alphaWhite">#77FFFFFF</color>
+</resources>

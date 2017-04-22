@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">ImageQuickSearch</string>
+
+    <string name="search_hint">Image Search</string>
+    <string name="search_result">Search Result</string>
+
+    <string name="send">Send</string>
+    <string name="selection_image">%d image(s) selected</string>
+    <string name="saved_images">Saved images</string>
+
+    <string name="prepare_images_message">Saving and preparing network image</string>
+    <string name="use_mobile_network_message">Download images from your mobile network.</string>
+    <string name="check_network_setting_message">Please check your network settings.</string>
+</resources>
