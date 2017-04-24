@@ -163,11 +163,11 @@ public class ImageSelectionViewer extends LinearLayout {
                                 update();
                                 Toast.makeText(getContext(), R.string.send_image_failure_message, Toast.LENGTH_SHORT).show();
                                 Log.e(TAG, "send failure: ", throwable);
-                                e.onError(throwable);
                             });
                 }
             }).buffer(selectedImages.size())
                     .subscribe(objects -> {
+                        dialog.dismiss();
                         internalSend(Observable.fromIterable(objects)
                                 .map(o -> (File) o)
                                 .toList().blockingGet());

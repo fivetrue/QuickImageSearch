@@ -4,9 +4,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
+import android.util.Log;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.fivetrue.app.imagequicksearch.LL;
 import com.fivetrue.app.imagequicksearch.R;
 import com.fivetrue.app.imagequicksearch.model.image.GoogleImage;
 import com.fivetrue.app.imagequicksearch.ui.adapter.BaseFooterAdapter;
@@ -91,6 +93,7 @@ public class SearchResultActivity extends BaseImageListActivity<GoogleImage>{
     public void onSendFailed(GoogleImage failedImage) {
         super.onSendFailed(failedImage);
         if(getAdapter() != null && failedImage != null){
+            if(LL.D) Log.d(TAG, "onSendFailed() called with: failedImage = [" + failedImage + "]");
             int index = getAdapter().getData().indexOf(failedImage);
             getAdapter().notifyItemRemoved(index);
             getAdapter().getData().remove(index);

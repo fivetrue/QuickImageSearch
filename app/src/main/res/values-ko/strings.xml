@@ -15,7 +15,7 @@
     <string name="retrieved_images">검색된 사진</string>
     <string name="reset_data">데이터 초기화</string>
 
-    <string name="prepare_images_message">네트워크 이미지 저장 준비 중.</string>
+    <string name="prepare_images_message">네트워크 이미지 저장 중.</string>
     <string name="use_mobile_network_message">모바일 네트워크를 이용하여 사진을 다운로드 받습니다.</string>
     <string name="check_network_setting_message">네트워크 상태를 확인 바랍니다.</string>
     <string name="delete_cached_images_message">관련된 모든 이미지가 삭제 됩니다.</string>
