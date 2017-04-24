@@ -16,7 +16,7 @@ import com.fivetrue.app.imagequicksearch.ui.adapter.BaseFooterAdapter;
 
 import java.util.List;
 
-import jp.wasabeef.recyclerview.adapters.AlphaInAnimationAdapter;
+import jp.wasabeef.recyclerview.adapters.SlideInBottomAnimationAdapter;
 
 /**
  * Created by kwonojin on 2017. 4. 20..
@@ -98,7 +98,7 @@ public abstract class BaseImageListActivity <T> extends BaseActivity implements 
                     }
                 });
 
-                AlphaInAnimationAdapter adapter = new AlphaInAnimationAdapter(mImageAdapter);
+                SlideInBottomAnimationAdapter adapter = new SlideInBottomAnimationAdapter(mImageAdapter);
                 mRecyclerView.setAdapter(adapter);
             }else{
                 mImageAdapter.setData(data);

@@ -281,7 +281,9 @@ public class MainActivity extends BaseActivity implements ImageSelectionViewer.I
                 break;
 
             case R.id.action_settings :
-
+                Intent intent = new Intent(this, SettingsActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(intent);
                 break;
         }
         return super.onOptionsItemSelected(item);

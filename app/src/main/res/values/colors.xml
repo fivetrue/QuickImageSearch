@@ -3,7 +3,7 @@
 
     <color name="colorPrimary">@color/lightBlack</color>
     <color name="colorPrimaryDark">@color/primaryBlack</color>
-    <color name="colorAccent">#D41E45</color>
+    <color name="colorAccent">#ECBA09</color>
     
     <color name="primaryBlack">#36393B</color>
     <color name="lightBlack">#45484B</color>

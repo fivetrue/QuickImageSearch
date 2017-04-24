@@ -7,6 +7,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.fivetrue.app.imagequicksearch.R;
 import com.fivetrue.app.imagequicksearch.model.image.GoogleImage;
 import com.fivetrue.app.imagequicksearch.ui.adapter.BaseFooterAdapter;
 import com.fivetrue.app.imagequicksearch.ui.adapter.image.ImageListAdapter;
@@ -89,5 +90,11 @@ public class SearchResultActivity extends BaseImageListActivity<GoogleImage>{
     @Override
     public void onSendFailed(GoogleImage failedImage) {
         super.onSendFailed(failedImage);
+        if(getAdapter() != null && failedImage != null){
+            int index = getAdapter().getData().indexOf(failedImage);
+            getAdapter().notifyItemRemoved(index);
+            getAdapter().getData().remove(index);
+            Toast.makeText(this, R.string.delete_failed_images_message, Toast.LENGTH_SHORT).show();
+        }
     }
 }

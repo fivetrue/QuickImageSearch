@@ -35,7 +35,7 @@ public class SettingsActivity extends BaseActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_settings);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setTitle(R.string.settings + " " + BuildConfig.VERSION_NAME);
+        getSupportActionBar().setTitle(getString(R.string.settings) + " " + BuildConfig.VERSION_NAME);
 
         mNavigationView = (NavigationView) findViewById(R.id.navi_setting);
         View header = mNavigationView.getHeaderView(0);

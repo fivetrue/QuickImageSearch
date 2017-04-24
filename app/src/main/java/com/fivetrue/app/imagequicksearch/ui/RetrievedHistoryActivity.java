@@ -80,6 +80,7 @@ public class RetrievedHistoryActivity extends BaseImageListActivity<CachedGoogle
     protected boolean onItemLongClick(CachedGoogleImage item) {
         updateDeleteMode();
         getAdapter().toggle(getAdapter().getData().indexOf(item));
+        getSelectionViewer().update();
         return true;
     }
 

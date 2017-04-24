@@ -15,3 +15,44 @@
 #-keepclassmembers class fqcn.of.javascript.interface.for.webview {
 #   public *;
 #}
+
+-dontwarn java.lang.invoke.*
+-dontwarn org.jsoup.*
+
+# RETROFIT 2
+-dontwarn retrofit2.**
+-dontnote retrofit2.Platform
+-dontnote retrofit2.Platform$IOS$MainThreadExecutor
+-dontwarn retrofit2.Platform$Java8
+-dontwarn okhttp3.**
+-keep class retrofit2.** { *; }
+-keepattributes Signature
+-keepattributes Exceptions
+
+-keepclasseswithmembers class * {
+    @retrofit2.http.* <methods>;
+}
+
+# Lambda
+-dontwarn **$$Lambda$*
+
+# For using GSON @Expose annotation
+-keepattributes *Annotation*
+# Gson specific classes
+-keep class sun.misc.Unsafe { *; }
+-keep class com.google.gson.stream.** { *; }
+
+# Poi
+-keep public class org.apache.poi.** {*;}
+
+-dontwarn org.apache.**
+-dontwarn com.opencsv.**
+-dontwarn okio.**
+-dontwarn android.webkit.**
+-dontwarn java.nio.**
+-dontwarn com.google.firebase.**
+
+-keep class com.fivetrue.app.imagequicksearch.model.** { *; }
+-keep class android.support.** { *; }
+-keep class android.webkit.** { *; }
+-keep class org.jsoup.** { *; }
