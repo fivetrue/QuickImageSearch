@@ -52,6 +52,12 @@
                 android:visibility="gone"
                 android:elevation="3dp"/>
 
+            <FrameLayout
+                android:id="@+id/layout_main_ad_anchor"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"/>
+
             <View
                 android:layout_width="match_parent"
                 android:layout_height="70dp"/>

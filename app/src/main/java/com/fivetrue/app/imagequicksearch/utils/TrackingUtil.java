@@ -65,4 +65,16 @@ public class TrackingUtil {
         b.putString("Keyword", keyword);
         FirebaseAnalytics.getInstance(mContext).logEvent("FindImage", b);
     }
+
+    public void deleteSavedImage(int count){
+        Bundle b = new Bundle();
+        b.putString("count", count +"");
+        FirebaseAnalytics.getInstance(mContext).logEvent("DeleteSavedImage", b);
+    }
+
+    public void resetData(int count){
+        Bundle b = new Bundle();
+        b.putString("ItemCount", count+"");
+        FirebaseAnalytics.getInstance(mContext).logEvent("ResetData", b);
+    }
 }

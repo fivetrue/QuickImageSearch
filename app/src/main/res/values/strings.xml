@@ -6,10 +6,14 @@
 
     <string name="send">Send</string>
     <string name="delete">Delete</string>
+    <string name="search">Search</string>
+    <string name="Info">Info</string>
+    <string name="settings">Settings</string>
     <string name="delete_mode">Delete mode</string>
     <string name="selection_image">%d image(s) selected</string>
     <string name="saved_images">Saved Images</string>
     <string name="retrieved_images">Retrieved Images</string>
+    <string name="reset_data">Reset Data</string>
 
     <string name="prepare_images_message">Saving and preparing network image</string>
     <string name="use_mobile_network_message">Download images from your mobile network.</string>
@@ -17,4 +21,6 @@
     <string name="delete_cached_images_message">Related images will be deleted.</string>
     <string name="delete_saved_images_message">Selected images will be deleted.</string>
     <string name="send_image_failure_message">Image transfer failed</string>
+    <string name="reset_data_message">All saved data will be deleted.</string>
+
 </resources>

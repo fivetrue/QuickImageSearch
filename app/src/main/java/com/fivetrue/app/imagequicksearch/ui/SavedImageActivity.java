@@ -14,6 +14,7 @@ import com.fivetrue.app.imagequicksearch.model.image.GoogleImage;
 import com.fivetrue.app.imagequicksearch.model.image.SavedImage;
 import com.fivetrue.app.imagequicksearch.ui.adapter.BaseFooterAdapter;
 import com.fivetrue.app.imagequicksearch.ui.adapter.image.SavedImageListAdapter;
+import com.fivetrue.app.imagequicksearch.utils.TrackingUtil;
 
 import java.io.File;
 import java.util.List;
@@ -70,6 +71,7 @@ public class SavedImageActivity extends BaseImageListActivity<SavedImage>{
                                             })
                                             .toList()
                                             .subscribe(files -> {
+                                                TrackingUtil.getInstance().deleteSavedImage(files.size());
                                                 ImageDB.getInstance().deleteSavedImages(list);
                                                 Observable.fromIterable(files).subscribe(File::delete);
                                                 getAdapter().clearSelection();

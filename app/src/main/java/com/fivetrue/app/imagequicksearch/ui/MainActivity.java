@@ -15,7 +15,9 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
@@ -29,6 +31,7 @@ import com.fivetrue.app.imagequicksearch.ui.adapter.BaseFooterAdapter;
 import com.fivetrue.app.imagequicksearch.ui.adapter.image.RetrievedImageListAdapter;
 import com.fivetrue.app.imagequicksearch.ui.adapter.image.SavedImageListAdapter;
 import com.fivetrue.app.imagequicksearch.ui.set.ImageLayoutSet;
+import com.fivetrue.app.imagequicksearch.utils.AdUtil;
 import com.fivetrue.app.imagequicksearch.utils.CommonUtils;
 import com.fivetrue.app.imagequicksearch.utils.DataManager;
 
@@ -59,6 +62,8 @@ public class MainActivity extends BaseActivity implements ImageSelectionViewer.I
 
     private ImageSelectionViewer mImageSelectionViewer;
 
+    private ViewGroup mLayoutAdAnchor;
+
     private ProgressBar mProgress;
     private SearchView mSearchView;
 
@@ -67,6 +72,8 @@ public class MainActivity extends BaseActivity implements ImageSelectionViewer.I
 
     private Disposable mSavedImageDisposable;
     private Disposable mCachedImageDisposable;
+
+    private AdUtil mAdUtil;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -164,6 +171,23 @@ public class MainActivity extends BaseActivity implements ImageSelectionViewer.I
                             .take(RETREIVED_IMAGE_ITEM_COUNT)
                             .toList().blockingGet());
                 });
+
+        mAdUtil = new AdUtil(this, Observable.fromIterable(ImageDB.getInstance().getCachedImages())
+                .distinct(CachedGoogleImage::getKeyword)
+                .map(CachedGoogleImage::getKeyword)
+                .toList().blockingGet(), getString(R.string.admob_image_list_banner));
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mAdUtil.addAdView(mLayoutAdAnchor, false);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        mAdUtil.detachAdView();
     }
 
     private void initView(){
@@ -181,6 +205,8 @@ public class MainActivity extends BaseActivity implements ImageSelectionViewer.I
         mSavedImageLayoutSet = (ImageLayoutSet) findViewById(R.id.image_set_main_saved);
         mSavedImageLayoutSet.setLayoutManager(new GridLayoutManager(this, SAVED_IMAGE_ITEM_SPAN_COUNT, LinearLayoutManager.VERTICAL, false));
         mSavedImageLayoutSet.setOnClickMoreListener(view -> startActivity(SavedImageActivity.makeIntent(this)));
+
+        mLayoutAdAnchor = (ViewGroup) findViewById(R.id.layout_main_ad_anchor);
 
         mProgress = (ProgressBar) findViewById(R.id.pb_main);
 
@@ -212,10 +238,9 @@ public class MainActivity extends BaseActivity implements ImageSelectionViewer.I
         startActivity(intent);
     }
 
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater menuInflater = getMenuInflater();
-        menuInflater.inflate(R.menu.menu_main, menu);
-        mSearchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
+    private void initSearchView(SearchView searchView){
+
+        mSearchView = searchView;
         mSearchView.setSearchableInfo(mSearchManager.getSearchableInfo(MainActivity.this.getComponentName()));
         SearchView.OnQueryTextListener queryTextListener = new SearchView.OnQueryTextListener() {
 
@@ -234,6 +259,12 @@ public class MainActivity extends BaseActivity implements ImageSelectionViewer.I
             }
         };
         mSearchView.setOnQueryTextListener(queryTextListener);
+    }
+
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater menuInflater = getMenuInflater();
+        menuInflater.inflate(R.menu.menu_main, menu);
+        initSearchView((SearchView) menu.findItem(R.id.action_search).getActionView());
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -243,6 +274,14 @@ public class MainActivity extends BaseActivity implements ImageSelectionViewer.I
         switch (item.getItemId()){
             case android.R.id.home :
                 onBackPressed();
+                break;
+
+            case R.id.action_info :
+                CommonUtils.goStore(this);
+                break;
+
+            case R.id.action_settings :
+
                 break;
         }
         return super.onOptionsItemSelected(item);
@@ -280,6 +319,7 @@ public class MainActivity extends BaseActivity implements ImageSelectionViewer.I
     public void onBackPressed() {
         if(mSavedImageListAdapter != null && mSavedImageListAdapter.getSelections().size() > 0){
             mSavedImageListAdapter.clearSelection();
+            mImageSelectionViewer.update();
             return;
         }
         super.onBackPressed();

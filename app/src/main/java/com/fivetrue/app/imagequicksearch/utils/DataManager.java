@@ -52,7 +52,7 @@ public class DataManager {
 
     public Observable<GeoLocation> getGeoLocation() {
         return NetworkServiceProvider.getInstance()
-                .getGoogleApiService().getGeoLocation(mContext.getString(R.string.market_google_api_key))
+                .getGoogleApiService().getGeoLocation(mContext.getString(R.string.image_google_api_key))
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.newThread());
     }

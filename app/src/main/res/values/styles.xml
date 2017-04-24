@@ -19,6 +19,14 @@
         <item name="android:colorControlActivated">@color/colorAccent</item>
         <item name="android:titleTextStyle">@style/ActionBarTitleStyle</item>
         <item name="android:itemTextAppearance">@style/ActionBarItemStyle</item>
+        <item name="searchViewStyle">@style/ActionBarSearch</item>
+    </style>
+
+    <style name="ActionBarSearch" parent="Base.Widget.AppCompat.SearchView">
+        <item name="searchIcon">@drawable/ic_search_accent_24dp</item>
+        <item name="searchHintIcon">@drawable/ic_search_20dp</item>
+        <item name="defaultQueryHint">@string/search_hint</item>
+        <item name="closeIcon">@drawable/ic_cancel_accent_24dp</item>
     </style>
 
     <style name="ActionBarItemStyle" parent="TextAppearance.AppCompat.Widget.ActionBar.Menu">
