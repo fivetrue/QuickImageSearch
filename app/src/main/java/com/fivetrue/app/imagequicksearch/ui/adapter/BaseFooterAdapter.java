@@ -29,6 +29,8 @@ public abstract class BaseFooterAdapter<V> extends RecyclerView.Adapter<Recycler
 
     private OnItemClickListener mOnItemClickListener;
 
+    private boolean mEditMode = true;
+
 
     public BaseFooterAdapter(List<V> data){
         this.mData = data;
@@ -118,7 +120,7 @@ public abstract class BaseFooterAdapter<V> extends RecyclerView.Adapter<Recycler
 
     @Override
     public void toggle(int pos) {
-        if(getItemViewType(pos) == FOOTER){
+        if(getItemViewType(pos) == FOOTER && !mEditMode){
             return;
         }
         mSelectedItems.put(pos, !mSelectedItems.get(pos));
@@ -132,7 +134,7 @@ public abstract class BaseFooterAdapter<V> extends RecyclerView.Adapter<Recycler
 
     @Override
     public void selection(int pos, boolean b) {
-        if(getItemViewType(pos) == FOOTER){
+        if(getItemViewType(pos) == FOOTER&&  !mEditMode){
             return;
         }
 
@@ -165,6 +167,15 @@ public abstract class BaseFooterAdapter<V> extends RecyclerView.Adapter<Recycler
 
     public void setOnItemClickListener(OnItemClickListener<V> ll){
         mOnItemClickListener = ll;
+    }
+
+    public void setEditMode(boolean b){
+        mEditMode = b;
+        notifyDataSetChanged();
+    }
+
+    public boolean isEditMode(){
+        return mEditMode;
     }
 
     protected void onClickItem(RecyclerView.ViewHolder holder, V item){

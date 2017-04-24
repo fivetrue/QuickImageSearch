@@ -38,19 +38,24 @@ import java.util.List;
 import io.reactivex.Observable;
 import io.reactivex.disposables.Disposable;
 
-public class MainActivity extends BaseActivity implements ImageSelectionViewer.ImageSelectInfo{
+public class MainActivity extends BaseActivity implements ImageSelectionViewer.ImageSelectionClient {
 
     private static final String TAG = "MainActivity";
 
     private static final int SAVED_IMAGE_ITEM_COUNT = 9;
+    private static final int SAVED_IMAGE_ITEM_SPAN_COUNT = 3;
+
+    private static final int RETREIVED_IMAGE_ITEM_COUNT = 10;
+    private static final int RETREIVED_IMAGE_ITEM_SPAN_COUNT = 5;
+
 
     private NestedScrollView mScrollView;
 
     private ImageLayoutSet mSavedImageLayoutSet;
     private SavedImageListAdapter mSavedImageListAdapter;
 
-    private ImageLayoutSet mRetreivedImageLayoutSet;
-    private RetrievedImageListAdapter mRetreivedImageListAdapter;
+    private ImageLayoutSet mRetrievedImageLayoutSet;
+    private RetrievedImageListAdapter mRetrievedImageListAdapter;
 
     private ImageSelectionViewer mImageSelectionViewer;
 
@@ -111,10 +116,10 @@ public class MainActivity extends BaseActivity implements ImageSelectionViewer.I
         }
     }
 
-    private void onLoadRetreivedImages(List<CachedGoogleImage> images){
+    private void onLoadRetrievedImages(List<CachedGoogleImage> images){
         if(images != null){
-            if(mRetreivedImageListAdapter == null){
-                mRetreivedImageListAdapter = new RetrievedImageListAdapter(images, new BaseFooterAdapter.OnItemClickListener<CachedGoogleImage>() {
+            if(mRetrievedImageListAdapter == null){
+                mRetrievedImageListAdapter = new RetrievedImageListAdapter(images, new BaseFooterAdapter.OnItemClickListener<CachedGoogleImage>() {
                     @Override
                     public void onItemClick(RecyclerView.ViewHolder holder, CachedGoogleImage item) {
                         startActivity(RetrievedImageActivity.makeIntent(MainActivity.this, item));
@@ -129,15 +134,15 @@ public class MainActivity extends BaseActivity implements ImageSelectionViewer.I
                     }
                 }, true);
             }else{
-                mRetreivedImageListAdapter.setData(images);
+                mRetrievedImageListAdapter.setData(images);
             }
 
             if(images.size() > 0){
-                mRetreivedImageLayoutSet.setAdapter(mRetreivedImageListAdapter);
-                mRetreivedImageLayoutSet.animate().alphaBy(0).alpha(1).setDuration(500L).start();
-                mRetreivedImageLayoutSet.setVisibility(View.VISIBLE);
+                mRetrievedImageLayoutSet.setAdapter(mRetrievedImageListAdapter);
+                mRetrievedImageLayoutSet.animate().alphaBy(0).alpha(1).setDuration(500L).start();
+                mRetrievedImageLayoutSet.setVisibility(View.VISIBLE);
             }else{
-                mRetreivedImageLayoutSet.setVisibility(View.GONE);
+                mRetrievedImageLayoutSet.setVisibility(View.GONE);
             }
         }
     }
@@ -154,8 +159,9 @@ public class MainActivity extends BaseActivity implements ImageSelectionViewer.I
 
         mCachedImageDisposable = ImageDB.getInstance().getCachedImageObservable()
                 .subscribe(savedImages -> {
-                    onLoadRetreivedImages(Observable.fromIterable(savedImages)
+                    onLoadRetrievedImages(Observable.fromIterable(savedImages)
                             .distinct(CachedGoogleImage::getKeyword)
+                            .take(RETREIVED_IMAGE_ITEM_COUNT)
                             .toList().blockingGet());
                 });
     }
@@ -167,22 +173,19 @@ public class MainActivity extends BaseActivity implements ImageSelectionViewer.I
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         mScrollView = (NestedScrollView) findViewById(R.id.sv_main);
 
-        mRetreivedImageLayoutSet = (ImageLayoutSet) findViewById(R.id.image_set_main_cached);
-        mRetreivedImageLayoutSet.setLayoutManager(new GridLayoutManager(this, 5, LinearLayoutManager.VERTICAL, false));
+        mRetrievedImageLayoutSet = (ImageLayoutSet) findViewById(R.id.image_set_main_cached);
+        mRetrievedImageLayoutSet.setLayoutManager(new GridLayoutManager(this, RETREIVED_IMAGE_ITEM_SPAN_COUNT, LinearLayoutManager.VERTICAL, false));
+        mRetrievedImageLayoutSet.setOnClickMoreListener(view -> startActivity(RetrievedHistoryActivity.makeIntent(this)));
 
 
         mSavedImageLayoutSet = (ImageLayoutSet) findViewById(R.id.image_set_main_saved);
-        mSavedImageLayoutSet.setLayoutManager(new GridLayoutManager(this, 3, LinearLayoutManager.VERTICAL, false));
-        mSavedImageLayoutSet.setOnClickMoreListener(view -> {
-            Intent intent = new Intent(MainActivity.this, SavedImageActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            startActivity(intent);
-        });
+        mSavedImageLayoutSet.setLayoutManager(new GridLayoutManager(this, SAVED_IMAGE_ITEM_SPAN_COUNT, LinearLayoutManager.VERTICAL, false));
+        mSavedImageLayoutSet.setOnClickMoreListener(view -> startActivity(SavedImageActivity.makeIntent(this)));
 
         mProgress = (ProgressBar) findViewById(R.id.pb_main);
 
         mImageSelectionViewer = (ImageSelectionViewer) findViewById(R.id.layout_main_image_selection);
-        mImageSelectionViewer.setImageSelectorInfo(this);
+        mImageSelectionViewer.setSelectionClient(this);
 
         mScrollView.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
             @Override
@@ -261,5 +264,24 @@ public class MainActivity extends BaseActivity implements ImageSelectionViewer.I
     @Override
     public void clearSelection() {
         mSavedImageListAdapter.clearSelection();
+    }
+
+    @Override
+    public void onSendFailed(GoogleImage failedImage) {
+
+    }
+
+    @Override
+    public void onClickAction() {
+
+    }
+
+    @Override
+    public void onBackPressed() {
+        if(mSavedImageListAdapter != null && mSavedImageListAdapter.getSelections().size() > 0){
+            mSavedImageListAdapter.clearSelection();
+            return;
+        }
+        super.onBackPressed();
     }
 }

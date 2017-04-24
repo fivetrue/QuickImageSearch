@@ -34,6 +34,10 @@
             android:screenOrientation="portrait">
         </activity>
 
+        <activity android:name=".ui.RetrievedHistoryActivity"
+            android:screenOrientation="portrait">
+        </activity>
+
         <provider android:name=".provider.LocalFileProvider" android:grantUriPermissions="true"
             android:authorities="com.fivetrue.app.imagequicksearch.provider"></provider>
 

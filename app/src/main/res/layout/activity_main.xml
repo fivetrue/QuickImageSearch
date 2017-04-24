@@ -71,5 +71,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
         android:visibility="invisible"
+        android:padding="3dp"
+        android:background="@drawable/rect_rounded_primary"
         android:elevation="7dp" />
 </android.support.design.widget.CoordinatorLayout>

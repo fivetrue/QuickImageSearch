@@ -1,5 +1,7 @@
 package com.fivetrue.app.imagequicksearch.ui;
 
+import android.content.Context;
+import android.content.Intent;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
@@ -52,7 +54,7 @@ public class SavedImageActivity extends BaseImageListActivity<SavedImage>{
                 onBackPressed();
                 break;
 
-            case R.id.action_delete :
+            case R.id.action_delete_mode:
                 if(getAdapter().getSelections().size() > 0){
                     new AlertDialog.Builder(this)
                             .setTitle(android.R.string.dialog_alert_title)
@@ -96,7 +98,7 @@ public class SavedImageActivity extends BaseImageListActivity<SavedImage>{
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_image, menu);
+        getMenuInflater().inflate(R.menu.menu_retrieved_image, menu);
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -114,6 +116,12 @@ public class SavedImageActivity extends BaseImageListActivity<SavedImage>{
     @Override
     public String getKeyword() {
         return getString(R.string.saved_images);
+    }
+
+    public static Intent makeIntent(Context context){
+        Intent intent = new Intent(context, SavedImageActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        return intent;
     }
 
 }

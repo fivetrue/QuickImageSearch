@@ -15,14 +15,14 @@ import com.fivetrue.app.imagequicksearch.model.image.CachedGoogleImage;
  * Created by kwonojin on 2017. 4. 19..
  */
 
-public class RetreivedImageHolder extends RecyclerView.ViewHolder {
+public class RetrievedImageHolder extends RecyclerView.ViewHolder {
 
     public final View layout;
     public final ImageView image;
     public final TextView text;
     public final View check;
 
-    public RetreivedImageHolder(View itemView) {
+    public RetrievedImageHolder(View itemView) {
         super(itemView);
         layout = itemView.findViewById(R.id.layout_item_cached_image_list);
         image = (ImageView) itemView.findViewById(R.id.iv_item_cached_image_list);
@@ -30,8 +30,8 @@ public class RetreivedImageHolder extends RecyclerView.ViewHolder {
         check = itemView.findViewById(R.id.iv_item_cached_image_list_check);
     }
 
-    public static RetreivedImageHolder makeHolder(Context context){
-        return new RetreivedImageHolder(LayoutInflater.from(context).inflate(R.layout.item_cached_image_list, null));
+    public static RetrievedImageHolder makeHolder(Context context){
+        return new RetrievedImageHolder(LayoutInflater.from(context).inflate(R.layout.item_cached_image_list, null));
     }
 
     public void setImage(CachedGoogleImage image){

@@ -63,7 +63,7 @@ public class RetrievedImageActivity extends BaseImageListActivity<CachedGoogleIm
             case android.R.id.home :
                 onBackPressed();
                 break;
-            case R.id.action_delete :
+            case R.id.action_delete_mode:
                 new AlertDialog.Builder(this)
                         .setTitle(android.R.string.dialog_alert_title)
                         .setMessage(R.string.delete_cached_images_message)
@@ -81,7 +81,7 @@ public class RetrievedImageActivity extends BaseImageListActivity<CachedGoogleIm
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_image,menu);
+        getMenuInflater().inflate(R.menu.menu_retrieved_image, menu);
         return super.onCreateOptionsMenu(menu);
     }
 

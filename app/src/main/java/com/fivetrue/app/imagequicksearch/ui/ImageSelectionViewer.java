@@ -3,8 +3,11 @@ package com.fivetrue.app.imagequicksearch.ui;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.TypedArray;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.support.v7.app.AlertDialog;
+import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -21,6 +24,7 @@ import com.fivetrue.app.imagequicksearch.provider.LocalFileProvider;
 import com.fivetrue.app.imagequicksearch.utils.CommonUtils;
 import com.fivetrue.app.imagequicksearch.utils.ImageStoreUtil;
 import com.fivetrue.app.imagequicksearch.utils.SimpleViewUtils;
+import com.fivetrue.app.imagequicksearch.utils.TrackingUtil;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -36,17 +40,22 @@ public class ImageSelectionViewer extends LinearLayout {
 
     private static final String TAG = "ImageSelectionViewer";
 
-    public interface ImageSelectInfo{
+    public interface ImageSelectionClient {
         List<GoogleImage> getSelections();
         String getKeyword();
         void clearSelection();
+        void onSendFailed(GoogleImage failedImage);
+        void onClickAction();
     }
+
+    private View layout;
 
     private TextView mCount;
     private Button mCancel;
-    private Button mSend;
+    private Button mAction;
 
-    private ImageSelectInfo mInfo;
+    private ImageSelectionClient mSelectionClient;
+    private boolean mSendAction = true;
 
     public ImageSelectionViewer(Context context) {
         super(context);
@@ -67,40 +76,67 @@ public class ImageSelectionViewer extends LinearLayout {
         LayoutInflater.from(context).inflate(R.layout.image_selection_viewer, this);
         mCount = (TextView) findViewById(R.id.tv_image_selection_viewer);
         mCancel = (Button) findViewById(R.id.btn_image_selection_viewer_cancel);
-        mSend = (Button) findViewById(R.id.btn_image_selection_viewer_send);
-
-        mSend.setOnClickListener(view -> {
-            if(CommonUtils.isOnline(getContext())){
-                if(CommonUtils.isMobileConnected(getContext())){
-                    new AlertDialog.Builder(getContext())
-                            .setTitle(android.R.string.dialog_alert_title)
-                            .setMessage(R.string.use_mobile_network_message)
-                            .setPositiveButton(android.R.string.ok, (dialogInterface, i) -> {
-                                dialogInterface.dismiss();
-                                send();
-                            })
-                            .setNegativeButton(android.R.string.cancel, (dialogInterface, i) -> dialogInterface.dismiss())
-                            .show();
+        mAction = (Button) findViewById(R.id.btn_image_selection_viewer_action);
+        mAction.setOnClickListener(view -> {
+            if(mSendAction){
+                if(CommonUtils.isOnline(getContext())){
+                    if(CommonUtils.isMobileConnected(getContext())){
+                        new AlertDialog.Builder(getContext())
+                                .setTitle(android.R.string.dialog_alert_title)
+                                .setMessage(R.string.use_mobile_network_message)
+                                .setPositiveButton(android.R.string.ok, (dialogInterface, i) -> {
+                                    dialogInterface.dismiss();
+                                    doAction();
+                                })
+                                .setNegativeButton(android.R.string.cancel, (dialogInterface, i) -> dialogInterface.dismiss())
+                                .show();
+                    }else{
+                        doAction();
+                    }
                 }else{
-                    send();
+                    Toast.makeText(getContext(),  R.string.check_network_setting_message, Toast.LENGTH_SHORT).show();
                 }
             }else{
-                Toast.makeText(getContext(),  R.string.check_network_setting_message, Toast.LENGTH_SHORT).show();
+                if(mSelectionClient != null){
+                    mSelectionClient.onClickAction();
+                }
             }
         });
 
         mCancel.setOnClickListener(view -> {
-            if(mInfo != null){
-                mInfo.clearSelection();
+            if(mSelectionClient != null){
+                mSelectionClient.clearSelection();
                 update();
             }
         });
+
+        if(attr != null){
+            TypedArray a = context.obtainStyledAttributes(attr, R.styleable.ImageSelectionViewer);
+            Drawable background = a.getDrawable(R.styleable.ImageSelectionViewer_actionButtonBackground);
+            mSendAction = a.getBoolean(R.styleable.ImageSelectionViewer_sendAction, mSendAction);
+            String actionText = a.getString(R.styleable.ImageSelectionViewer_actionButtonText);
+            String cancelText = a.getString(R.styleable.ImageSelectionViewer_cancelButtonText);
+
+            if(background != null){
+                mAction.setBackground(background);
+                mCancel.setBackground(background);
+            }
+
+            if(!TextUtils.isEmpty(actionText)){
+                mAction.setText(actionText);
+            }
+
+            if(!TextUtils.isEmpty(cancelText)){
+                mCancel.setText(cancelText);
+            }
+            a.recycle();
+        }
     }
 
-    private void send(){
-        if(LL.D) Log.d(TAG, "send() called");
-        if(mInfo != null){
-            List<GoogleImage> selectedImages = mInfo.getSelections();
+    private void doAction(){
+        if(LL.D) Log.d(TAG, "doAction() called");
+        if(mSelectionClient != null){
+            List<GoogleImage> selectedImages = mSelectionClient.getSelections();
             ProgressDialog dialog = new ProgressDialog(getContext());
             dialog.setTitle(R.string.send);
             dialog.setMessage(getContext().getString(R.string.prepare_images_message));
@@ -111,29 +147,34 @@ public class ImageSelectionViewer extends LinearLayout {
             /**
              * Checking Stored image
              */
-            if(LL.D) Log.d(TAG, "send: try to convert image from network images size = " + selectedImages.size());
+            if(LL.D) Log.d(TAG, "send : try to convert image from network images size = " + selectedImages.size());
 
             Observable.create(e -> {
                 for(GoogleImage gi : selectedImages){
                     ImageStoreUtil.getInstance(getContext())
-                            .saveNetworkImage(gi, mInfo.getKeyword())
+                            .saveNetworkImage(gi, mSelectionClient.getKeyword())
                             .subscribe(file ->{
                                 dialog.setProgress(dialog.getProgress() + 1);
                                 e.onNext(file);
                             } ,throwable -> {
                                 dialog.dismiss();
-                                Log.e(TAG, "send: ", throwable);
-                                Toast.makeText(getContext(), "Image send failure", Toast.LENGTH_SHORT).show();
-                                mInfo.clearSelection();
+                                mSelectionClient.onSendFailed(gi);
+                                mSelectionClient.clearSelection();
                                 update();
+                                Toast.makeText(getContext(), R.string.send_image_failure_message, Toast.LENGTH_SHORT).show();
+                                Log.e(TAG, "send failure: ", throwable);
+                                e.onError(throwable);
                             });
                 }
             }).buffer(selectedImages.size())
                     .subscribe(objects -> {
-                        dialog.dismiss();
                         internalSend(Observable.fromIterable(objects)
                                 .map(o -> (File) o)
                                 .toList().blockingGet());
+                    }, throwable -> {
+                        Toast.makeText(getContext(), R.string.send_image_failure_message, Toast.LENGTH_SHORT).show();
+                        TrackingUtil.getInstance().report(throwable);
+                        Log.e(TAG, "send failure: ", throwable);
                     });
 
 
@@ -160,7 +201,7 @@ public class ImageSelectionViewer extends LinearLayout {
 
             if(intent != null){
                 getContext().startActivity(Intent.createChooser(intent, getResources().getString(R.string.send)));
-                mInfo.clearSelection();
+                mSelectionClient.clearSelection();
                 update();
             }
         }
@@ -168,8 +209,8 @@ public class ImageSelectionViewer extends LinearLayout {
     }
 
     public void update(){
-        if(mInfo != null){
-            List<GoogleImage> selection = mInfo.getSelections();
+        if(mSelectionClient != null){
+            List<GoogleImage> selection = mSelectionClient.getSelections();
             if(LL.D) Log.d(TAG, "checkSelection() called count = " + selection.size());
             if(selection.size() > 0){
                 show(selection);
@@ -196,7 +237,18 @@ public class ImageSelectionViewer extends LinearLayout {
         }
     }
 
-    public void setImageSelectorInfo(ImageSelectInfo info){
-        mInfo = info;
+    public void setSelectionClient(ImageSelectionClient client){
+        mSelectionClient = client;
+    }
+
+    public void setSendAction(boolean b, String text) {
+        mSendAction = b;
+        if (mAction != null) {
+            mAction.setText(mSendAction ? getResources().getString(R.string.send) : text);
+        }
+    }
+
+    public void setSendAction(boolean b){
+        setSendAction(b, getResources().getString(R.string.delete));
     }
 }

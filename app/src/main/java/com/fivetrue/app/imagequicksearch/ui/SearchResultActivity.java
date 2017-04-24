@@ -76,4 +76,18 @@ public class SearchResultActivity extends BaseImageListActivity<GoogleImage>{
         Toast.makeText(this, item.getSiteTitle(), Toast.LENGTH_SHORT).show();
         return true;
     }
+
+    @Override
+    public void onBackPressed() {
+        if(getAdapter() != null && getAdapter().getSelections().size() > 0){
+            getAdapter().clearSelection();
+            return;
+        }
+        super.onBackPressed();
+    }
+
+    @Override
+    public void onSendFailed(GoogleImage failedImage) {
+        super.onSendFailed(failedImage);
+    }
 }

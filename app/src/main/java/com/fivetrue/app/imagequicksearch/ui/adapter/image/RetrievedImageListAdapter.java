@@ -6,8 +6,8 @@ import android.view.View;
 
 import com.fivetrue.app.imagequicksearch.model.image.CachedGoogleImage;
 import com.fivetrue.app.imagequicksearch.ui.adapter.BaseFooterAdapter;
-import com.fivetrue.app.imagequicksearch.ui.adapter.holder.RetreivedImageHolder;
 import com.fivetrue.app.imagequicksearch.ui.adapter.holder.FooterHolder;
+import com.fivetrue.app.imagequicksearch.ui.adapter.holder.RetrievedImageHolder;
 
 import java.util.List;
 
@@ -35,13 +35,13 @@ public class RetrievedImageListAdapter extends BaseFooterAdapter<CachedGoogleIma
 
     @Override
     protected RecyclerView.ViewHolder onCreateHolder(Context context, int viewType) {
-        return RetreivedImageHolder.makeHolder(context);
+        return RetrievedImageHolder.makeHolder(context);
     }
 
     @Override
     protected void onBindHolder(RecyclerView.ViewHolder holder, int position) {
         CachedGoogleImage item = getItem(position);
-        RetreivedImageHolder imageItemHolder = (RetreivedImageHolder)holder;
+        RetrievedImageHolder imageItemHolder = (RetrievedImageHolder)holder;
         imageItemHolder.setImage(item);
         imageItemHolder.layout.setOnClickListener(view -> onClickItem(imageItemHolder, item));
         imageItemHolder.layout.setOnLongClickListener(view -> onLongClickItem(imageItemHolder, item));

@@ -5,6 +5,8 @@
     <string name="search_result">Search Result</string>
 
     <string name="send">Send</string>
+    <string name="delete">Delete</string>
+    <string name="delete_mode">Delete mode</string>
     <string name="selection_image">%d image(s) selected</string>
     <string name="saved_images">Saved Images</string>
     <string name="retrieved_images">Retrieved Images</string>
@@ -14,4 +16,5 @@
     <string name="check_network_setting_message">Please check your network settings.</string>
     <string name="delete_cached_images_message">Related images will be deleted.</string>
     <string name="delete_saved_images_message">Selected images will be deleted.</string>
+    <string name="send_image_failure_message">Image transfer failed</string>
 </resources>

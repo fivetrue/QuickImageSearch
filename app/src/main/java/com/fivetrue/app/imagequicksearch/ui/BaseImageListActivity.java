@@ -11,6 +11,7 @@ import android.view.MenuItem;
 import android.view.View;
 
 import com.fivetrue.app.imagequicksearch.R;
+import com.fivetrue.app.imagequicksearch.model.image.GoogleImage;
 import com.fivetrue.app.imagequicksearch.ui.adapter.BaseFooterAdapter;
 
 import java.util.List;
@@ -21,7 +22,7 @@ import jp.wasabeef.recyclerview.adapters.AlphaInAnimationAdapter;
  * Created by kwonojin on 2017. 4. 20..
  */
 
-public abstract class BaseImageListActivity <T> extends BaseActivity implements ImageSelectionViewer.ImageSelectInfo{
+public abstract class BaseImageListActivity <T> extends BaseActivity implements ImageSelectionViewer.ImageSelectionClient {
 
     private static final String TAG = "SearchResultFragment";
 
@@ -33,6 +34,7 @@ public abstract class BaseImageListActivity <T> extends BaseActivity implements 
 
     private BaseFooterAdapter<T> mImageAdapter;
     private ImageSelectionViewer mImageSelectionViewer;
+
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -55,7 +57,7 @@ public abstract class BaseImageListActivity <T> extends BaseActivity implements 
         mRecyclerView = (RecyclerView) findViewById(R.id.rv_base_image_list);
 
         mImageSelectionViewer = (ImageSelectionViewer) findViewById(R.id.layout_base_image_list_selection);
-        mImageSelectionViewer.setImageSelectorInfo(this);
+        mImageSelectionViewer.setSelectionClient(this);
         mRecyclerView.setLayoutManager(makeLayoutManager());
         mRecyclerView.setItemAnimator(new DefaultItemAnimator(){
             @Override
@@ -144,5 +146,19 @@ public abstract class BaseImageListActivity <T> extends BaseActivity implements 
         if(mImageAdapter != null){
             mImageAdapter.clearSelection();
         }
+    }
+
+    @Override
+    public void onSendFailed(GoogleImage failedImage) {
+
+    }
+
+    @Override
+    public void onClickAction() {
+
+    }
+
+    public ImageSelectionViewer getSelectionViewer(){
+        return mImageSelectionViewer;
     }
 }

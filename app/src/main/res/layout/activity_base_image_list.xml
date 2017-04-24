@@ -51,8 +51,10 @@
         android:id="@+id/layout_base_image_list_selection"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:padding="3dp"
         android:layout_gravity="bottom"
         android:visibility="invisible"
+        android:background="@drawable/rect_rounded_primary"
         android:elevation="7dp" />
 
 </android.support.design.widget.CoordinatorLayout>
