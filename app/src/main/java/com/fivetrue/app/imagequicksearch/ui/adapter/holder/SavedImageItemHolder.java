@@ -14,21 +14,21 @@ import com.fivetrue.app.imagequicksearch.model.image.GoogleImage;
  * Created by kwonojin on 2017. 4. 19..
  */
 
-public class ImageItemHolder extends RecyclerView.ViewHolder {
+public class SavedImageItemHolder extends RecyclerView.ViewHolder {
 
     public final View layout;
     public final ImageView image;
     public final ImageView check;
 
-    public ImageItemHolder(View itemView) {
+    public SavedImageItemHolder(View itemView) {
         super(itemView);
         layout = itemView.findViewById(R.id.layout_item_image_list);
         image = (ImageView) itemView.findViewById(R.id.iv_item_image_list);
         check = (ImageView) itemView.findViewById(R.id.iv_item_image_list_check);
     }
 
-    public static ImageItemHolder makeHolder(Context context){
-        return new ImageItemHolder(LayoutInflater.from(context).inflate(R.layout.item_search_image_list, null));
+    public static SavedImageItemHolder makeHolder(Context context){
+        return new SavedImageItemHolder(LayoutInflater.from(context).inflate(R.layout.item_saved_image_list, null));
     }
 
     public void setImage(GoogleImage image){

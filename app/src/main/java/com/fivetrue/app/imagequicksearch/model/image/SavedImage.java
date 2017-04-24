@@ -6,7 +6,7 @@ import io.realm.RealmObject;
  * Created by kwonojin on 2017. 4. 21..
  */
 
-public class StoredImage extends RealmObject{
+public class SavedImage extends RealmObject{
 
     private String filePath;
     private String mimeType;

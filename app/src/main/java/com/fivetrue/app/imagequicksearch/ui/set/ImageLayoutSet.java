@@ -49,6 +49,7 @@ public class ImageLayoutSet extends LinearLayout {
         mIcon = (ImageView) findViewById(R.id.iv_image_layout_set);
         mTitle = (TextView) findViewById(R.id.tv_image_layout_set);
         mMore = findViewById(R.id.layout_image_layout_set_more);
+        mMore.setVisibility(INVISIBLE);
 
         mImageList = (RecyclerView) findViewById(R.id.rv_image_layout_set);
 
@@ -67,6 +68,7 @@ public class ImageLayoutSet extends LinearLayout {
     }
 
     public void setOnClickMoreListener(OnClickListener onClickMoreListener){
+        mMore.setVisibility(VISIBLE);
         mMore.setOnClickListener(view -> {
             onClickMoreListener.onClick(ImageLayoutSet.this);
         });

@@ -1,12 +1,9 @@
 package com.fivetrue.app.imagequicksearch.ui;
 
-import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v7.widget.DefaultItemAnimator;
-import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -14,10 +11,8 @@ import android.view.MenuItem;
 import android.view.View;
 
 import com.fivetrue.app.imagequicksearch.R;
-import com.fivetrue.app.imagequicksearch.model.image.GoogleImage;
 import com.fivetrue.app.imagequicksearch.ui.adapter.BaseFooterAdapter;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import jp.wasabeef.recyclerview.adapters.AlphaInAnimationAdapter;
@@ -54,25 +49,14 @@ public abstract class BaseImageListActivity <T> extends BaseActivity implements 
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setTitle(getKeyword() + " ("+ getData().size() +")");
+        updateActionBarTitle();
 
         mScrollView = (NestedScrollView) findViewById(R.id.sv_base_image_list);
         mRecyclerView = (RecyclerView) findViewById(R.id.rv_base_image_list);
 
         mImageSelectionViewer = (ImageSelectionViewer) findViewById(R.id.layout_base_image_list_selection);
         mImageSelectionViewer.setImageSelectorInfo(this);
-
-        GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 3, LinearLayoutManager.VERTICAL, false);
-        gridLayoutManager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
-            @Override
-            public int getSpanSize(int position) {
-                if(mImageAdapter.getItemViewType(position) == BaseFooterAdapter.FOOTER){
-                    return 3;
-                }
-                return 1;
-            }
-        });
-        mRecyclerView.setLayoutManager(gridLayoutManager);
+        mRecyclerView.setLayoutManager(makeLayoutManager());
         mRecyclerView.setItemAnimator(new DefaultItemAnimator(){
             @Override
             public long getChangeDuration() {
@@ -89,6 +73,9 @@ public abstract class BaseImageListActivity <T> extends BaseActivity implements 
         });
     }
 
+    protected void updateActionBarTitle(){
+        getSupportActionBar().setTitle(getKeyword() + " ("+ getData().size() +")");
+    }
 
     public void setData(List<T> data){
         if(data != null){
@@ -97,7 +84,7 @@ public abstract class BaseImageListActivity <T> extends BaseActivity implements 
                     @Override
                     public void onItemClick(RecyclerView.ViewHolder holder, T item) {
                         mImageAdapter.toggle(holder.getLayoutPosition());
-                        mImageSelectionViewer.update();
+                        BaseImageListActivity.this.onItemClick(item);
                     }
 
                     @Override
@@ -117,6 +104,15 @@ public abstract class BaseImageListActivity <T> extends BaseActivity implements 
         }
     }
 
+    protected void onItemClick(T item){
+        update();
+    }
+
+    protected void update(){
+        mImageSelectionViewer.update();
+
+    }
+
     protected boolean onItemLongClick(T item){
         return false;
     }
@@ -125,13 +121,8 @@ public abstract class BaseImageListActivity <T> extends BaseActivity implements 
 
     protected abstract List<T> getData();
 
+    protected abstract LinearLayoutManager makeLayoutManager();
 
-    public static Intent makeIntent(Context context, String q, ArrayList<GoogleImage> images){
-        Intent intent = new Intent(context, BaseImageListActivity.class);
-        intent.putExtra(KEY_KEYWORD, q);
-        intent.putParcelableArrayListExtra(KEY_IMAGE_LIST, images);
-        return intent;
-    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -144,7 +135,7 @@ public abstract class BaseImageListActivity <T> extends BaseActivity implements 
         return super.onOptionsItemSelected(item);
     }
 
-    public BaseFooterAdapter getAdapter(){
+    public BaseFooterAdapter<T> getAdapter(){
         return mImageAdapter;
     }
 

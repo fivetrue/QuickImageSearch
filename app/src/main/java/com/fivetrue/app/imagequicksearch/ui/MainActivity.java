@@ -17,15 +17,19 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import com.fivetrue.app.imagequicksearch.LL;
 import com.fivetrue.app.imagequicksearch.R;
 import com.fivetrue.app.imagequicksearch.database.image.ImageDB;
+import com.fivetrue.app.imagequicksearch.model.image.CachedGoogleImage;
 import com.fivetrue.app.imagequicksearch.model.image.GoogleImage;
-import com.fivetrue.app.imagequicksearch.model.image.StoredImage;
+import com.fivetrue.app.imagequicksearch.model.image.SavedImage;
 import com.fivetrue.app.imagequicksearch.ui.adapter.BaseFooterAdapter;
+import com.fivetrue.app.imagequicksearch.ui.adapter.image.RetrievedImageListAdapter;
 import com.fivetrue.app.imagequicksearch.ui.adapter.image.SavedImageListAdapter;
 import com.fivetrue.app.imagequicksearch.ui.set.ImageLayoutSet;
+import com.fivetrue.app.imagequicksearch.utils.CommonUtils;
 import com.fivetrue.app.imagequicksearch.utils.DataManager;
 
 import java.util.ArrayList;
@@ -34,16 +38,21 @@ import java.util.List;
 import io.reactivex.Observable;
 import io.reactivex.disposables.Disposable;
 
-public class MainActivity extends BaseActivity {
+public class MainActivity extends BaseActivity implements ImageSelectionViewer.ImageSelectInfo{
 
     private static final String TAG = "MainActivity";
 
-    private static final int STORED_IMAGE_ITEM_COUNT = 8;
+    private static final int SAVED_IMAGE_ITEM_COUNT = 9;
 
     private NestedScrollView mScrollView;
 
     private ImageLayoutSet mSavedImageLayoutSet;
     private SavedImageListAdapter mSavedImageListAdapter;
+
+    private ImageLayoutSet mRetreivedImageLayoutSet;
+    private RetrievedImageListAdapter mRetreivedImageListAdapter;
+
+    private ImageSelectionViewer mImageSelectionViewer;
 
     private ProgressBar mProgress;
     private SearchView mSearchView;
@@ -51,7 +60,8 @@ public class MainActivity extends BaseActivity {
     private InputMethodManager mInputManager;
     private SearchManager mSearchManager;
 
-    private Disposable mStoredImageDisposable;
+    private Disposable mSavedImageDisposable;
+    private Disposable mCachedImageDisposable;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,32 +74,70 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if(mStoredImageDisposable != null && !mStoredImageDisposable.isDisposed()){
-            mStoredImageDisposable.dispose();
+        if(mSavedImageDisposable != null && !mSavedImageDisposable.isDisposed()){
+            mSavedImageDisposable.dispose();
+        }
+        if(mCachedImageDisposable != null && !mCachedImageDisposable.isDisposed()){
+            mCachedImageDisposable.dispose();
         }
     }
 
-    private void onLoadStoreImages(List<StoredImage> images){
+    private void onLoadStoreImages(List<SavedImage> images){
         if(images != null){
             if(mSavedImageListAdapter == null){
-                mSavedImageListAdapter = new SavedImageListAdapter(images, new BaseFooterAdapter.OnItemClickListener<StoredImage>() {
+                mSavedImageListAdapter = new SavedImageListAdapter(images, new BaseFooterAdapter.OnItemClickListener<SavedImage>() {
                     @Override
-                    public void onItemClick(RecyclerView.ViewHolder holder, StoredImage item) {
-                        Intent intent = new Intent(MainActivity.this, SavedImageActivity.class);
-                        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                        startActivity(intent);
+                    public void onItemClick(RecyclerView.ViewHolder holder, SavedImage item) {
+                        mSavedImageListAdapter.toggle(holder.getLayoutPosition());
+                        mImageSelectionViewer.update();
                     }
 
                     @Override
-                    public boolean onItemLongClick(RecyclerView.ViewHolder holder, StoredImage item) {
+                    public boolean onItemLongClick(RecyclerView.ViewHolder holder, SavedImage item) {
                         return false;
                     }
                 });
+            }else{
+                mSavedImageListAdapter.setData(images);
+            }
+
+            if(images.size() > 0){
                 mSavedImageLayoutSet.setAdapter(mSavedImageListAdapter);
                 mSavedImageLayoutSet.animate().alphaBy(0).alpha(1).setDuration(500L).start();
                 mSavedImageLayoutSet.setVisibility(View.VISIBLE);
             }else{
-                mSavedImageListAdapter.setData(images);
+                mSavedImageLayoutSet.setVisibility(View.GONE);
+            }
+        }
+    }
+
+    private void onLoadRetreivedImages(List<CachedGoogleImage> images){
+        if(images != null){
+            if(mRetreivedImageListAdapter == null){
+                mRetreivedImageListAdapter = new RetrievedImageListAdapter(images, new BaseFooterAdapter.OnItemClickListener<CachedGoogleImage>() {
+                    @Override
+                    public void onItemClick(RecyclerView.ViewHolder holder, CachedGoogleImage item) {
+                        startActivity(RetrievedImageActivity.makeIntent(MainActivity.this, item));
+                    }
+
+                    @Override
+                    public boolean onItemLongClick(RecyclerView.ViewHolder holder, CachedGoogleImage item) {
+                        Toast.makeText(MainActivity.this
+                                , CommonUtils.getDate(MainActivity.this, "yyyy-MM-dd hh:mm", item.getUpdateDate())
+                                , Toast.LENGTH_SHORT).show();
+                        return true;
+                    }
+                }, true);
+            }else{
+                mRetreivedImageListAdapter.setData(images);
+            }
+
+            if(images.size() > 0){
+                mRetreivedImageLayoutSet.setAdapter(mRetreivedImageListAdapter);
+                mRetreivedImageLayoutSet.animate().alphaBy(0).alpha(1).setDuration(500L).start();
+                mRetreivedImageLayoutSet.setVisibility(View.VISIBLE);
+            }else{
+                mRetreivedImageLayoutSet.setVisibility(View.GONE);
             }
         }
     }
@@ -98,10 +146,17 @@ public class MainActivity extends BaseActivity {
         mInputManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         mSearchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
 
-        mStoredImageDisposable = ImageDB.getInstance().getStoredImageObservable()
+        mSavedImageDisposable = ImageDB.getInstance().getSavedImageObservable()
                 .subscribe(images -> {
                     onLoadStoreImages(Observable.fromIterable(images)
-                            .take(STORED_IMAGE_ITEM_COUNT).toList().blockingGet());
+                            .take(SAVED_IMAGE_ITEM_COUNT).toList().blockingGet());
+                });
+
+        mCachedImageDisposable = ImageDB.getInstance().getCachedImageObservable()
+                .subscribe(savedImages -> {
+                    onLoadRetreivedImages(Observable.fromIterable(savedImages)
+                            .distinct(CachedGoogleImage::getKeyword)
+                            .toList().blockingGet());
                 });
     }
 
@@ -111,12 +166,23 @@ public class MainActivity extends BaseActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         mScrollView = (NestedScrollView) findViewById(R.id.sv_main);
-        mSavedImageLayoutSet = (ImageLayoutSet) findViewById(R.id.image_set_main_saved);
-        mSavedImageLayoutSet.setLayoutManager(new GridLayoutManager(this, 4, LinearLayoutManager.VERTICAL, false));
-        mSavedImageLayoutSet.setOnClickMoreListener(view -> {
 
+        mRetreivedImageLayoutSet = (ImageLayoutSet) findViewById(R.id.image_set_main_cached);
+        mRetreivedImageLayoutSet.setLayoutManager(new GridLayoutManager(this, 5, LinearLayoutManager.VERTICAL, false));
+
+
+        mSavedImageLayoutSet = (ImageLayoutSet) findViewById(R.id.image_set_main_saved);
+        mSavedImageLayoutSet.setLayoutManager(new GridLayoutManager(this, 3, LinearLayoutManager.VERTICAL, false));
+        mSavedImageLayoutSet.setOnClickMoreListener(view -> {
+            Intent intent = new Intent(MainActivity.this, SavedImageActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(intent);
         });
+
         mProgress = (ProgressBar) findViewById(R.id.pb_main);
+
+        mImageSelectionViewer = (ImageSelectionViewer) findViewById(R.id.layout_main_image_selection);
+        mImageSelectionViewer.setImageSelectorInfo(this);
 
         mScrollView.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
             @Override
@@ -126,7 +192,8 @@ public class MainActivity extends BaseActivity {
             }
         });
 
-        ImageDB.getInstance().publishStoredImage();
+        ImageDB.getInstance().publishSavedImage();
+        ImageDB.getInstance().publishCachedImage();
     }
 
     private void findImageFailure(Throwable t){
@@ -136,12 +203,10 @@ public class MainActivity extends BaseActivity {
 
     }
 
-    private void setData(String q, List<GoogleImage> images){
+    private void setGoogleImageData(String q, List<GoogleImage> images){
         mProgress.setVisibility(View.GONE);
         Intent intent = SearchResultActivity.makeIntent(this, q, new ArrayList<>(images));
         startActivity(intent);
-//        Bundle b = SearchResultFragment.makeBundle(this, q, new ArrayList<>(images));
-//        addFragment(SearchResultFragment.class, b, R.id.layout_main_anchor, true);
     }
 
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -160,7 +225,7 @@ public class MainActivity extends BaseActivity {
                 mInputManager.hideSoftInputFromWindow(mSearchView.getFocusedChild().getWindowToken(), 0);
                 mProgress.setVisibility(View.VISIBLE);
                 DataManager.getInstance(MainActivity.this).findImage(query)
-                        .subscribe(googleImages -> setData(query, googleImages)
+                        .subscribe(googleImages -> setGoogleImageData(query, googleImages)
                                 ,throwable -> findImageFailure(throwable));
                 return true;
             }
@@ -181,4 +246,20 @@ public class MainActivity extends BaseActivity {
     }
 
 
+    @Override
+    public List<GoogleImage> getSelections() {
+        Observable<GoogleImage> ob1 = Observable.fromIterable(mSavedImageListAdapter.getSelections())
+                .map(savedImage -> new GoogleImage(savedImage));
+        return ob1.toList().blockingGet();
+    }
+
+    @Override
+    public String getKeyword() {
+        return null;
+    }
+
+    @Override
+    public void clearSelection() {
+        mSavedImageListAdapter.clearSelection();
+    }
 }

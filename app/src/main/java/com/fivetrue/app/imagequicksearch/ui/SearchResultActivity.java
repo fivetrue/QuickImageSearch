@@ -2,7 +2,10 @@ package com.fivetrue.app.imagequicksearch.ui;
 
 import android.content.Context;
 import android.content.Intent;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.LinearLayoutManager;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.fivetrue.app.imagequicksearch.model.image.GoogleImage;
 import com.fivetrue.app.imagequicksearch.ui.adapter.BaseFooterAdapter;
@@ -34,6 +37,12 @@ public class SearchResultActivity extends BaseImageListActivity<GoogleImage>{
         return getIntent().getParcelableArrayListExtra(KEY_IMAGE_LIST);
     }
 
+    @Override
+    protected LinearLayoutManager makeLayoutManager() {
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 3, LinearLayoutManager.VERTICAL, false);
+        return gridLayoutManager;
+    }
+
     public static Intent makeIntent(Context context, String q, ArrayList<GoogleImage> images){
         Intent intent = new Intent(context, SearchResultActivity.class);
         intent.putExtra(KEY_KEYWORD, q);
@@ -62,4 +71,9 @@ public class SearchResultActivity extends BaseImageListActivity<GoogleImage>{
         return getIntent().getStringExtra(KEY_KEYWORD);
     }
 
+    @Override
+    protected boolean onItemLongClick(GoogleImage item) {
+        Toast.makeText(this, item.getSiteTitle(), Toast.LENGTH_SHORT).show();
+        return true;
+    }
 }

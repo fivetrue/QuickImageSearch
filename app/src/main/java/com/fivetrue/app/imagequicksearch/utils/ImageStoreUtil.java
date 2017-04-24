@@ -3,7 +3,6 @@ package com.fivetrue.app.imagequicksearch.utils;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
-import android.net.Uri;
 import android.util.Log;
 
 import com.bumptech.glide.Glide;
@@ -12,12 +11,10 @@ import com.bumptech.glide.request.target.SimpleTarget;
 import com.fivetrue.app.imagequicksearch.LL;
 import com.fivetrue.app.imagequicksearch.database.image.ImageDB;
 import com.fivetrue.app.imagequicksearch.model.image.GoogleImage;
-import com.fivetrue.app.imagequicksearch.model.image.StoredImage;
+import com.fivetrue.app.imagequicksearch.model.image.SavedImage;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.OutputStream;
-import java.util.List;
 
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -52,11 +49,11 @@ public class ImageStoreUtil {
 
     public Observable<File> saveNetworkImage(GoogleImage image, String q){
         if(LL.D) Log.d(TAG, "saveNetworkImage() called with: imageUrl = [" + image + "]");
-        StoredImage storeImage = ImageDB.getInstance().getStoreImage(image);
-        if(storeImage != null){
+        SavedImage savedImage = ImageDB.getInstance().getSavedImage(image);
+        if(savedImage != null){
             if(LL.D)
                 Log.d(TAG, "saveNetworkImage() has StoredImage");
-            return Observable.just(storeImage).map(img -> new File(img.getFilePath()));
+            return Observable.just(savedImage).map(img -> new File(img.getFilePath()));
         }else{
             if(LL.D)
                 Log.d(TAG, "saveNetworkImage() try to get network image");
@@ -80,7 +77,7 @@ public class ImageStoreUtil {
                                 .subscribeOn(Schedulers.newThread())
                                 .subscribe(file ->{
                                     if(LL.D) Log.d(TAG, "saveNetworkImage: insert saved image to StoredImage");
-                                    ImageDB.getInstance().insertStoredImage(image.parseStoreImage(q, file));
+                                    ImageDB.getInstance().insertSavedImage(image.parseStoreImage(q, file));
                                     emitter.onNext(file);
                                 });
                     }

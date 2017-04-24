@@ -105,7 +105,7 @@ public class ImageSelectionViewer extends LinearLayout {
             dialog.setTitle(R.string.send);
             dialog.setMessage(getContext().getString(R.string.prepare_images_message));
             dialog.setCancelable(false);
-            dialog.setProgressStyle(android.R.style.Widget_DeviceDefault_Light_ProgressBar_Horizontal);
+            dialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
             dialog.show();
             dialog.setMax(selectedImages.size());
             /**

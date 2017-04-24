@@ -5,7 +5,7 @@ import android.content.Context;
 import com.fivetrue.app.imagequicksearch.database.RealmDB;
 import com.fivetrue.app.imagequicksearch.model.image.CachedGoogleImage;
 import com.fivetrue.app.imagequicksearch.model.image.GoogleImage;
-import com.fivetrue.app.imagequicksearch.model.image.StoredImage;
+import com.fivetrue.app.imagequicksearch.model.image.SavedImage;
 import com.fivetrue.app.imagequicksearch.utils.TrackingUtil;
 
 import java.util.List;
@@ -28,7 +28,8 @@ public class ImageDB extends RealmDB implements RealmChangeListener<Realm>{
 
     private Context mContext;
 
-    private PublishSubject<List<StoredImage>> mStoreImagePublishSubject = PublishSubject.create();
+    private PublishSubject<List<SavedImage>> mSavedImagePublishSubject = PublishSubject.create();
+    private PublishSubject<List<CachedGoogleImage>> mCachedImagePublishSubject = PublishSubject.create();
 
     private static ImageDB sInstance;
 
@@ -47,6 +48,9 @@ public class ImageDB extends RealmDB implements RealmChangeListener<Realm>{
                 .toList().subscribe(cachedGoogleImages -> {
 
         }, throwable -> TrackingUtil.getInstance().report(throwable));
+
+        get().addChangeListener(this);
+
     }
 
     public List<CachedGoogleImage> findImages(String key, String value){
@@ -65,38 +69,76 @@ public class ImageDB extends RealmDB implements RealmChangeListener<Realm>{
         get().executeTransaction(realm -> get().insert(image));
     }
 
-    public void insertStoredImage(StoredImage image){
+    public void insertSavedImage(SavedImage image){
         get().executeTransaction(realm -> get().insert(image));
     }
 
-    public void insertStoredImage(List<StoredImage> images){
+    public void insertSavedImage(List<SavedImage> images){
         get().executeTransaction(realm -> get().insert(images));
 
     }
 
-    public List<StoredImage> getStoredImages(){
-        return get().where(StoredImage.class).findAllSorted("storedDate", Sort.DESCENDING);
+    public List<CachedGoogleImage> getCachedImages(){
+        return get().where(CachedGoogleImage.class).findAllSorted("updateDate", Sort.DESCENDING);
     }
 
-    public StoredImage getStoreImageByUrl(String imageUrl){
-        return get().where(StoredImage.class).equalTo("imageUrl", imageUrl).findFirst();
+    public List<CachedGoogleImage> getCachedImages(String keyword){
+        return get().where(CachedGoogleImage.class).equalTo("keyword", keyword).findAllSorted("updateDate", Sort.DESCENDING);
     }
 
-    public StoredImage getStoreImage(GoogleImage image){
-        return get().where(StoredImage.class).equalTo("imageUrl", image.getOriginalImageUrl()).findFirst();
+    public void deleteCachedImages(CachedGoogleImage image){
+        get().executeTransaction(realm -> {
+            get().where(CachedGoogleImage.class).equalTo("keyword", image.getKeyword()).findAll().deleteAllFromRealm();
+        });
+    }
+
+    public void deleteCachedImages(String keyword){
+        get().executeTransaction(realm -> {
+            get().where(CachedGoogleImage.class).equalTo("keyword", keyword).findAll().deleteAllFromRealm();
+        });
+    }
+
+    public List<SavedImage> getSavedImages(){
+        return get().where(SavedImage.class).findAllSorted("storedDate", Sort.DESCENDING);
+    }
+
+    public SavedImage getSavedImageByUrl(String imageUrl){
+        return get().where(SavedImage.class).equalTo("imageUrl", imageUrl).findFirst();
+    }
+
+    public SavedImage getSavedImage(GoogleImage image){
+        return get().where(SavedImage.class).equalTo("imageUrl", image.getOriginalImageUrl()).findFirst();
+    }
+
+    public void deleteSavedImages(List<SavedImage> images){
+        get().executeTransaction(realm -> {
+            for(SavedImage image : images){
+                image.deleteFromRealm();
+            }
+        });
     }
 
     @Override
     public void onChange(Realm element) {
-        publishStoredImage();
+        publishSavedImage();
+        publishCachedImage();
     }
 
-    public Observable<List<StoredImage>> getStoredImageObservable(){
-        return mStoreImagePublishSubject;
+    public Observable<List<SavedImage>> getSavedImageObservable(){
+        return mSavedImagePublishSubject;
     }
 
-    public void publishStoredImage(){
-        mStoreImagePublishSubject.onNext(getStoredImages());
-        mStoreImagePublishSubject.publish();
+    public Observable<List<CachedGoogleImage>> getCachedImageObservable(){
+        return mCachedImagePublishSubject;
+    }
+
+    public void publishSavedImage(){
+        mSavedImagePublishSubject.onNext(getSavedImages());
+        mSavedImagePublishSubject.publish();
+    }
+
+    public void publishCachedImage(){
+        mCachedImagePublishSubject.onNext(getCachedImages());
+        mCachedImagePublishSubject.publish();
     }
 }

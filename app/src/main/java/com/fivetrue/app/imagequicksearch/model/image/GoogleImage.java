@@ -45,8 +45,15 @@ public class GoogleImage implements Parcelable{
         tu = image.getThumbnailUrl();
         tw = image.getThumbnailWidth();
         th = image.getThumbnailHeight();
+    }
 
-
+    public GoogleImage(SavedImage image){
+        isu = image.getSiteUrl();
+        ity = image.getMimeType();
+        ow = image.getImageWidth();
+        oh = image.getImageHeight();
+        ou = image.getImageUrl();
+        st = image.getSiteTitle();
     }
 
     protected GoogleImage(Parcel in) {
@@ -205,8 +212,8 @@ public class GoogleImage implements Parcelable{
         return image;
     }
 
-    public StoredImage parseStoreImage(String q, File file){
-        StoredImage image = new StoredImage();
+    public SavedImage parseStoreImage(String q, File file){
+        SavedImage image = new SavedImage();
         image.setMimeType(ity);
         image.setImageUrl(ou);
         image.setImageHeight(oh);

@@ -4,12 +4,10 @@ import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
-import com.bumptech.glide.Glide;
-import com.fivetrue.app.imagequicksearch.R;
-import com.fivetrue.app.imagequicksearch.model.image.SavedImage;
+import com.fivetrue.app.imagequicksearch.model.image.CachedGoogleImage;
 import com.fivetrue.app.imagequicksearch.ui.adapter.BaseFooterAdapter;
+import com.fivetrue.app.imagequicksearch.ui.adapter.holder.RetreivedImageHolder;
 import com.fivetrue.app.imagequicksearch.ui.adapter.holder.FooterHolder;
-import com.fivetrue.app.imagequicksearch.ui.adapter.holder.SavedImageItemHolder;
 
 import java.util.List;
 
@@ -17,14 +15,17 @@ import java.util.List;
  * Created by kwonojin on 2017. 4. 19..
  */
 
-public class SavedImageListAdapter extends BaseFooterAdapter<SavedImage> {
+public class RetrievedImageListAdapter extends BaseFooterAdapter<CachedGoogleImage> {
 
     private static final String TAG = "ImageListAdapter";
 
+    private boolean mShowText;
 
-    public SavedImageListAdapter(List<SavedImage> data, OnItemClickListener<SavedImage> ll){
+    public RetrievedImageListAdapter(List<CachedGoogleImage> data
+            , OnItemClickListener<CachedGoogleImage> ll, boolean showText){
         super(data);
         setOnItemClickListener(ll);
+        mShowText = showText;
     }
 
     @Override
@@ -34,19 +35,18 @@ public class SavedImageListAdapter extends BaseFooterAdapter<SavedImage> {
 
     @Override
     protected RecyclerView.ViewHolder onCreateHolder(Context context, int viewType) {
-        return SavedImageItemHolder.makeHolder(context);
+        return RetreivedImageHolder.makeHolder(context);
     }
 
     @Override
     protected void onBindHolder(RecyclerView.ViewHolder holder, int position) {
-        SavedImage item = getItem(position);
-        SavedImageItemHolder imageItemHolder = (SavedImageItemHolder)holder;
-        Glide.with(imageItemHolder.image.getContext())
-                .load(item.getFilePath())
-                .placeholder(R.drawable.ic_default_thumbnail_50dp).into(imageItemHolder.image);
+        CachedGoogleImage item = getItem(position);
+        RetreivedImageHolder imageItemHolder = (RetreivedImageHolder)holder;
+        imageItemHolder.setImage(item);
         imageItemHolder.layout.setOnClickListener(view -> onClickItem(imageItemHolder, item));
         imageItemHolder.layout.setOnLongClickListener(view -> onLongClickItem(imageItemHolder, item));
 
+        imageItemHolder.text.setVisibility(mShowText ? View.VISIBLE : View.GONE);
         if(isSelect(position)){
             imageItemHolder.layout.animate()
                     .scaleX(0.9f)
