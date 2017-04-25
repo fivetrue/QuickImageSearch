@@ -37,4 +37,10 @@
         android:background="@drawable/rect_rounded_primary"
         android:elevation="7dp" />
 
+    <ProgressBar
+        android:id="@+id/pb_base_image_list"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"/>
+
 </android.support.design.widget.CoordinatorLayout>

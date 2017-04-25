@@ -7,7 +7,8 @@ import android.view.View;
 import com.bumptech.glide.Glide;
 import com.fivetrue.app.imagequicksearch.R;
 import com.fivetrue.app.imagequicksearch.model.image.SavedImage;
-import com.fivetrue.app.imagequicksearch.ui.adapter.BaseFooterAdapter;
+import com.fivetrue.app.imagequicksearch.ui.adapter.BaseHeaderFooterAdapter;
+import com.fivetrue.app.imagequicksearch.ui.adapter.BaseRecyclerAdapter;
 import com.fivetrue.app.imagequicksearch.ui.adapter.holder.FooterHolder;
 import com.fivetrue.app.imagequicksearch.ui.adapter.holder.SavedImageItemHolder;
 
@@ -17,19 +18,16 @@ import java.util.List;
  * Created by kwonojin on 2017. 4. 19..
  */
 
-public class SavedImageListAdapter extends BaseFooterAdapter<SavedImage> {
+public class SavedImageListAdapter extends BaseRecyclerAdapter<SavedImage> {
 
     private static final String TAG = "ImageListAdapter";
 
+    private boolean mShowHeader = true;
+    private boolean mShowFooter = true;
 
     public SavedImageListAdapter(List<SavedImage> data, OnItemClickListener<SavedImage> ll){
         super(data);
         setOnItemClickListener(ll);
-    }
-
-    @Override
-    protected RecyclerView.ViewHolder onCreateFooterHolder(Context context, int viewType) {
-        return FooterHolder.makeHolder(context);
     }
 
     @Override
@@ -43,9 +41,9 @@ public class SavedImageListAdapter extends BaseFooterAdapter<SavedImage> {
         SavedImageItemHolder imageItemHolder = (SavedImageItemHolder)holder;
         Glide.with(imageItemHolder.image.getContext())
                 .load(item.getFilePath())
-                .placeholder(R.drawable.ic_default_thumbnail_50dp).into(imageItemHolder.image);
-        imageItemHolder.layout.setOnClickListener(view -> onClickItem(imageItemHolder, item));
-        imageItemHolder.layout.setOnLongClickListener(view -> onLongClickItem(imageItemHolder, item));
+                .into(imageItemHolder.image);
+        imageItemHolder.layout.setOnClickListener(view -> onClickItem(imageItemHolder, position, item));
+        imageItemHolder.layout.setOnLongClickListener(view -> onLongClickItem(imageItemHolder, position, item));
 
         if(isSelect(position)){
             imageItemHolder.layout.animate()
@@ -62,5 +60,23 @@ public class SavedImageListAdapter extends BaseFooterAdapter<SavedImage> {
                     .start();
             imageItemHolder.check.setVisibility(View.GONE);
         }
+    }
+
+    public void setShowHeader(boolean b) {
+        this.mShowHeader = b;
+    }
+
+    public void setShowFooter(boolean b) {
+        this.mShowFooter = b;
+    }
+
+    @Override
+    protected boolean isShowingFooter() {
+        return mShowFooter;
+    }
+
+    @Override
+    protected boolean isShowingHeader() {
+        return mShowHeader;
     }
 }

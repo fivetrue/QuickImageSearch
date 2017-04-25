@@ -34,6 +34,12 @@
             android:paddingTop="?attr/actionBarSize"
             android:orientation="vertical">
 
+            <FrameLayout
+                android:id="@+id/layout_main_ad_anchor"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"/>
+
             <com.fivetrue.app.imagequicksearch.ui.set.ImageLayoutSet
                 android:id="@+id/image_set_main_cached"
                 android:layout_width="match_parent"
@@ -61,13 +67,6 @@
                 app:title="@string/saved_images"
                 android:visibility="gone"
                 android:elevation="3dp"/>
-
-            <FrameLayout
-                android:id="@+id/layout_main_ad_anchor"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"/>
-
             <View
                 android:layout_width="match_parent"
                 android:layout_height="70dp"/>

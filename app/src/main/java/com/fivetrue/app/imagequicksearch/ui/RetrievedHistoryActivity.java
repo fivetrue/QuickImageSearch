@@ -5,8 +5,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -14,12 +12,14 @@ import com.fivetrue.app.imagequicksearch.R;
 import com.fivetrue.app.imagequicksearch.database.image.ImageDB;
 import com.fivetrue.app.imagequicksearch.model.image.CachedGoogleImage;
 import com.fivetrue.app.imagequicksearch.model.image.GoogleImage;
-import com.fivetrue.app.imagequicksearch.ui.adapter.BaseFooterAdapter;
+import com.fivetrue.app.imagequicksearch.ui.adapter.BaseHeaderFooterAdapter;
+import com.fivetrue.app.imagequicksearch.ui.adapter.BaseRecyclerAdapter;
 import com.fivetrue.app.imagequicksearch.ui.adapter.image.RetrievedHistoryListAdapter;
 
 import java.util.List;
 
 import io.reactivex.Observable;
+import io.reactivex.disposables.Disposable;
 
 
 /**
@@ -32,14 +32,32 @@ public class RetrievedHistoryActivity extends BaseImageListActivity<CachedGoogle
 
     private MenuItem mDeleteModeItem;
 
+    private Disposable mDisposable;
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getSelectionViewer().setSendAction(false);
+        mDisposable = ImageDB.getInstance().getCachedImageObservable()
+                .subscribe(cachedGoogleImages -> {
+                    Observable.fromIterable(cachedGoogleImages)
+                            .distinct(CachedGoogleImage::getKeyword)
+                            .toList().subscribe(images -> setData(images));
+                });
+
+        ImageDB.getInstance().publishCachedImage();
     }
 
     @Override
-    protected BaseFooterAdapter<CachedGoogleImage> makeAdapter(List<CachedGoogleImage> data, BaseFooterAdapter.OnItemClickListener<CachedGoogleImage> ll) {
+    protected void onDestroy() {
+        super.onDestroy();
+        if(mDisposable != null && !mDisposable.isDisposed()){
+            mDisposable.dispose();
+        }
+    }
+
+    @Override
+    protected BaseRecyclerAdapter<CachedGoogleImage> makeAdapter(List<CachedGoogleImage> data, BaseHeaderFooterAdapter.OnItemClickListener<CachedGoogleImage> ll) {
         RetrievedHistoryListAdapter adapter = new RetrievedHistoryListAdapter(data, ll);
         adapter.setEditMode(false);
         return adapter;
@@ -47,24 +65,15 @@ public class RetrievedHistoryActivity extends BaseImageListActivity<CachedGoogle
 
     @Override
     protected List<CachedGoogleImage> getData() {
-        return Observable.fromIterable(ImageDB.getInstance().getCachedImages())
-                .distinct(CachedGoogleImage::getKeyword)
-                .toList().blockingGet();
+        if(getAdapter() != null){
+            return getAdapter().getData();
+        }
+        return null;
     }
 
     @Override
-    protected LinearLayoutManager makeLayoutManager() {
-        GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 2, LinearLayoutManager.VERTICAL, false);
-        gridLayoutManager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
-            @Override
-            public int getSpanSize(int position) {
-                if(getAdapter().getItemViewType(position) == BaseFooterAdapter.FOOTER){
-                    return 2;
-                }
-                return 1;
-            }
-        });
-        return gridLayoutManager;
+    protected int getSpanCount() {
+        return 2;
     }
 
     @Override
@@ -72,7 +81,7 @@ public class RetrievedHistoryActivity extends BaseImageListActivity<CachedGoogle
         if(getAdapter().isEditMode()){
             super.onItemClick(item);
         }else{
-            startActivity(RetrievedImageActivity.makeIntent(this, item));
+            startActivity(SearchActivity.makeIntent(this, item.getKeyword()));
         }
     }
 
@@ -103,6 +112,7 @@ public class RetrievedHistoryActivity extends BaseImageListActivity<CachedGoogle
         getAdapter().setEditMode(!getAdapter().isEditMode());
         mDeleteModeItem.setIcon(getAdapter().isEditMode()
                 ? R.drawable.ic_cancel_accent_24dp : R.drawable.ic_delete_mode_accent_24dp);
+        getSelectionViewer().update();
     }
 
     @Override

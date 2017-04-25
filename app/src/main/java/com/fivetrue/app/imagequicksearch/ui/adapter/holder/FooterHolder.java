@@ -4,6 +4,7 @@ import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.ProgressBar;
 
 import com.fivetrue.app.imagequicksearch.R;
 
@@ -13,8 +14,11 @@ import com.fivetrue.app.imagequicksearch.R;
 
 public class FooterHolder extends RecyclerView.ViewHolder {
 
+    public ProgressBar progressBar;
+
     public FooterHolder(View itemView) {
         super(itemView);
+        progressBar = (ProgressBar) itemView.findViewById(R.id.pb_footer);
     }
 
     public static FooterHolder makeHolder(Context context){

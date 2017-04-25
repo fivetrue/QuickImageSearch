@@ -22,15 +22,11 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".ui.SearchResultActivity"
+        <activity android:name=".ui.SearchActivity"
             android:screenOrientation="portrait">
         </activity>
 
         <activity android:name=".ui.SavedImageActivity"
-            android:screenOrientation="portrait">
-        </activity>
-
-        <activity android:name=".ui.RetrievedImageActivity"
             android:screenOrientation="portrait">
         </activity>
 

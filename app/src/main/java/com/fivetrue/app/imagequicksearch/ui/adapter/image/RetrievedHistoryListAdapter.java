@@ -5,7 +5,8 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
 import com.fivetrue.app.imagequicksearch.model.image.CachedGoogleImage;
-import com.fivetrue.app.imagequicksearch.ui.adapter.BaseFooterAdapter;
+import com.fivetrue.app.imagequicksearch.ui.adapter.BaseHeaderFooterAdapter;
+import com.fivetrue.app.imagequicksearch.ui.adapter.BaseRecyclerAdapter;
 import com.fivetrue.app.imagequicksearch.ui.adapter.holder.FooterHolder;
 import com.fivetrue.app.imagequicksearch.ui.adapter.holder.RetrievedHistoryHolder;
 
@@ -15,7 +16,7 @@ import java.util.List;
  * Created by kwonojin on 2017. 4. 19..
  */
 
-public class RetrievedHistoryListAdapter extends BaseFooterAdapter<CachedGoogleImage> {
+public class RetrievedHistoryListAdapter extends BaseRecyclerAdapter<CachedGoogleImage> {
 
     private static final String TAG = "ImageListAdapter";
 
@@ -24,11 +25,6 @@ public class RetrievedHistoryListAdapter extends BaseFooterAdapter<CachedGoogleI
             , OnItemClickListener<CachedGoogleImage> ll){
         super(data);
         setOnItemClickListener(ll);
-    }
-
-    @Override
-    protected RecyclerView.ViewHolder onCreateFooterHolder(Context context, int viewType) {
-        return FooterHolder.makeHolder(context);
     }
 
     @Override
@@ -41,8 +37,8 @@ public class RetrievedHistoryListAdapter extends BaseFooterAdapter<CachedGoogleI
         CachedGoogleImage item = getItem(position);
         RetrievedHistoryHolder imageItemHolder = (RetrievedHistoryHolder)holder;
         imageItemHolder.setImage(item);
-        imageItemHolder.layout.setOnClickListener(view -> onClickItem(imageItemHolder, item));
-        imageItemHolder.layout.setOnLongClickListener(view -> onLongClickItem(imageItemHolder, item));
+        imageItemHolder.layout.setOnClickListener(view -> onClickItem(imageItemHolder, position, item));
+        imageItemHolder.layout.setOnLongClickListener(view -> onLongClickItem(imageItemHolder, position, item));
         imageItemHolder.check.setVisibility(View.GONE);
         imageItemHolder.text.setVisibility(View.VISIBLE);
         imageItemHolder.subText.setVisibility(View.VISIBLE);

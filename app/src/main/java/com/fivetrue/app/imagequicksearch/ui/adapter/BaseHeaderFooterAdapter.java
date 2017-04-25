@@ -2,9 +2,12 @@ package com.fivetrue.app.imagequicksearch.ui.adapter;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.view.ViewGroup;
 
+
+import com.fivetrue.app.imagequicksearch.LL;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,16 +16,18 @@ import java.util.List;
  * Created by kwonojin on 2017. 4. 20..
  */
 
-public abstract class BaseFooterAdapter<V> extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements BaseAdapterImpl<V>{
+public abstract class BaseHeaderFooterAdapter<V> extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements BaseAdapterImpl<V>{
 
-    private static final String TAG = "BaseFooterAdapter";
+    private static final String TAG = "BaseHeaderFooterAdapter";
 
     public interface OnItemClickListener<V>{
-        void onItemClick(RecyclerView.ViewHolder holder, V item);
-        boolean onItemLongClick(RecyclerView.ViewHolder holder, V item);
+        void onItemClick(RecyclerView.ViewHolder holder, int pos, V item);
+        boolean onItemLongClick(RecyclerView.ViewHolder holder, int pos, V item);
     }
 
+    public static final int HEADER = 0x98;
     public static final int FOOTER = 0x99;
+    public static final int ITEM = 0x9A;
 
     private SparseBooleanArray mSelectedItems;
     private List<V> mData;
@@ -32,7 +37,7 @@ public abstract class BaseFooterAdapter<V> extends RecyclerView.Adapter<Recycler
     private boolean mEditMode = true;
 
 
-    public BaseFooterAdapter(List<V> data){
+    public BaseHeaderFooterAdapter(List<V> data){
         this.mData = data;
         mSelectedItems = new SparseBooleanArray();
     }
@@ -42,35 +47,56 @@ public abstract class BaseFooterAdapter<V> extends RecyclerView.Adapter<Recycler
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         if(viewType == FOOTER){
             return onCreateFooterHolder(parent.getContext(), viewType);
+        }else if(viewType == HEADER){
+            return onCreateHeaderHolder(parent.getContext(), viewType);
         }
         return onCreateHolder(parent.getContext(), viewType);
     }
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-        if(getItemViewType(position) == FOOTER){
+        if(LL.D)
+            Log.d(TAG, "onBindViewHolder() called with: holder = [" + holder + "], position = [" + position + "]");
+        if(getItemViewType(position) == HEADER){
+            onBindHeaderHolder(holder, position);
+        }else if(getItemViewType(position) == FOOTER){
             onBindFooterHolder(holder, position);
         }else{
-            onBindHolder(holder, position);
+            onBindHolder(holder, position - (isShowingHeader() ? 1 : 0));
         }
     }
 
-    private void onBindFooterHolder(RecyclerView.ViewHolder holder, int position){
+
+    protected void onBindHeaderHolder(RecyclerView.ViewHolder holder, int position){
+
+    }
+
+    protected void onBindFooterHolder(RecyclerView.ViewHolder holder, int position){
 
     }
 
     protected abstract RecyclerView.ViewHolder onCreateFooterHolder(Context context, int viewType);
 
+    protected abstract RecyclerView.ViewHolder onCreateHeaderHolder(Context context, int viewType);
+
     protected abstract RecyclerView.ViewHolder onCreateHolder(Context context, int viewType);
 
     protected abstract void onBindHolder(final RecyclerView.ViewHolder holder, final int position);
 
+    protected abstract boolean isShowingFooter();
+
+    protected abstract boolean isShowingHeader();
+
     @Override
     public int getItemViewType(int position) {
-        if(mData.size() == position){
+        if (position == 0 && isShowingHeader()) {
+            return HEADER;
+        }else if (position == (getData().size() + (isShowingHeader() ? 1 : 0))
+                && isShowingFooter()) {
             return FOOTER;
+        }else{
+            return ITEM;
         }
-        return super.getItemViewType(position);
     }
 
     @Override
@@ -83,16 +109,16 @@ public abstract class BaseFooterAdapter<V> extends RecyclerView.Adapter<Recycler
 
     @Override
     public int getItemCount() {
-        if (mData == null) {
-            return 0;
+        int itemCount = getData().size();
+        if(isShowingFooter()){
+            itemCount++;
         }
 
-        if (mData.size() == 0) {
-            //Return 1 here to show nothing
-            return 1;
+        if(isShowingHeader()){
+            itemCount++;
         }
 
-        return mData.size() + 1;
+        return itemCount;
     }
 
     @Override
@@ -114,10 +140,12 @@ public abstract class BaseFooterAdapter<V> extends RecyclerView.Adapter<Recycler
 
     @Override
     public void toggle(int pos) {
-        if(getItemViewType(pos) == FOOTER && !mEditMode){
+        if(getItemViewType(pos) == FOOTER || getItemViewType(pos) == HEADER
+                || !mEditMode){
             return;
         }
-        mSelectedItems.put(pos, !mSelectedItems.get(pos));
+        int p = pos - (isShowingHeader() ? 1 : 0);
+        mSelectedItems.put(p, !mSelectedItems.get(p));
         notifyItemChanged(pos);
     }
 
@@ -128,11 +156,13 @@ public abstract class BaseFooterAdapter<V> extends RecyclerView.Adapter<Recycler
 
     @Override
     public void selection(int pos, boolean b) {
-        if(getItemViewType(pos) == FOOTER&&  !mEditMode){
+        if(getItemViewType(pos) == FOOTER
+                || getItemViewType(pos) == HEADER
+                || !mEditMode){
             return;
         }
 
-        mSelectedItems.put(pos, b);
+        mSelectedItems.put(pos - (isShowingHeader() ? 1 : 0) , b);
         notifyItemChanged(pos);
     }
 
@@ -145,7 +175,18 @@ public abstract class BaseFooterAdapter<V> extends RecyclerView.Adapter<Recycler
     @Override
     public List<V> getSelections() {
         ArrayList<V> list = new ArrayList<>();
-        for(int i = 0 ; i < getItemCount() ; i++){
+
+        int itemCount = getItemCount();
+
+        if(isShowingHeader()){
+            itemCount --;
+        }
+
+        if(isShowingFooter()){
+            itemCount --;
+        }
+
+        for(int i = 0 ; i < itemCount ; i++){
             if(mSelectedItems.get(i)){
                 list.add(getItem(i));
             }
@@ -172,15 +213,15 @@ public abstract class BaseFooterAdapter<V> extends RecyclerView.Adapter<Recycler
         return mEditMode;
     }
 
-    protected void onClickItem(RecyclerView.ViewHolder holder, V item){
+    protected void onClickItem(RecyclerView.ViewHolder holder, int pos, V item){
         if(mOnItemClickListener != null){
-            mOnItemClickListener.onItemClick(holder, item);
+            mOnItemClickListener.onItemClick(holder, pos + (isShowingHeader() ? 1 : 0), item);
         }
     }
 
-    protected boolean onLongClickItem(RecyclerView.ViewHolder holder, V item){
+    protected boolean onLongClickItem(RecyclerView.ViewHolder holder, int pos, V item){
         if(mOnItemClickListener != null){
-            return mOnItemClickListener.onItemLongClick(holder, item);
+            return mOnItemClickListener.onItemLongClick(holder, pos + (isShowingHeader() ? 1 : 0), item);
         }
         return false;
     }

@@ -10,7 +10,6 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -20,22 +19,19 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
-import com.fivetrue.app.imagequicksearch.LL;
 import com.fivetrue.app.imagequicksearch.R;
 import com.fivetrue.app.imagequicksearch.database.image.ImageDB;
 import com.fivetrue.app.imagequicksearch.model.image.CachedGoogleImage;
 import com.fivetrue.app.imagequicksearch.model.image.GoogleImage;
 import com.fivetrue.app.imagequicksearch.model.image.SavedImage;
-import com.fivetrue.app.imagequicksearch.ui.adapter.BaseFooterAdapter;
+import com.fivetrue.app.imagequicksearch.ui.adapter.BaseHeaderFooterAdapter;
 import com.fivetrue.app.imagequicksearch.ui.adapter.image.RetrievedImageListAdapter;
 import com.fivetrue.app.imagequicksearch.ui.adapter.image.SavedImageListAdapter;
 import com.fivetrue.app.imagequicksearch.ui.fragment.ImageDetailViewFragment;
 import com.fivetrue.app.imagequicksearch.ui.set.ImageLayoutSet;
 import com.fivetrue.app.imagequicksearch.utils.AdUtil;
 import com.fivetrue.app.imagequicksearch.utils.CommonUtils;
-import com.fivetrue.app.imagequicksearch.utils.DataManager;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import io.reactivex.Observable;
@@ -64,7 +60,7 @@ public class MainActivity extends BaseActivity implements ImageSelectionViewer.I
     private SavedImageListAdapter mSavedImageListAdapter;
 
     private ImageLayoutSet mLikeImageLayoutSet;
-    private SavedImageListAdapter mLikeImageListAdapter;
+    private RetrievedImageListAdapter mLikeImageListAdapter;
 
     private ImageSelectionViewer mImageSelectionViewer;
 
@@ -78,7 +74,6 @@ public class MainActivity extends BaseActivity implements ImageSelectionViewer.I
 
     private Disposable mSavedImageDisposable;
     private Disposable mCachedImageDisposable;
-    private Disposable mLikeImageDisposable;
 
     private AdUtil mAdUtil;
 
@@ -99,28 +94,27 @@ public class MainActivity extends BaseActivity implements ImageSelectionViewer.I
         if(mCachedImageDisposable != null && !mCachedImageDisposable.isDisposed()){
             mCachedImageDisposable.dispose();
         }
-        if(mLikeImageDisposable != null && !mLikeImageDisposable.isDisposed()){
-            mLikeImageDisposable.dispose();
-        }
     }
 
     private void onLoadStoreImages(List<SavedImage> images){
         if(images != null){
             if(mSavedImageListAdapter == null){
-                mSavedImageListAdapter = new SavedImageListAdapter(images, new BaseFooterAdapter.OnItemClickListener<SavedImage>() {
+                mSavedImageListAdapter = new SavedImageListAdapter(images, new BaseHeaderFooterAdapter.OnItemClickListener<SavedImage>() {
                     @Override
-                    public void onItemClick(RecyclerView.ViewHolder holder, SavedImage item) {
-                        mSavedImageListAdapter.toggle(holder.getLayoutPosition());
+                    public void onItemClick(RecyclerView.ViewHolder holder, int pos,  SavedImage item) {
+                        mSavedImageListAdapter.toggle(pos);
                         mImageSelectionViewer.update();
                     }
 
                     @Override
-                    public boolean onItemLongClick(RecyclerView.ViewHolder holder, SavedImage item) {
+                    public boolean onItemLongClick(RecyclerView.ViewHolder holder, int pos, SavedImage item) {
                         addFragment(ImageDetailViewFragment.class
                                 , ImageDetailViewFragment.makeBundle(MainActivity.this, item), android.R.id.content, true);
                         return true;
                     }
                 });
+                mSavedImageListAdapter.setShowHeader(false);
+                mSavedImageListAdapter.setShowFooter(false);
             }else{
                 mSavedImageListAdapter.setData(images);
             }
@@ -138,14 +132,14 @@ public class MainActivity extends BaseActivity implements ImageSelectionViewer.I
     private void onLoadRetrievedImages(List<CachedGoogleImage> images){
         if(images != null){
             if(mRetrievedImageListAdapter == null){
-                mRetrievedImageListAdapter = new RetrievedImageListAdapter(images, new BaseFooterAdapter.OnItemClickListener<CachedGoogleImage>() {
+                mRetrievedImageListAdapter = new RetrievedImageListAdapter(images, new BaseHeaderFooterAdapter.OnItemClickListener<CachedGoogleImage>() {
                     @Override
-                    public void onItemClick(RecyclerView.ViewHolder holder, CachedGoogleImage item) {
-                        startActivity(RetrievedImageActivity.makeIntent(MainActivity.this, item));
+                    public void onItemClick(RecyclerView.ViewHolder holder, int pos, CachedGoogleImage item) {
+                        startActivity(SearchActivity.makeIntent(MainActivity.this, item.getKeyword()));
                     }
 
                     @Override
-                    public boolean onItemLongClick(RecyclerView.ViewHolder holder, CachedGoogleImage item) {
+                    public boolean onItemLongClick(RecyclerView.ViewHolder holder, int pos, CachedGoogleImage item) {
                         Toast.makeText(MainActivity.this
                                 , CommonUtils.getDate(MainActivity.this, "yyyy-MM-dd hh:mm", item.getUpdateDate())
                                 , Toast.LENGTH_SHORT).show();
@@ -166,23 +160,23 @@ public class MainActivity extends BaseActivity implements ImageSelectionViewer.I
         }
     }
 
-    private void onLoadLikeImages(List<SavedImage> images){
+    private void onLoadLikeImages(List<CachedGoogleImage> images){
         if(images != null){
             if(mLikeImageListAdapter == null){
-                mLikeImageListAdapter = new SavedImageListAdapter(images, new BaseFooterAdapter.OnItemClickListener<SavedImage>() {
+                mLikeImageListAdapter = new RetrievedImageListAdapter(images, new BaseHeaderFooterAdapter.OnItemClickListener<CachedGoogleImage>() {
                     @Override
-                    public void onItemClick(RecyclerView.ViewHolder holder, SavedImage item) {
-                        mLikeImageListAdapter.toggle(holder.getLayoutPosition());
+                    public void onItemClick(RecyclerView.ViewHolder holder, int pos, CachedGoogleImage item) {
+                        mLikeImageListAdapter.toggle(pos);
                         mImageSelectionViewer.update();
                     }
 
                     @Override
-                    public boolean onItemLongClick(RecyclerView.ViewHolder holder, SavedImage item) {
+                    public boolean onItemLongClick(RecyclerView.ViewHolder holder, int pos, CachedGoogleImage item) {
                         addFragment(ImageDetailViewFragment.class
                                 , ImageDetailViewFragment.makeBundle(MainActivity.this, item), android.R.id.content, true);
                         return true;
                     }
-                });
+                }, false);
             }else{
                 mLikeImageListAdapter.setData(images);
             }
@@ -213,15 +207,13 @@ public class MainActivity extends BaseActivity implements ImageSelectionViewer.I
                             .distinct(CachedGoogleImage::getKeyword)
                             .take(RETREIVED_IMAGE_ITEM_COUNT)
                             .toList().blockingGet());
-                });
 
-        mLikeImageDisposable = ImageDB.getInstance().getLikeImageObservable()
-                .subscribe(likeImages -> {
-                    onLoadLikeImages(Observable.fromIterable(likeImages)
-                            .map(image -> ImageDB.getInstance().findSavedImage(image.getImageUrl()))
+                    onLoadLikeImages(Observable.fromIterable(savedImages)
+                            .filter(image -> image.isLike())
 //                            .take(LIKE_IMAGE_ITEM_COUNT)
                             .toList().blockingGet());
                 });
+
 
         mAdUtil = new AdUtil(this, Observable.fromIterable(ImageDB.getInstance().getCachedImages())
                 .distinct(CachedGoogleImage::getKeyword)
@@ -277,20 +269,6 @@ public class MainActivity extends BaseActivity implements ImageSelectionViewer.I
 
         ImageDB.getInstance().publishSavedImage();
         ImageDB.getInstance().publishCachedImage();
-        ImageDB.getInstance().publishLikeImage();
-    }
-
-    private void findImageFailure(Throwable t){
-        if(LL.D) Log.d(TAG, "findImageFailure() called with: t = [" + t + "]");
-        Log.e(TAG, "findImageFailure: ", t);
-        mProgress.setVisibility(View.GONE);
-
-    }
-
-    private void setGoogleImageData(String q, List<GoogleImage> images){
-        mProgress.setVisibility(View.GONE);
-        Intent intent = SearchResultActivity.makeIntent(this, q, new ArrayList<>(images));
-        startActivity(intent);
     }
 
     private void initSearchView(SearchView searchView){
@@ -300,16 +278,23 @@ public class MainActivity extends BaseActivity implements ImageSelectionViewer.I
         SearchView.OnQueryTextListener queryTextListener = new SearchView.OnQueryTextListener() {
 
             public boolean onQueryTextChange(String newText) {
-
+                //TODO : total search.
+                List<CachedGoogleImage> cachedGoogleImages = ImageDB.getInstance().findCachedImages(newText);
+                onLoadRetrievedImages(Observable.fromIterable(cachedGoogleImages)
+                        .distinct(CachedGoogleImage::getKeyword)
+                        .toList().blockingGet());
+                onLoadLikeImages(Observable
+                        .fromIterable(cachedGoogleImages)
+                        .filter(CachedGoogleImage::isLike)
+                        .toList().blockingGet());
+                onLoadStoreImages(ImageDB.getInstance().findSavedImages(newText));
                 return true;
             }
 
             public boolean onQueryTextSubmit(String query) {
+                //TODO : total search.
                 mInputManager.hideSoftInputFromWindow(mSearchView.getFocusedChild().getWindowToken(), 0);
-                mProgress.setVisibility(View.VISIBLE);
-                DataManager.getInstance(MainActivity.this).findImage(query)
-                        .subscribe(googleImages -> setGoogleImageData(query, googleImages)
-                                ,throwable -> findImageFailure(throwable));
+                startActivity(SearchActivity.makeIntent(MainActivity.this, query));
                 return true;
             }
         };

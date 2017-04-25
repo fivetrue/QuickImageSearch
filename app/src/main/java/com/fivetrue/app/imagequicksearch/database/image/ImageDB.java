@@ -1,11 +1,10 @@
 package com.fivetrue.app.imagequicksearch.database.image;
 
 import android.content.Context;
+import android.text.TextUtils;
 
 import com.fivetrue.app.imagequicksearch.database.RealmDB;
 import com.fivetrue.app.imagequicksearch.model.image.CachedGoogleImage;
-import com.fivetrue.app.imagequicksearch.model.image.GoogleImage;
-import com.fivetrue.app.imagequicksearch.model.image.LikeImage;
 import com.fivetrue.app.imagequicksearch.model.image.SavedImage;
 import com.fivetrue.app.imagequicksearch.utils.TrackingUtil;
 
@@ -31,7 +30,6 @@ public class ImageDB extends RealmDB implements RealmChangeListener<Realm>{
 
     private PublishSubject<List<SavedImage>> mSavedImagePublishSubject = PublishSubject.create();
     private PublishSubject<List<CachedGoogleImage>> mCachedImagePublishSubject = PublishSubject.create();
-    private PublishSubject<List<LikeImage>> mLikeImagePublishSubject = PublishSubject.create();
 
     private static ImageDB sInstance;
 
@@ -45,39 +43,41 @@ public class ImageDB extends RealmDB implements RealmChangeListener<Realm>{
 
     private ImageDB(Context context){
         mContext = context;
-        Observable.fromIterable(get().where(CachedGoogleImage.class).findAll())
-                .filter(image -> image.getUpdateDate() + CACHE_PERIOD_TIME < System.currentTimeMillis())
-                .toList().subscribe(cachedGoogleImages -> {
-
-        }, throwable -> TrackingUtil.getInstance().report(throwable));
-
+//        Observable.fromIterable(get().where(CachedGoogleImage.class).findAll())
+//                .filter(image -> image.getUpdateDate() + CACHE_PERIOD_TIME < System.currentTimeMillis())
+//                .toList().subscribe(cachedGoogleImages -> {
+//
+//        }, throwable -> TrackingUtil.getInstance().report(throwable));
         get().addChangeListener(this);
 
     }
 
-    public List<CachedGoogleImage> findCachedImages(String key, String value){
-        return get().where(CachedGoogleImage.class).equalTo(key, value).findAll();
+    public List<CachedGoogleImage> findCachedImagesByKeyword(String value, Sort sort){
+        return get().where(CachedGoogleImage.class).equalTo("keyword", value).findAllSorted("updateDate", sort);
     }
 
-    public List<CachedGoogleImage> containImages(String key, String value){
-        return get().where(CachedGoogleImage.class).contains(key, value).findAll();
+    public List<CachedGoogleImage> findCachedImages(String q){
+        if(TextUtils.isEmpty(q)){
+            return getCachedImages();
+        }else{
+            return get().where(CachedGoogleImage.class)
+                    .contains("siteUrl", q).or()
+                    .contains("siteTitle", q).or()
+                    .contains("pageUrl", q).or()
+                    .contains("pageTitle", q).or()
+                    .contains("pageText", q).or()
+                    .contains("keyword", q).or()
+                    .findAll();
+        }
     }
 
     public void insertGoogleImage(CachedGoogleImage image){
         get().executeTransaction(realm -> get().insert(image));
     }
 
-    public void insertGoogleImage(List<CachedGoogleImage> image){
-        get().executeTransaction(realm -> get().insert(image));
-    }
 
     public void insertSavedImage(SavedImage image){
         get().executeTransaction(realm -> get().insert(image));
-    }
-
-    public void insertSavedImage(List<SavedImage> images){
-        get().executeTransaction(realm -> get().insert(images));
-
     }
 
     public CachedGoogleImage findCachedImage(String imageUrl){
@@ -89,7 +89,7 @@ public class ImageDB extends RealmDB implements RealmChangeListener<Realm>{
     }
 
     public List<CachedGoogleImage> getCachedImages(String keyword){
-        return get().where(CachedGoogleImage.class).equalTo("keyword", keyword).findAllSorted("updateDate", Sort.DESCENDING);
+        return get().where(CachedGoogleImage.class).equalTo("keyword", keyword).findAll();
     }
 
     public void deleteCachedImages(CachedGoogleImage image){
@@ -112,31 +112,28 @@ public class ImageDB extends RealmDB implements RealmChangeListener<Realm>{
         return get().where(SavedImage.class).equalTo("imageUrl", imageUrl).findFirst();
     }
 
+    public List<SavedImage> findSavedImages(String q){
+        if(TextUtils.isEmpty(q)){
+            return getSavedImages();
+        }else{
+            return get().where(SavedImage.class)
+                    .contains("siteUrl", q)
+                    .or()
+                    .contains("siteTitle", q)
+                    .or()
+                    .contains("pageUrl", q)
+                    .or()
+                    .contains("pageTitle", q)
+                    .or()
+                    .contains("keyword", q)
+                    .or()
+                    .findAll();
+        }
+    }
+
     public void deleteSavedImages(List<SavedImage> images){
         get().executeTransaction(realm -> {
             for(SavedImage image : images){
-                image.deleteFromRealm();
-            }
-        });
-    }
-
-    public List<LikeImage> getLikeImages(){
-        return get().where(LikeImage.class).findAllSorted("updateDate", Sort.DESCENDING);
-    }
-
-    public void insertLikeImage(LikeImage image){
-        get().executeTransaction(realm -> get().insert(image));
-    }
-
-    public LikeImage findLikeImage(String url){
-        return get().where(LikeImage.class).equalTo("imageUrl", url).findFirst();
-
-    }
-
-    public void deleteLikeImage(String url){
-        get().executeTransaction(realm -> {
-            LikeImage image = get().where(LikeImage.class).equalTo("imageUrl", url).findFirst();
-            if(image != null){
                 image.deleteFromRealm();
             }
         });
@@ -146,7 +143,6 @@ public class ImageDB extends RealmDB implements RealmChangeListener<Realm>{
     public void onChange(Realm element) {
         publishSavedImage();
         publishCachedImage();
-        publishLikeImage();
     }
 
     public Observable<List<SavedImage>> getSavedImageObservable(){
@@ -155,10 +151,6 @@ public class ImageDB extends RealmDB implements RealmChangeListener<Realm>{
 
     public Observable<List<CachedGoogleImage>> getCachedImageObservable(){
         return mCachedImagePublishSubject;
-    }
-
-    public Observable<List<LikeImage>> getLikeImageObservable(){
-        return mLikeImagePublishSubject;
     }
 
     public void publishSavedImage(){
@@ -171,8 +163,4 @@ public class ImageDB extends RealmDB implements RealmChangeListener<Realm>{
         mCachedImagePublishSubject.publish();
     }
 
-    public void publishLikeImage(){
-        mLikeImagePublishSubject.onNext(getLikeImages());
-        mLikeImagePublishSubject.publish();
-    }
 }

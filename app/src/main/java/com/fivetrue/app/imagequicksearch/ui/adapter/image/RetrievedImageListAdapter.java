@@ -5,7 +5,8 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
 import com.fivetrue.app.imagequicksearch.model.image.CachedGoogleImage;
-import com.fivetrue.app.imagequicksearch.ui.adapter.BaseFooterAdapter;
+import com.fivetrue.app.imagequicksearch.ui.adapter.BaseHeaderFooterAdapter;
+import com.fivetrue.app.imagequicksearch.ui.adapter.BaseRecyclerAdapter;
 import com.fivetrue.app.imagequicksearch.ui.adapter.holder.FooterHolder;
 import com.fivetrue.app.imagequicksearch.ui.adapter.holder.RetrievedImageHolder;
 
@@ -15,7 +16,7 @@ import java.util.List;
  * Created by kwonojin on 2017. 4. 19..
  */
 
-public class RetrievedImageListAdapter extends BaseFooterAdapter<CachedGoogleImage> {
+public class RetrievedImageListAdapter extends BaseRecyclerAdapter<CachedGoogleImage> {
 
     private static final String TAG = "RetrievedImageListAdapter";
 
@@ -29,11 +30,6 @@ public class RetrievedImageListAdapter extends BaseFooterAdapter<CachedGoogleIma
     }
 
     @Override
-    protected RecyclerView.ViewHolder onCreateFooterHolder(Context context, int viewType) {
-        return FooterHolder.makeHolder(context);
-    }
-
-    @Override
     protected RecyclerView.ViewHolder onCreateHolder(Context context, int viewType) {
         return RetrievedImageHolder.makeHolder(context);
     }
@@ -41,10 +37,11 @@ public class RetrievedImageListAdapter extends BaseFooterAdapter<CachedGoogleIma
     @Override
     protected void onBindHolder(RecyclerView.ViewHolder holder, int position) {
         CachedGoogleImage item = getItem(position);
+
         RetrievedImageHolder imageItemHolder = (RetrievedImageHolder)holder;
         imageItemHolder.setImage(item);
-        imageItemHolder.layout.setOnClickListener(view -> onClickItem(imageItemHolder, item));
-        imageItemHolder.layout.setOnLongClickListener(view -> onLongClickItem(imageItemHolder, item));
+        imageItemHolder.layout.setOnClickListener(view -> onClickItem(imageItemHolder, position, item));
+        imageItemHolder.layout.setOnLongClickListener(view -> onLongClickItem(imageItemHolder, position, item));
 
         imageItemHolder.text.setVisibility(mShowText ? View.VISIBLE : View.GONE);
         if(isSelect(position)){
@@ -62,5 +59,15 @@ public class RetrievedImageListAdapter extends BaseFooterAdapter<CachedGoogleIma
                     .start();
             imageItemHolder.check.setVisibility(View.GONE);
         }
+    }
+
+    @Override
+    protected boolean isShowingFooter() {
+        return false;
+    }
+
+    @Override
+    protected boolean isShowingHeader() {
+        return false;
     }
 }

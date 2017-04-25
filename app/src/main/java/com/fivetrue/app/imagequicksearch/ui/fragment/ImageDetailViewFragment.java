@@ -2,6 +2,8 @@ package com.fivetrue.app.imagequicksearch.ui.fragment;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -14,14 +16,13 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.animation.GlideAnimation;
+import com.bumptech.glide.request.target.SimpleTarget;
 import com.fivetrue.app.imagequicksearch.R;
 import com.fivetrue.app.imagequicksearch.database.image.ImageDB;
 import com.fivetrue.app.imagequicksearch.model.image.CachedGoogleImage;
 import com.fivetrue.app.imagequicksearch.model.image.GoogleImage;
-import com.fivetrue.app.imagequicksearch.model.image.LikeImage;
 import com.fivetrue.app.imagequicksearch.model.image.SavedImage;
-import com.fivetrue.app.imagequicksearch.utils.ImageStoreUtil;
-import com.fivetrue.app.imagequicksearch.utils.TrackingUtil;
 
 /**
  * Created by kwonojin on 2017. 4. 25..
@@ -31,7 +32,6 @@ public class ImageDetailViewFragment extends BaseFragment {
 
     private static final String TAG = "ImageDetailViewFragment";
 
-    private static final String KEY_THUMBNAIL_URL = "thumbnail";
     private static final String KEY_IMAGE_URL = "imageUrl";
     private static final String KEY_FILE_PATH = "filePath";
     private static final String KEY_SITE = "site";
@@ -39,6 +39,7 @@ public class ImageDetailViewFragment extends BaseFragment {
     private static final String KEY_PAGE = "page";
     private static final String KEY_PAGE_URL = "pageUrl";
 
+    private View mLayout;
     private ImageView mImage;
     private TextView mSite;
     private TextView mSiteUrl;
@@ -61,17 +62,14 @@ public class ImageDetailViewFragment extends BaseFragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        mLayout = view.findViewById(R.id.layout_fragment_image_detail);
         mImage = (ImageView) view.findViewById(R.id.iv_fragment_image_detail);
         mSite = (TextView) view.findViewById(R.id.tv_fragment_image_detail_site);
         mSiteUrl = (TextView) view.findViewById(R.id.tv_fragment_image_detail_site_url);
         mPage = (TextView) view.findViewById(R.id.tv_fragment_image_detail_page);
         mPageUrl = (TextView) view.findViewById(R.id.tv_fragment_image_detail_page_url);
         mLike = (ImageView) view.findViewById(R.id.iv_fragment_image_detail_like);
-        String thumb = getArguments().getString(KEY_THUMBNAIL_URL);
-        if(thumb != null){
-            Glide.with(getActivity()).load(thumb).dontAnimate().into(mImage);
-        }
-        view.setOnClickListener(null);
+        view.setOnClickListener(view1 -> getFragmentManager().popBackStackImmediate());
     }
 
     @Override
@@ -80,11 +78,22 @@ public class ImageDetailViewFragment extends BaseFragment {
 
         String imageUrl = getArguments().getString(KEY_IMAGE_URL);
         String filePath = getArguments().getString(KEY_FILE_PATH);
-
         Glide.with(getActivity())
                 .load(!TextUtils.isEmpty(filePath) ? filePath : imageUrl)
-                .placeholder(mImage.getDrawable())
-                .into(mImage);
+                .asBitmap().into(new SimpleTarget<Bitmap>() {
+            @Override
+            public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
+                mImage.setImageBitmap(resource);
+                mLayout.setVisibility(View.VISIBLE);
+                mLayout.animate().alphaBy(0).alpha(1).setDuration(500L).start();
+            }
+
+            @Override
+            public void onLoadFailed(Exception e, Drawable errorDrawable) {
+                super.onLoadFailed(e, errorDrawable);
+                getFragmentManager().popBackStackImmediate();
+            }
+        });
         mSite.setText(getArguments().getString(KEY_SITE));
         mSiteUrl.setText(getArguments().getString(KEY_SITE_URL));
         mPage.setText(getArguments().getString(KEY_PAGE));
@@ -97,44 +106,25 @@ public class ImageDetailViewFragment extends BaseFragment {
 
         mLike.setOnClickListener(view -> {
             if(view.isSelected()){
-                ImageDB.getInstance().deleteLikeImage(imageUrl);
-                updateLike();
-            }else{
-                SavedImage savedImage = ImageDB.getInstance().findSavedImage(imageUrl);
-                if(savedImage != null){
-                    LikeImage likeImage = new LikeImage();
-                    likeImage.setImageUrl(savedImage.getImageUrl());
-                    likeImage.setUpdateDate(System.currentTimeMillis());
-                    ImageDB.getInstance().insertLikeImage(likeImage);
+                CachedGoogleImage image = ImageDB.getInstance().findCachedImage(imageUrl);
+                ImageDB.get().executeTransaction(realm -> {
+                    image.setLike(false);
                     updateLike();
-                }else{
-                    if(getActivity() != null){
-                        CachedGoogleImage googleImage = ImageDB.getInstance().findCachedImage(imageUrl);
-                        ImageStoreUtil.getInstance(getActivity())
-                                .saveNetworkImage(new GoogleImage(googleImage), googleImage.getKeyword())
-                                .subscribe(file -> {
-                                    LikeImage likeImage = new LikeImage();
-                                    likeImage.setImageUrl(imageUrl);
-                                    likeImage.setUpdateDate(System.currentTimeMillis());
-                                    ImageDB.getInstance().insertLikeImage(likeImage);
-                                    updateLike();
-                                }, throwable -> {
-                                    TrackingUtil.getInstance().report(throwable);
-                                    if(getActivity() != null){
-                                        Toast.makeText(getActivity(), R.string.save_image_failure_message, Toast.LENGTH_SHORT).show();
-                                    }
-                                    updateLike();
-                                });
-                    }
-                }
+                });
+            }else{
+                CachedGoogleImage image = ImageDB.getInstance().findCachedImage(imageUrl);
+                ImageDB.get().executeTransaction(realm -> {
+                    image.setLike(true);
+                    updateLike();
+                });
             }
         });
     }
 
     private void updateLike(){
         if(mLike != null){
-            LikeImage image = ImageDB.getInstance().findLikeImage(getArguments().getString(KEY_IMAGE_URL));
-            mLike.setSelected(image != null);
+            CachedGoogleImage image = ImageDB.getInstance().findCachedImage(getArguments().getString(KEY_IMAGE_URL));
+            mLike.setSelected(image != null && image.isLike());
         }
     }
 
@@ -158,7 +148,6 @@ public class ImageDetailViewFragment extends BaseFragment {
 
     public static Bundle makeBundle(Context context, GoogleImage image){
         Bundle bundle = new Bundle();
-        bundle.putString(KEY_THUMBNAIL_URL, image.getThumbnailUrl());
         bundle.putString(KEY_IMAGE_URL, image.getOriginalImageUrl());
         bundle.putString(KEY_SITE, image.getSiteTitle());
         bundle.putString(KEY_SITE_URL, image.getSiteUrl());
@@ -169,7 +158,6 @@ public class ImageDetailViewFragment extends BaseFragment {
 
     public static Bundle makeBundle(Context context, CachedGoogleImage image){
         Bundle bundle = new Bundle();
-        bundle.putString(KEY_THUMBNAIL_URL, image.getThumbnailUrl());
         bundle.putString(KEY_IMAGE_URL, image.getImageUrl());
         bundle.putString(KEY_SITE, image.getSiteTitle());
         bundle.putString(KEY_SITE_URL, image.getSiteUrl());

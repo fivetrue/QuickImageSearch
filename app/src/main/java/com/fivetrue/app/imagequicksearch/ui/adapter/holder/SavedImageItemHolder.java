@@ -6,9 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
 
-import com.bumptech.glide.Glide;
 import com.fivetrue.app.imagequicksearch.R;
-import com.fivetrue.app.imagequicksearch.model.image.GoogleImage;
 
 /**
  * Created by kwonojin on 2017. 4. 19..
@@ -29,9 +27,5 @@ public class SavedImageItemHolder extends RecyclerView.ViewHolder {
 
     public static SavedImageItemHolder makeHolder(Context context){
         return new SavedImageItemHolder(LayoutInflater.from(context).inflate(R.layout.item_saved_image_list, null));
-    }
-
-    public void setImage(GoogleImage image){
-        Glide.with(this.image.getContext()).load(image.getThumbnailUrl()).placeholder(R.drawable.ic_default_thumbnail_50dp).into(this.image);
     }
 }

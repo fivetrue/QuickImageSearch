@@ -24,6 +24,7 @@ import io.reactivex.Observable;
 import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
+import io.realm.Sort;
 
 /**
  * Created by kwonojin on 2017. 2. 23..
@@ -32,8 +33,6 @@ import io.reactivex.schedulers.Schedulers;
 public class DataManager {
 
     private static final String TAG = "DataManager";
-
-    private static final Map<String, Observable> sObservableMap = new HashMap<>();
 
     private Context mContext;
 
@@ -59,7 +58,7 @@ public class DataManager {
 
     public Observable<List<GoogleImage>> findImage(String q) {
         TrackingUtil.getInstance().findImage(q);
-        List<CachedGoogleImage> cachedImages = ImageDB.getInstance().findCachedImages("keyword", q);
+        List<CachedGoogleImage> cachedImages = ImageDB.getInstance().findCachedImagesByKeyword(q, Sort.ASCENDING);
         if(cachedImages != null && cachedImages.size() > 0){
             return Observable.fromIterable(cachedImages)
                     .map(image-> new GoogleImage(image))

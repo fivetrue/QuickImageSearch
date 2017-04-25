@@ -34,6 +34,8 @@ public class CachedGoogleImage extends RealmObject {
 
     private String keyword;
 
+    private boolean isLike;
+
     public int getCr() {
         return cr;
     }
@@ -168,5 +170,13 @@ public class CachedGoogleImage extends RealmObject {
 
     public void setUpdateDate(long updateDate) {
         this.updateDate = updateDate;
+    }
+
+    public boolean isLike() {
+        return isLike;
+    }
+
+    public void setLike(boolean like) {
+        isLike = like;
     }
 }

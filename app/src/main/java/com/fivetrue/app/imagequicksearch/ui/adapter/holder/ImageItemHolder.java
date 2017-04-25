@@ -32,6 +32,6 @@ public class ImageItemHolder extends RecyclerView.ViewHolder {
     }
 
     public void setImage(GoogleImage image){
-        Glide.with(this.image.getContext()).load(image.getThumbnailUrl()).placeholder(R.drawable.ic_default_thumbnail_50dp).into(this.image);
+        Glide.with(this.image.getContext()).load(image.getThumbnailUrl()).into(this.image);
     }
 }

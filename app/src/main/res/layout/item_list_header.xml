@@ -5,15 +5,9 @@
 
     <FrameLayout
         android:id="@+id/layout_item_list_footer"
-        android:minHeight="100dp"
+        android:minHeight="70dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
-
-        <ProgressBar
-            android:id="@+id/pb_footer"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"/>
 
     </FrameLayout>
 

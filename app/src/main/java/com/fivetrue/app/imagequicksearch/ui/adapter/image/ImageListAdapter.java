@@ -3,11 +3,10 @@ package com.fivetrue.app.imagequicksearch.ui.adapter.image;
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
-import android.view.ViewGroup;
 
 import com.fivetrue.app.imagequicksearch.model.image.GoogleImage;
-import com.fivetrue.app.imagequicksearch.ui.adapter.BaseAdapterImpl;
-import com.fivetrue.app.imagequicksearch.ui.adapter.BaseFooterAdapter;
+import com.fivetrue.app.imagequicksearch.ui.adapter.BaseHeaderFooterAdapter;
+import com.fivetrue.app.imagequicksearch.ui.adapter.BaseRecyclerAdapter;
 import com.fivetrue.app.imagequicksearch.ui.adapter.holder.FooterHolder;
 import com.fivetrue.app.imagequicksearch.ui.adapter.holder.ImageItemHolder;
 
@@ -17,7 +16,7 @@ import java.util.List;
  * Created by kwonojin on 2017. 4. 19..
  */
 
-public class ImageListAdapter extends BaseFooterAdapter<GoogleImage> {
+public class ImageListAdapter extends BaseRecyclerAdapter<GoogleImage> {
 
     private static final String TAG = "ImageListAdapter";
 
@@ -25,11 +24,6 @@ public class ImageListAdapter extends BaseFooterAdapter<GoogleImage> {
     public ImageListAdapter(List<GoogleImage> data, OnItemClickListener<GoogleImage> ll){
         super(data);
         setOnItemClickListener(ll);
-    }
-
-    @Override
-    protected RecyclerView.ViewHolder onCreateFooterHolder(Context context, int viewType) {
-        return FooterHolder.makeHolder(context);
     }
 
     @Override
@@ -42,8 +36,8 @@ public class ImageListAdapter extends BaseFooterAdapter<GoogleImage> {
         GoogleImage item = getItem(position);
         ImageItemHolder imageItemHolder = (ImageItemHolder)holder;
         imageItemHolder.setImage(item);
-        imageItemHolder.layout.setOnClickListener(view -> onClickItem(imageItemHolder, item));
-        imageItemHolder.layout.setOnLongClickListener(view -> onLongClickItem(imageItemHolder, item));
+        imageItemHolder.layout.setOnClickListener(view -> onClickItem(imageItemHolder, position, item));
+        imageItemHolder.layout.setOnLongClickListener(view -> onLongClickItem(imageItemHolder, position, item));
 
         if(isSelect(position)){
             imageItemHolder.layout.animate()
