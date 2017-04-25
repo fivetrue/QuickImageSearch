@@ -17,7 +17,7 @@ import java.util.List;
 
 public class RetrievedImageListAdapter extends BaseFooterAdapter<CachedGoogleImage> {
 
-    private static final String TAG = "ImageListAdapter";
+    private static final String TAG = "RetrievedImageListAdapter";
 
     private boolean mShowText;
 
@@ -62,10 +62,5 @@ public class RetrievedImageListAdapter extends BaseFooterAdapter<CachedGoogleIma
                     .start();
             imageItemHolder.check.setVisibility(View.GONE);
         }
-    }
-
-    @Override
-    protected boolean showFooter() {
-        return false;
     }
 }

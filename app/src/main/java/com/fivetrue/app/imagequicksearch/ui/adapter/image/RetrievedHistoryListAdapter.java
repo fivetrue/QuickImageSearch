@@ -68,9 +68,4 @@ public class RetrievedHistoryListAdapter extends BaseFooterAdapter<CachedGoogleI
             }
         }
     }
-
-    @Override
-    protected boolean showFooter() {
-        return false;
-    }
 }

@@ -21,31 +21,11 @@
             app:popupTheme="@style/AppTheme.PopupOverlay"/>
     </android.support.design.widget.AppBarLayout>
 
-    <android.support.v4.widget.NestedScrollView
-        android:id="@+id/sv_base_image_list"
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/rv_base_image_list"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:fitsSystemWindows="true">
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="?attr/actionBarSize" />
-
-            <android.support.v7.widget.RecyclerView
-                android:id="@+id/rv_base_image_list"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:nestedScrollingEnabled="false"/>
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="70dp"/>
-        </LinearLayout>
-
-    </android.support.v4.widget.NestedScrollView>
+        android:layout_height="match_parent"/>
 
     <com.fivetrue.app.imagequicksearch.ui.ImageSelectionViewer
         android:id="@+id/layout_base_image_list_selection"

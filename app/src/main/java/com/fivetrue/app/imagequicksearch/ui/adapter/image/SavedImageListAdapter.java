@@ -63,9 +63,4 @@ public class SavedImageListAdapter extends BaseFooterAdapter<SavedImage> {
             imageItemHolder.check.setVisibility(View.GONE);
         }
     }
-
-    @Override
-    protected boolean showFooter() {
-        return false;
-    }
 }

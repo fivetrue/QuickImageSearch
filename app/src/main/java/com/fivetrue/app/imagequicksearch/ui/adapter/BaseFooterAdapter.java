@@ -67,10 +67,8 @@ public abstract class BaseFooterAdapter<V> extends RecyclerView.Adapter<Recycler
 
     @Override
     public int getItemViewType(int position) {
-        if(showFooter()){
-            if(mData.size() == position){
-                return FOOTER;
-            }
+        if(mData.size() == position){
+            return FOOTER;
         }
         return super.getItemViewType(position);
     }
@@ -85,20 +83,16 @@ public abstract class BaseFooterAdapter<V> extends RecyclerView.Adapter<Recycler
 
     @Override
     public int getItemCount() {
-        if(showFooter()){
-            if (mData == null) {
-                return 0;
-            }
-
-            if (mData.size() == 0) {
-                //Return 1 here to show nothing
-                return 1;
-            }
-
-            return mData.size() + 1;
-        }else{
-            return mData.size();
+        if (mData == null) {
+            return 0;
         }
+
+        if (mData.size() == 0) {
+            //Return 1 here to show nothing
+            return 1;
+        }
+
+        return mData.size() + 1;
     }
 
     @Override
@@ -189,9 +183,5 @@ public abstract class BaseFooterAdapter<V> extends RecyclerView.Adapter<Recycler
             return mOnItemClickListener.onItemLongClick(holder, item);
         }
         return false;
-    }
-
-    protected boolean showFooter(){
-        return true;
     }
 }

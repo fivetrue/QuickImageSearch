@@ -2,14 +2,14 @@ package com.fivetrue.app.imagequicksearch.ui;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.widget.NestedScrollView;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.MenuItem;
-import android.view.View;
 
+import com.fivetrue.app.imagequicksearch.LL;
 import com.fivetrue.app.imagequicksearch.R;
 import com.fivetrue.app.imagequicksearch.model.image.GoogleImage;
 import com.fivetrue.app.imagequicksearch.ui.adapter.BaseFooterAdapter;
@@ -26,7 +26,6 @@ public abstract class BaseImageListActivity <T> extends BaseActivity implements 
 
     private static final String TAG = "BaseImageListActivity";
 
-    private NestedScrollView mScrollView;
     private RecyclerView mRecyclerView;
 
     private BaseFooterAdapter<T> mImageAdapter;
@@ -50,7 +49,6 @@ public abstract class BaseImageListActivity <T> extends BaseActivity implements 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         updateActionBarTitle();
 
-        mScrollView = (NestedScrollView) findViewById(R.id.sv_base_image_list);
         mRecyclerView = (RecyclerView) findViewById(R.id.rv_base_image_list);
 
         mImageSelectionViewer = (ImageSelectionViewer) findViewById(R.id.layout_base_image_list_selection);
@@ -63,13 +61,26 @@ public abstract class BaseImageListActivity <T> extends BaseActivity implements 
             }
         });
 
-        mScrollView.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
-            @Override
-            public void onLayoutChange(View view, int i, int i1, int i2, int i3, int i4, int i5, int i6, int i7) {
-                mScrollView.smoothScrollTo(0, 0);
-                mScrollView.removeOnLayoutChangeListener(this);
-            }
-        });
+//        mScrollView.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+//            @Override
+//            public void onLayoutChange(View view, int i, int i1, int i2, int i3, int i4, int i5, int i6, int i7) {
+//                mScrollView.smoothScrollTo(0, 0);
+//                mScrollView.removeOnLayoutChangeListener(this);
+//            }
+//        });
+//
+//        mScrollView.setOnScrollChangeListener(new NestedScrollView.OnScrollChangeListener() {
+//            @Override
+//            public void onScrollChange(NestedScrollView v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
+//                View childView = v.getChildAt(v.getChildCount() - 1);
+//                int diff = (childView.getBottom() - (v.getHeight() + v.getScrollY()));
+//                // if diff is zero, then the bottom has been reached
+//                if (diff <= 10) {
+//                    // do stuff
+//                    onScrollToBottom();
+//                }
+//            }
+//        });
     }
 
     protected void updateActionBarTitle(){
@@ -100,6 +111,13 @@ public abstract class BaseImageListActivity <T> extends BaseActivity implements 
             }else{
                 mImageAdapter.setData(data);
             }
+        }
+    }
+
+    public void addData(List<T> data){
+        if(data != null && mImageAdapter != null){
+            mImageAdapter.getData().addAll(data);
+            mImageAdapter.notifyDataSetChanged();
         }
     }
 
@@ -157,5 +175,9 @@ public abstract class BaseImageListActivity <T> extends BaseActivity implements 
 
     public ImageSelectionViewer getSelectionViewer(){
         return mImageSelectionViewer;
+    }
+
+    protected void onScrollToBottom(){
+        if(LL.D) Log.d(TAG, "onScrollToBottom() called");
     }
 }

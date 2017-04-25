@@ -17,7 +17,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
@@ -26,7 +25,6 @@ import com.fivetrue.app.imagequicksearch.R;
 import com.fivetrue.app.imagequicksearch.database.image.ImageDB;
 import com.fivetrue.app.imagequicksearch.model.image.CachedGoogleImage;
 import com.fivetrue.app.imagequicksearch.model.image.GoogleImage;
-import com.fivetrue.app.imagequicksearch.model.image.LikeImage;
 import com.fivetrue.app.imagequicksearch.model.image.SavedImage;
 import com.fivetrue.app.imagequicksearch.ui.adapter.BaseFooterAdapter;
 import com.fivetrue.app.imagequicksearch.ui.adapter.image.RetrievedImageListAdapter;

@@ -6,7 +6,6 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.util.Log;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.widget.Toast;
 
 import com.fivetrue.app.imagequicksearch.LL;
@@ -15,6 +14,7 @@ import com.fivetrue.app.imagequicksearch.model.image.GoogleImage;
 import com.fivetrue.app.imagequicksearch.ui.adapter.BaseFooterAdapter;
 import com.fivetrue.app.imagequicksearch.ui.adapter.image.ImageListAdapter;
 import com.fivetrue.app.imagequicksearch.ui.fragment.ImageDetailViewFragment;
+import com.fivetrue.app.imagequicksearch.utils.DataManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +30,8 @@ public class SearchResultActivity extends BaseImageListActivity<GoogleImage>{
 
     private static final String KEY_KEYWORD = "keyword";
     private static final String KEY_IMAGE_LIST = "image_list";
+
+    private boolean mCanLoad = true;
 
     @Override
     protected BaseFooterAdapter<GoogleImage> makeAdapter(List<GoogleImage> data, BaseFooterAdapter.OnItemClickListener<GoogleImage> ll) {
@@ -93,6 +95,28 @@ public class SearchResultActivity extends BaseImageListActivity<GoogleImage>{
     }
 
     @Override
+    public void addData(List<GoogleImage> data) {
+        super.addData(data);
+        getSupportActionBar().setTitle(getKeyword() + "(" + getAdapter().getData().size() + ")");
+    }
+
+    private void loadExtraData(){
+        if(mCanLoad){
+             DataManager.getInstance(this)
+                    .findImages(getKeyword(), getAdapter().getData().size() / 100)
+                    .subscribe(images -> {
+                        if(LL.D) Log.d(TAG, "load extra data = [" + images + "]");
+                        if(images != null && images.size() > 0){
+                            if(LL.D) Log.d(TAG, "load extra count = [" + images.size() + "]");
+                            addData(images);
+                        }else{
+                            mCanLoad = false;
+                        }
+                    });
+        }
+    }
+
+    @Override
     public void onSendFailed(GoogleImage failedImage) {
         super.onSendFailed(failedImage);
         if(getAdapter() != null && failedImage != null){
@@ -102,5 +126,11 @@ public class SearchResultActivity extends BaseImageListActivity<GoogleImage>{
             getAdapter().getData().remove(index);
             Toast.makeText(this, R.string.delete_failed_images_message, Toast.LENGTH_SHORT).show();
         }
+    }
+
+    @Override
+    protected void onScrollToBottom() {
+        super.onScrollToBottom();
+        loadExtraData();
     }
 }

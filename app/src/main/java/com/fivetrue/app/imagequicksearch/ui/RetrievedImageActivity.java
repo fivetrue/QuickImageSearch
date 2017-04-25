@@ -7,7 +7,6 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 
 import com.fivetrue.app.imagequicksearch.R;
 import com.fivetrue.app.imagequicksearch.database.image.ImageDB;
@@ -111,5 +110,4 @@ public class RetrievedImageActivity extends BaseImageListActivity<CachedGoogleIm
                 , ImageDetailViewFragment.makeBundle(this, item), android.R.id.content, true);
         return true;
     }
-
 }

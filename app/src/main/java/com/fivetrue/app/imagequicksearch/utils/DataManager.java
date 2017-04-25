@@ -66,29 +66,34 @@ public class DataManager {
                     .toList().toObservable();
 
         }else{
-            return Observable.create((ObservableOnSubscribe<List<GoogleImage>>) e -> {
-                if(LL.D) Log.d(TAG, "findImage: q = " + q);
-                try {
-                    String googleUrl = "https://www.google.co.kr/search?tbm=isch&q=" + q + "&gws_rd=cr&ei=k0PyWKPiLoOC8wXFr4uoCg";
-                    if(LL.D) Log.d(TAG, "findImage: googleUrl = " + googleUrl);
-                    Document doc = Jsoup.connect(googleUrl).timeout(10 * 1000).get();
-                    Elements elements = doc.select("div.rg_meta");
-                    Observable.fromIterable(elements)
-                            .map(element-> {
-                                String json = element.childNode(0).toString().trim();
-                                GoogleImage image = new Gson().fromJson(json, GoogleImage.class);
-                                ImageDB.getInstance().insertGoogleImage(image.parseCachedImage(q));
-                                return image;
-                            }).toList().subscribe(images -> {
-                        e.onNext(images);
-                    });
-
-                } catch (Exception e1) {
-                    Log.e(TAG, "findImage: ", e1);
-                    e.onError(e1);
-                }
-            }).observeOn(AndroidSchedulers.mainThread())
-                    .subscribeOn(Schedulers.newThread());
+            return findImages(q, 0);
         }
+    }
+
+    public Observable<List<GoogleImage>> findImages(String q, int count) {
+        return Observable.create((ObservableOnSubscribe<List<GoogleImage>>) e -> {
+            if(LL.D)
+                Log.d(TAG, "findImages() called with: q = [" + q + "], count = [" + count + "]");
+            try {
+                String googleUrl = "https://www.google.co.kr/search?tbm=isch&q=" + q + "&ijn="+count;
+                if(LL.D) Log.d(TAG, "findImage: googleUrl = " + googleUrl);
+                Document doc = Jsoup.connect(googleUrl).timeout(10 * 1000).get();
+                Elements elements = doc.select("div.rg_meta");
+                Observable.fromIterable(elements)
+                        .map(element-> {
+                            String json = element.childNode(0).toString().trim();
+                            GoogleImage image = new Gson().fromJson(json, GoogleImage.class);
+                            ImageDB.getInstance().insertGoogleImage(image.parseCachedImage(q));
+                            return image;
+                        }).toList().subscribe(images -> {
+                    e.onNext(images);
+                });
+
+            } catch (Exception e1) {
+                Log.e(TAG, "findImage: ", e1);
+                e.onError(e1);
+            }
+        }).observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.newThread());
     }
 }
