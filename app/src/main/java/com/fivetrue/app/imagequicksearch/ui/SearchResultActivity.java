@@ -6,6 +6,7 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.widget.Toast;
 
 import com.fivetrue.app.imagequicksearch.LL;
@@ -13,6 +14,7 @@ import com.fivetrue.app.imagequicksearch.R;
 import com.fivetrue.app.imagequicksearch.model.image.GoogleImage;
 import com.fivetrue.app.imagequicksearch.ui.adapter.BaseFooterAdapter;
 import com.fivetrue.app.imagequicksearch.ui.adapter.image.ImageListAdapter;
+import com.fivetrue.app.imagequicksearch.ui.fragment.ImageDetailViewFragment;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +30,6 @@ public class SearchResultActivity extends BaseImageListActivity<GoogleImage>{
 
     private static final String KEY_KEYWORD = "keyword";
     private static final String KEY_IMAGE_LIST = "image_list";
-
 
     @Override
     protected BaseFooterAdapter<GoogleImage> makeAdapter(List<GoogleImage> data, BaseFooterAdapter.OnItemClickListener<GoogleImage> ll) {
@@ -76,7 +77,8 @@ public class SearchResultActivity extends BaseImageListActivity<GoogleImage>{
 
     @Override
     protected boolean onItemLongClick(GoogleImage item) {
-        Toast.makeText(this, item.getSiteTitle(), Toast.LENGTH_SHORT).show();
+        addFragment(ImageDetailViewFragment.class
+                , ImageDetailViewFragment.makeBundle(this, item), android.R.id.content, true);
         return true;
     }
 
@@ -84,6 +86,7 @@ public class SearchResultActivity extends BaseImageListActivity<GoogleImage>{
     public void onBackPressed() {
         if(getAdapter() != null && getAdapter().getSelections().size() > 0){
             getAdapter().clearSelection();
+            getSelectionViewer().update();
             return;
         }
         super.onBackPressed();

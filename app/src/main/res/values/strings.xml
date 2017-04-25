@@ -12,6 +12,7 @@
     <string name="delete_mode">Delete mode</string>
     <string name="selection_image">%d image(s) selected</string>
     <string name="saved_images">Saved Images</string>
+    <string name="like_images">Favorite Images</string>
     <string name="retrieved_images">Retrieved Images</string>
     <string name="reset_data">Reset Data</string>
 
@@ -21,7 +22,8 @@
     <string name="delete_cached_images_message">Related images will be deleted.</string>
     <string name="delete_saved_images_message">Selected images will be deleted.</string>
     <string name="delete_failed_images_message">Photos that failed to transfer will be removed from the list.</string>
-    <string name="send_image_failure_message">Image transfer failed</string>
+    <string name="send_image_failure_message">Image transfer failed.</string>
+    <string name="save_image_failure_message">Image save filed.</string>
     <string name="reset_data_message">All saved data will be deleted.</string>
 
 </resources>

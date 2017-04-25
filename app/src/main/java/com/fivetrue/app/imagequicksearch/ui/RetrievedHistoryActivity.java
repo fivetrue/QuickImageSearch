@@ -159,6 +159,7 @@ public class RetrievedHistoryActivity extends BaseImageListActivity<CachedGoogle
     public void onBackPressed() {
         if(getAdapter() != null && getAdapter().isEditMode()){
             getAdapter().setEditMode(false);
+            getSelectionViewer().update();
             return;
         }
         super.onBackPressed();

@@ -59,7 +59,7 @@ public class DataManager {
 
     public Observable<List<GoogleImage>> findImage(String q) {
         TrackingUtil.getInstance().findImage(q);
-        List<CachedGoogleImage> cachedImages = ImageDB.getInstance().findImages("keyword", q);
+        List<CachedGoogleImage> cachedImages = ImageDB.getInstance().findCachedImages("keyword", q);
         if(cachedImages != null && cachedImages.size() > 0){
             return Observable.fromIterable(cachedImages)
                     .map(image-> new GoogleImage(image))

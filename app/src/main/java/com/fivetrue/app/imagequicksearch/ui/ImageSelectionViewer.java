@@ -136,7 +136,8 @@ public class ImageSelectionViewer extends LinearLayout {
     private void doAction(){
         if(LL.D) Log.d(TAG, "doAction() called");
         if(mSelectionClient != null){
-            List<GoogleImage> selectedImages = mSelectionClient.getSelections();
+            List<GoogleImage> selectedImages = Observable.fromIterable(mSelectionClient.getSelections())
+                    .distinct(GoogleImage::getOriginalImageUrl).toList().blockingGet();
             ProgressDialog dialog = new ProgressDialog(getContext());
             dialog.setTitle(R.string.send);
             dialog.setMessage(getContext().getString(R.string.prepare_images_message));

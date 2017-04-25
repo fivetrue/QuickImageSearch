@@ -220,6 +220,8 @@ public class GoogleImage implements Parcelable{
         image.setImageWidth(ow);
         image.setSiteUrl(isu);
         image.setSiteTitle(st);
+        image.setPageTitle(s);
+        image.setPageUrl(ru);
         image.setKeyword(q);
         image.setStoredDate(System.currentTimeMillis());
         image.setFilePath(file.getAbsolutePath());

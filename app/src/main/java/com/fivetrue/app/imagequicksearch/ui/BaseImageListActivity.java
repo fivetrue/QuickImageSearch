@@ -24,10 +24,7 @@ import jp.wasabeef.recyclerview.adapters.SlideInBottomAnimationAdapter;
 
 public abstract class BaseImageListActivity <T> extends BaseActivity implements ImageSelectionViewer.ImageSelectionClient {
 
-    private static final String TAG = "SearchResultFragment";
-
-    private static final String KEY_KEYWORD = "keyword";
-    private static final String KEY_IMAGE_LIST = "image_list";
+    private static final String TAG = "BaseImageListActivity";
 
     private NestedScrollView mScrollView;
     private RecyclerView mRecyclerView;

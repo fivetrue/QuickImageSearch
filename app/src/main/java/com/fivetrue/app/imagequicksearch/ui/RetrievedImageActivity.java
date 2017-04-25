@@ -7,6 +7,7 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 
 import com.fivetrue.app.imagequicksearch.R;
 import com.fivetrue.app.imagequicksearch.database.image.ImageDB;
@@ -14,6 +15,7 @@ import com.fivetrue.app.imagequicksearch.model.image.CachedGoogleImage;
 import com.fivetrue.app.imagequicksearch.model.image.GoogleImage;
 import com.fivetrue.app.imagequicksearch.ui.adapter.BaseFooterAdapter;
 import com.fivetrue.app.imagequicksearch.ui.adapter.image.RetrievedImageListAdapter;
+import com.fivetrue.app.imagequicksearch.ui.fragment.ImageDetailViewFragment;
 
 import java.util.List;
 
@@ -103,6 +105,11 @@ public class RetrievedImageActivity extends BaseImageListActivity<CachedGoogleIm
         return intent;
     }
 
-
+    @Override
+    protected boolean onItemLongClick(CachedGoogleImage item) {
+        addFragment(ImageDetailViewFragment.class
+                , ImageDetailViewFragment.makeBundle(this, item), android.R.id.content, true);
+        return true;
+    }
 
 }

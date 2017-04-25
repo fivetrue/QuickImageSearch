@@ -44,6 +44,16 @@
                 android:elevation="3dp"/>
 
             <com.fivetrue.app.imagequicksearch.ui.set.ImageLayoutSet
+                android:id="@+id/image_set_main_like"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:icon="@drawable/ic_like_20dp"
+                app:title="@string/like_images"
+                android:visibility="gone"
+                android:elevation="3dp"/>
+
+
+            <com.fivetrue.app.imagequicksearch.ui.set.ImageLayoutSet
                 android:id="@+id/image_set_main_saved"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

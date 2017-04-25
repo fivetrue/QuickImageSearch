@@ -5,6 +5,7 @@ import android.content.Context;
 import com.fivetrue.app.imagequicksearch.database.RealmDB;
 import com.fivetrue.app.imagequicksearch.model.image.CachedGoogleImage;
 import com.fivetrue.app.imagequicksearch.model.image.GoogleImage;
+import com.fivetrue.app.imagequicksearch.model.image.LikeImage;
 import com.fivetrue.app.imagequicksearch.model.image.SavedImage;
 import com.fivetrue.app.imagequicksearch.utils.TrackingUtil;
 
@@ -30,6 +31,7 @@ public class ImageDB extends RealmDB implements RealmChangeListener<Realm>{
 
     private PublishSubject<List<SavedImage>> mSavedImagePublishSubject = PublishSubject.create();
     private PublishSubject<List<CachedGoogleImage>> mCachedImagePublishSubject = PublishSubject.create();
+    private PublishSubject<List<LikeImage>> mLikeImagePublishSubject = PublishSubject.create();
 
     private static ImageDB sInstance;
 
@@ -53,7 +55,7 @@ public class ImageDB extends RealmDB implements RealmChangeListener<Realm>{
 
     }
 
-    public List<CachedGoogleImage> findImages(String key, String value){
+    public List<CachedGoogleImage> findCachedImages(String key, String value){
         return get().where(CachedGoogleImage.class).equalTo(key, value).findAll();
     }
 
@@ -76,6 +78,10 @@ public class ImageDB extends RealmDB implements RealmChangeListener<Realm>{
     public void insertSavedImage(List<SavedImage> images){
         get().executeTransaction(realm -> get().insert(images));
 
+    }
+
+    public CachedGoogleImage findCachedImage(String imageUrl){
+        return get().where(CachedGoogleImage.class).equalTo("imageUrl", imageUrl).findFirst();
     }
 
     public List<CachedGoogleImage> getCachedImages(){
@@ -102,12 +108,8 @@ public class ImageDB extends RealmDB implements RealmChangeListener<Realm>{
         return get().where(SavedImage.class).findAllSorted("storedDate", Sort.DESCENDING);
     }
 
-    public SavedImage getSavedImageByUrl(String imageUrl){
+    public SavedImage findSavedImage(String imageUrl){
         return get().where(SavedImage.class).equalTo("imageUrl", imageUrl).findFirst();
-    }
-
-    public SavedImage getSavedImage(GoogleImage image){
-        return get().where(SavedImage.class).equalTo("imageUrl", image.getOriginalImageUrl()).findFirst();
     }
 
     public void deleteSavedImages(List<SavedImage> images){
@@ -118,10 +120,33 @@ public class ImageDB extends RealmDB implements RealmChangeListener<Realm>{
         });
     }
 
+    public List<LikeImage> getLikeImages(){
+        return get().where(LikeImage.class).findAllSorted("updateDate", Sort.DESCENDING);
+    }
+
+    public void insertLikeImage(LikeImage image){
+        get().executeTransaction(realm -> get().insert(image));
+    }
+
+    public LikeImage findLikeImage(String url){
+        return get().where(LikeImage.class).equalTo("imageUrl", url).findFirst();
+
+    }
+
+    public void deleteLikeImage(String url){
+        get().executeTransaction(realm -> {
+            LikeImage image = get().where(LikeImage.class).equalTo("imageUrl", url).findFirst();
+            if(image != null){
+                image.deleteFromRealm();
+            }
+        });
+    }
+
     @Override
     public void onChange(Realm element) {
         publishSavedImage();
         publishCachedImage();
+        publishLikeImage();
     }
 
     public Observable<List<SavedImage>> getSavedImageObservable(){
@@ -132,6 +157,10 @@ public class ImageDB extends RealmDB implements RealmChangeListener<Realm>{
         return mCachedImagePublishSubject;
     }
 
+    public Observable<List<LikeImage>> getLikeImageObservable(){
+        return mLikeImagePublishSubject;
+    }
+
     public void publishSavedImage(){
         mSavedImagePublishSubject.onNext(getSavedImages());
         mSavedImagePublishSubject.publish();
@@ -140,5 +169,10 @@ public class ImageDB extends RealmDB implements RealmChangeListener<Realm>{
     public void publishCachedImage(){
         mCachedImagePublishSubject.onNext(getCachedImages());
         mCachedImagePublishSubject.publish();
+    }
+
+    public void publishLikeImage(){
+        mLikeImagePublishSubject.onNext(getLikeImages());
+        mLikeImagePublishSubject.publish();
     }
 }

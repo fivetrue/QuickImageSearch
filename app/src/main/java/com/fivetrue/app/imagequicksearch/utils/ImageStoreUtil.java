@@ -49,7 +49,7 @@ public class ImageStoreUtil {
 
     public Observable<File> saveNetworkImage(GoogleImage image, String q){
         if(LL.D) Log.d(TAG, "saveNetworkImage() called with: imageUrl = [" + image + "]");
-        SavedImage savedImage = ImageDB.getInstance().getSavedImage(image);
+        SavedImage savedImage = ImageDB.getInstance().findSavedImage(image.getOriginalImageUrl());
         if(savedImage != null){
             if(LL.D)
                 Log.d(TAG, "saveNetworkImage() has StoredImage");
@@ -60,7 +60,6 @@ public class ImageStoreUtil {
             return Observable.create(emitter -> {
                 if(LL.D) Log.d(TAG, "saveNetworkImage: try to load image");
                 Glide.with(mContext).load(image.getOriginalImageUrl()).asBitmap().into(new SimpleTarget<Bitmap>() {
-//                    boolean failed = false;
                     @Override
                     public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
                         if(LL.D) Log.d(TAG, "saveNetworkImage: received image");

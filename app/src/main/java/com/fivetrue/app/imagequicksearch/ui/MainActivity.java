@@ -26,10 +26,12 @@ import com.fivetrue.app.imagequicksearch.R;
 import com.fivetrue.app.imagequicksearch.database.image.ImageDB;
 import com.fivetrue.app.imagequicksearch.model.image.CachedGoogleImage;
 import com.fivetrue.app.imagequicksearch.model.image.GoogleImage;
+import com.fivetrue.app.imagequicksearch.model.image.LikeImage;
 import com.fivetrue.app.imagequicksearch.model.image.SavedImage;
 import com.fivetrue.app.imagequicksearch.ui.adapter.BaseFooterAdapter;
 import com.fivetrue.app.imagequicksearch.ui.adapter.image.RetrievedImageListAdapter;
 import com.fivetrue.app.imagequicksearch.ui.adapter.image.SavedImageListAdapter;
+import com.fivetrue.app.imagequicksearch.ui.fragment.ImageDetailViewFragment;
 import com.fivetrue.app.imagequicksearch.ui.set.ImageLayoutSet;
 import com.fivetrue.app.imagequicksearch.utils.AdUtil;
 import com.fivetrue.app.imagequicksearch.utils.CommonUtils;
@@ -48,17 +50,23 @@ public class MainActivity extends BaseActivity implements ImageSelectionViewer.I
     private static final int SAVED_IMAGE_ITEM_COUNT = 9;
     private static final int SAVED_IMAGE_ITEM_SPAN_COUNT = 3;
 
+//    private static final int LIKE_IMAGE_ITEM_COUNT = 9;
+    private static final int LIKE_IMAGE_ITEM_SPAN_COUNT = 3;
+
     private static final int RETREIVED_IMAGE_ITEM_COUNT = 10;
     private static final int RETREIVED_IMAGE_ITEM_SPAN_COUNT = 5;
 
 
     private NestedScrollView mScrollView;
 
+    private ImageLayoutSet mRetrievedImageLayoutSet;
+    private RetrievedImageListAdapter mRetrievedImageListAdapter;
+
     private ImageLayoutSet mSavedImageLayoutSet;
     private SavedImageListAdapter mSavedImageListAdapter;
 
-    private ImageLayoutSet mRetrievedImageLayoutSet;
-    private RetrievedImageListAdapter mRetrievedImageListAdapter;
+    private ImageLayoutSet mLikeImageLayoutSet;
+    private SavedImageListAdapter mLikeImageListAdapter;
 
     private ImageSelectionViewer mImageSelectionViewer;
 
@@ -72,6 +80,7 @@ public class MainActivity extends BaseActivity implements ImageSelectionViewer.I
 
     private Disposable mSavedImageDisposable;
     private Disposable mCachedImageDisposable;
+    private Disposable mLikeImageDisposable;
 
     private AdUtil mAdUtil;
 
@@ -92,6 +101,9 @@ public class MainActivity extends BaseActivity implements ImageSelectionViewer.I
         if(mCachedImageDisposable != null && !mCachedImageDisposable.isDisposed()){
             mCachedImageDisposable.dispose();
         }
+        if(mLikeImageDisposable != null && !mLikeImageDisposable.isDisposed()){
+            mLikeImageDisposable.dispose();
+        }
     }
 
     private void onLoadStoreImages(List<SavedImage> images){
@@ -106,7 +118,9 @@ public class MainActivity extends BaseActivity implements ImageSelectionViewer.I
 
                     @Override
                     public boolean onItemLongClick(RecyclerView.ViewHolder holder, SavedImage item) {
-                        return false;
+                        addFragment(ImageDetailViewFragment.class
+                                , ImageDetailViewFragment.makeBundle(MainActivity.this, item), android.R.id.content, true);
+                        return true;
                     }
                 });
             }else{
@@ -154,6 +168,37 @@ public class MainActivity extends BaseActivity implements ImageSelectionViewer.I
         }
     }
 
+    private void onLoadLikeImages(List<SavedImage> images){
+        if(images != null){
+            if(mLikeImageListAdapter == null){
+                mLikeImageListAdapter = new SavedImageListAdapter(images, new BaseFooterAdapter.OnItemClickListener<SavedImage>() {
+                    @Override
+                    public void onItemClick(RecyclerView.ViewHolder holder, SavedImage item) {
+                        mLikeImageListAdapter.toggle(holder.getLayoutPosition());
+                        mImageSelectionViewer.update();
+                    }
+
+                    @Override
+                    public boolean onItemLongClick(RecyclerView.ViewHolder holder, SavedImage item) {
+                        addFragment(ImageDetailViewFragment.class
+                                , ImageDetailViewFragment.makeBundle(MainActivity.this, item), android.R.id.content, true);
+                        return true;
+                    }
+                });
+            }else{
+                mLikeImageListAdapter.setData(images);
+            }
+
+            if(images.size() > 0){
+                mLikeImageLayoutSet.setAdapter(mLikeImageListAdapter);
+                mLikeImageLayoutSet.animate().alphaBy(0).alpha(1).setDuration(500L).start();
+                mLikeImageLayoutSet.setVisibility(View.VISIBLE);
+            }else{
+                mLikeImageLayoutSet.setVisibility(View.GONE);
+            }
+        }
+    }
+
     private void initData(){
         mInputManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         mSearchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
@@ -172,6 +217,14 @@ public class MainActivity extends BaseActivity implements ImageSelectionViewer.I
                             .toList().blockingGet());
                 });
 
+        mLikeImageDisposable = ImageDB.getInstance().getLikeImageObservable()
+                .subscribe(likeImages -> {
+                    onLoadLikeImages(Observable.fromIterable(likeImages)
+                            .map(image -> ImageDB.getInstance().findSavedImage(image.getImageUrl()))
+//                            .take(LIKE_IMAGE_ITEM_COUNT)
+                            .toList().blockingGet());
+                });
+
         mAdUtil = new AdUtil(this, Observable.fromIterable(ImageDB.getInstance().getCachedImages())
                 .distinct(CachedGoogleImage::getKeyword)
                 .map(CachedGoogleImage::getKeyword)
@@ -187,7 +240,6 @@ public class MainActivity extends BaseActivity implements ImageSelectionViewer.I
     @Override
     protected void onPause() {
         super.onPause();
-        mAdUtil.detachAdView();
     }
 
     private void initView(){
@@ -200,6 +252,10 @@ public class MainActivity extends BaseActivity implements ImageSelectionViewer.I
         mRetrievedImageLayoutSet = (ImageLayoutSet) findViewById(R.id.image_set_main_cached);
         mRetrievedImageLayoutSet.setLayoutManager(new GridLayoutManager(this, RETREIVED_IMAGE_ITEM_SPAN_COUNT, LinearLayoutManager.VERTICAL, false));
         mRetrievedImageLayoutSet.setOnClickMoreListener(view -> startActivity(RetrievedHistoryActivity.makeIntent(this)));
+
+
+        mLikeImageLayoutSet = (ImageLayoutSet) findViewById(R.id.image_set_main_like);
+        mLikeImageLayoutSet.setLayoutManager(new GridLayoutManager(this, LIKE_IMAGE_ITEM_SPAN_COUNT, LinearLayoutManager.VERTICAL, false));
 
 
         mSavedImageLayoutSet = (ImageLayoutSet) findViewById(R.id.image_set_main_saved);
@@ -223,6 +279,7 @@ public class MainActivity extends BaseActivity implements ImageSelectionViewer.I
 
         ImageDB.getInstance().publishSavedImage();
         ImageDB.getInstance().publishCachedImage();
+        ImageDB.getInstance().publishLikeImage();
     }
 
     private void findImageFailure(Throwable t){
@@ -294,7 +351,12 @@ public class MainActivity extends BaseActivity implements ImageSelectionViewer.I
     public List<GoogleImage> getSelections() {
         Observable<GoogleImage> ob1 = Observable.fromIterable(mSavedImageListAdapter.getSelections())
                 .map(savedImage -> new GoogleImage(savedImage));
-        return ob1.toList().blockingGet();
+
+
+        Observable<GoogleImage> ob2 = Observable.fromIterable(mLikeImageListAdapter.getSelections())
+                .map(savedImage -> new GoogleImage(savedImage));
+
+        return ob1.mergeWith(ob2).toList().blockingGet();
     }
 
     @Override
@@ -305,6 +367,7 @@ public class MainActivity extends BaseActivity implements ImageSelectionViewer.I
     @Override
     public void clearSelection() {
         mSavedImageListAdapter.clearSelection();
+        mLikeImageListAdapter.clearSelection();
     }
 
     @Override
@@ -319,8 +382,9 @@ public class MainActivity extends BaseActivity implements ImageSelectionViewer.I
 
     @Override
     public void onBackPressed() {
-        if(mSavedImageListAdapter != null && mSavedImageListAdapter.getSelections().size() > 0){
+        if(getSelections().size() > 0){
             mSavedImageListAdapter.clearSelection();
+            mLikeImageListAdapter.clearSelection();
             mImageSelectionViewer.update();
             return;
         }

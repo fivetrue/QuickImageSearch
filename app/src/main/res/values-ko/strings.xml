@@ -12,6 +12,7 @@
     <string name="delete_mode">삭제모드</string>
     <string name="selection_image">%d 개의 사진이 선택 되었습니다.</string>
     <string name="saved_images">저장된 사진</string>
+    <string name="like_images">즐겨찾는 사진</string>
     <string name="retrieved_images">검색된 사진</string>
     <string name="reset_data">데이터 초기화</string>
 
@@ -22,6 +23,7 @@
     <string name="delete_saved_images_message">선택된 모든 이미지가 삭제 됩니다.</string>
     <string name="delete_failed_images_message">전송에 실패한 사진은 리스트에서 제거 됩니다.</string>
     <string name="send_image_failure_message">이미지 전송 실패.</string>
+    <string name="save_image_failure_message">이미지 저장 실패.</string>
     <string name="reset_data_message">저장된 모든 데이터가 삭제 됩니다.</string>
 
 </resources>

@@ -101,14 +101,6 @@ public class AdUtil extends AdListener {
             mAdView.setTag(count);
             if(mAdView.getParent() == null){
                 parent.addView(mAdView, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-            }else{
-                try{
-                    ViewGroup viewGroup = (ViewGroup) mAdView.getParent();
-                    viewGroup.removeView(mAdView);
-                }catch (Exception e){
-                    Log.e(TAG, "addAdView: ", e);
-                    TrackingUtil.getInstance().report(e);
-                }
             }
         }
     }

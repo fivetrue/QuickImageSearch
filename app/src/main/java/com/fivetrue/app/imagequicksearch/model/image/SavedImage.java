@@ -17,6 +17,9 @@ public class SavedImage extends RealmObject{
     private String siteUrl;
     private String siteTitle;
 
+    private String pageUrl;
+    private String pageTitle;
+
     private String keyword;
 
     private long storedDate;
@@ -75,6 +78,22 @@ public class SavedImage extends RealmObject{
 
     public void setSiteTitle(String siteTitle) {
         this.siteTitle = siteTitle;
+    }
+
+    public String getPageUrl() {
+        return pageUrl;
+    }
+
+    public void setPageUrl(String pageUrl) {
+        this.pageUrl = pageUrl;
+    }
+
+    public String getPageTitle() {
+        return pageTitle;
+    }
+
+    public void setPageTitle(String pageTitle) {
+        this.pageTitle = pageTitle;
     }
 
     public String getKeyword() {
