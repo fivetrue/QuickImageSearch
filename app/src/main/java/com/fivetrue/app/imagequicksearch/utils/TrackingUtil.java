@@ -72,6 +72,13 @@ public class TrackingUtil {
         FirebaseAnalytics.getInstance(mContext).logEvent("DeleteSavedImage", b);
     }
 
+    public void sendIntentFrom(String from, int count){
+        Bundle b = new Bundle();
+        b.putString("from", from);
+        b.putString("count", count +"");
+        FirebaseAnalytics.getInstance(mContext).logEvent("SendIntent", b);
+    }
+
     public void resetData(int count){
         Bundle b = new Bundle();
         b.putString("ItemCount", count+"");

@@ -25,16 +25,25 @@ public class AppDB extends RealmDB implements RealmChangeListener {
         sInstance = new AppDB(context.getApplicationContext());
     }
 
+    public static AppDB getInstance(){
+        return sInstance;
+    }
+
     private AppDB(Context context){
         mContext = context;
     }
 
+
     public void insertAppInfo(AppInfo appInfo){
-        get().executeTransaction(realm -> get().insert(appInfo));
+        get().executeTransaction(realm -> get().insertOrUpdate(appInfo));
     }
 
     public List<AppInfo> getAppInfoList(){
         return get().where(AppInfo.class).findAllSorted("updateDate", Sort.DESCENDING);
+    }
+
+    public AppInfo getAppInfo(String packageName){
+        return get().where(AppInfo.class).equalTo("packageName",packageName).findFirst();
     }
 
     @Override

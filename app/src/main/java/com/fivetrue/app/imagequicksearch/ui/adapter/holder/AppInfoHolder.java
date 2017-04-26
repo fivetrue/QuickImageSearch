@@ -35,7 +35,6 @@ public class AppInfoHolder extends RecyclerView.ViewHolder {
     public void setAppInfo(ResolveInfo appInfo){
         PackageManager pm = image.getContext().getPackageManager();
         image.setImageDrawable(appInfo.loadIcon(pm));
-//        Glide.with(this.image.getContext()).load().into(this.image);
         text.setText(appInfo.loadLabel(pm));
     }
 }

@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="admob_app_id" translatable="false">ca-app-pub-6669013618691184~5671632359</string>
-    <string name="admob_image_list_banner" translatable="false">ca-app-pub-6669013618691184/8625098753</string> <!--300x250 -->
+
+    <string name="admob_image_list_banner" translatable="false">ca-app-pub-6669013618691184/8625098753</string>
+    <string name="admob_app_chooser_banner" translatable="false">ca-app-pub-6669013618691184/5198797550</string>
 
     <string name="image_google_api_key" translatable="false">AIzaSyAQlDbYlsvOhyQ82Fdq1YrOXnxWQ4uFq6k</string>
 </resources>

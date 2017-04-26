@@ -27,11 +27,20 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 
+    <com.google.android.gms.ads.AdView
+        android:id="@+id/ad_base_image_list"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        app:adSize="BANNER"
+        app:adUnitId="@string/admob_image_list_banner" />
+
     <com.fivetrue.app.imagequicksearch.ui.ImageSelectionViewer
         android:id="@+id/layout_base_image_list_selection"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="3dp"
+        android:gravity="center"
         android:layout_gravity="bottom"
         android:visibility="invisible"
         android:background="@drawable/rect_rounded_primary"

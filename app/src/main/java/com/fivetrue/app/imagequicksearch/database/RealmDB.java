@@ -3,6 +3,7 @@ package com.fivetrue.app.imagequicksearch.database;
 import android.content.Context;
 
 
+import com.fivetrue.app.imagequicksearch.database.app.AppDB;
 import com.fivetrue.app.imagequicksearch.database.image.ImageDB;
 
 import io.realm.Realm;
@@ -29,5 +30,6 @@ public class RealmDB {
         Realm.setDefaultConfiguration(config);
 
         ImageDB.init(context);
+        AppDB.init(context);
     }
 }

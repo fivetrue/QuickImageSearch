@@ -2,6 +2,8 @@ package com.fivetrue.app.imagequicksearch.ui;
 
 import android.app.SearchManager;
 import android.content.Context;
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -18,11 +20,19 @@ import android.widget.ProgressBar;
 
 import com.fivetrue.app.imagequicksearch.LL;
 import com.fivetrue.app.imagequicksearch.R;
+import com.fivetrue.app.imagequicksearch.database.image.ImageDB;
+import com.fivetrue.app.imagequicksearch.model.image.CachedGoogleImage;
 import com.fivetrue.app.imagequicksearch.model.image.GoogleImage;
 import com.fivetrue.app.imagequicksearch.ui.adapter.BaseHeaderFooterAdapter;
 import com.fivetrue.app.imagequicksearch.ui.adapter.BaseRecyclerAdapter;
+import com.fivetrue.app.imagequicksearch.utils.DataManager;
+import com.google.android.gms.ads.AdListener;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
 
 import java.util.List;
+
+import io.reactivex.Observable;
 
 /**
  * Created by kwonojin on 2017. 4. 20..
@@ -45,6 +55,8 @@ public abstract class BaseImageListActivity <T> extends BaseActivity implements 
     private SearchView mSearchView;
     private SearchManager mSearchManager;
 
+    private AdView mAdView;
+
     private InputMethodManager mImm;
 
     @Override
@@ -53,6 +65,7 @@ public abstract class BaseImageListActivity <T> extends BaseActivity implements 
         setContentView(R.layout.activity_base_image_list);
         initData();
         initView();
+        initAd();
         setData(getData());
     }
 
@@ -61,6 +74,69 @@ public abstract class BaseImageListActivity <T> extends BaseActivity implements 
         mSearchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
     }
 
+    private void initAd(){
+        DataManager.getInstance(this).getGeoLocation()
+                .subscribe(geoLocation -> {
+                    if(LL.D) Log.d(TAG, "loadAd: geoLocation : " + geoLocation);
+                    if(geoLocation != null){
+                        Location location = new Location(LocationManager.NETWORK_PROVIDER);
+                        location.setAccuracy(geoLocation.getAccuracy());
+                        location.setLatitude(geoLocation.getLocation().getLat());
+                        location.setLongitude(geoLocation.getLocation().getLng());
+                        setLocation(location);
+                    }
+                }, throwable -> {
+                    Log.e(TAG, "fail getGeoLocation ", throwable);
+                    setLocation(null);
+                });
+    }
+
+    private void setLocation(Location location){
+        final AdRequest.Builder request = new AdRequest.Builder();
+        if(location != null){
+            request.setLocation(location);
+        }
+
+        Observable.fromIterable(ImageDB.getInstance().getCachedImages())
+                .distinct(CachedGoogleImage::getKeyword)
+                .map(CachedGoogleImage::getKeyword)
+                .toList().subscribe(strings -> {
+            for(String keyword : strings){
+                request.addKeyword(keyword);
+            }
+            mAdView.setAdListener(new AdListener() {
+                @Override
+                public void onAdClosed() {
+                    super.onAdClosed();
+                    Log.d(TAG, "onAdClosed() called");
+                }
+
+                @Override
+                public void onAdFailedToLoad(int i) {
+                    super.onAdFailedToLoad(i);
+                    Log.d(TAG, "onAdFailedToLoad() called with: i = [" + i + "]");
+                }
+
+                @Override
+                public void onAdLeftApplication() {
+                    super.onAdLeftApplication();
+                    Log.d(TAG, "onAdLeftApplication() called");
+                }
+
+                @Override
+                public void onAdOpened() {
+                    super.onAdOpened();
+                    Log.d(TAG, "onAdOpened() called");
+                }
+
+                @Override
+                public void onAdLoaded() {
+                    super.onAdLoaded();
+                }
+            });
+            mAdView.loadAd(request.build());
+        });
+    }
 
     private void initView(){
 
@@ -71,8 +147,10 @@ public abstract class BaseImageListActivity <T> extends BaseActivity implements 
 
         mRecyclerView = (RecyclerView) findViewById(R.id.rv_base_image_list);
         mProgress = (ProgressBar) findViewById(R.id.pb_base_image_list);
+        mAdView = (AdView) findViewById(R.id.ad_base_image_list);
 
         mImageSelectionViewer = (ImageSelectionViewer) findViewById(R.id.layout_base_image_list_selection);
+        mImageSelectionViewer.setOnClickListener(null);
         mImageSelectionViewer.setSelectionClient(this);
         if(isGrid()){
             mLayoutManager = new GridLayoutManager(this, getSpanCount(), getOrientation(), false);

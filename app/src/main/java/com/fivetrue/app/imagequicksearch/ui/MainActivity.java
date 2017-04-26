@@ -3,6 +3,8 @@ package com.fivetrue.app.imagequicksearch.ui;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v7.widget.GridLayoutManager;
@@ -10,7 +12,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
-import android.text.TextUtils;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -20,6 +22,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.fivetrue.app.imagequicksearch.LL;
 import com.fivetrue.app.imagequicksearch.R;
 import com.fivetrue.app.imagequicksearch.database.image.ImageDB;
 import com.fivetrue.app.imagequicksearch.model.image.CachedGoogleImage;
@@ -30,8 +33,11 @@ import com.fivetrue.app.imagequicksearch.ui.adapter.image.RetrievedImageListAdap
 import com.fivetrue.app.imagequicksearch.ui.adapter.image.SavedImageListAdapter;
 import com.fivetrue.app.imagequicksearch.ui.fragment.ImageDetailViewFragment;
 import com.fivetrue.app.imagequicksearch.ui.set.ImageLayoutSet;
-import com.fivetrue.app.imagequicksearch.utils.AdUtil;
 import com.fivetrue.app.imagequicksearch.utils.CommonUtils;
+import com.fivetrue.app.imagequicksearch.utils.DataManager;
+import com.google.android.gms.ads.AdListener;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
 
 import java.util.List;
 
@@ -63,6 +69,7 @@ public class MainActivity extends BaseActivity implements ImageSelectionViewer.I
     private ImageLayoutSet mLikeImageLayoutSet;
     private RetrievedImageListAdapter mLikeImageListAdapter;
 
+    private AdView mAdView;
     private ImageSelectionViewer mImageSelectionViewer;
 
     private ViewGroup mLayoutAdAnchor;
@@ -76,14 +83,13 @@ public class MainActivity extends BaseActivity implements ImageSelectionViewer.I
     private Disposable mSavedImageDisposable;
     private Disposable mCachedImageDisposable;
 
-    private AdUtil mAdUtil;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         initData();
         initView();
+        initAd();
     }
 
     @Override
@@ -214,12 +220,70 @@ public class MainActivity extends BaseActivity implements ImageSelectionViewer.I
 //                            .take(LIKE_IMAGE_ITEM_COUNT)
                             .toList().blockingGet());
                 });
+    }
 
+    private void initAd(){
+        DataManager.getInstance(this).getGeoLocation()
+                .subscribe(geoLocation -> {
+                    if(LL.D) Log.d(TAG, "loadAd: geoLocation : " + geoLocation);
+                    if(geoLocation != null){
+                        Location location = new Location(LocationManager.NETWORK_PROVIDER);
+                        location.setAccuracy(geoLocation.getAccuracy());
+                        location.setLatitude(geoLocation.getLocation().getLat());
+                        location.setLongitude(geoLocation.getLocation().getLng());
+                        setLocation(location);
+                    }
+                }, throwable -> {
+                    Log.e(TAG, "fail getGeoLocation ", throwable);
+                    setLocation(null);
+                });
+    }
 
-        mAdUtil = new AdUtil(this, Observable.fromIterable(ImageDB.getInstance().getCachedImages())
+    private void setLocation(Location location){
+        final AdRequest.Builder request = new AdRequest.Builder();
+        if(location != null){
+            request.setLocation(location);
+        }
+
+        Observable.fromIterable(ImageDB.getInstance().getCachedImages())
                 .distinct(CachedGoogleImage::getKeyword)
                 .map(CachedGoogleImage::getKeyword)
-                .toList().blockingGet(), getString(R.string.admob_image_list_banner));
+                .toList().subscribe(strings -> {
+            for(String keyword : strings){
+                request.addKeyword(keyword);
+            }
+            mAdView.setAdListener(new AdListener() {
+                @Override
+                public void onAdClosed() {
+                    super.onAdClosed();
+                    Log.d(TAG, "onAdClosed() called");
+                }
+
+                @Override
+                public void onAdFailedToLoad(int i) {
+                    super.onAdFailedToLoad(i);
+                    Log.d(TAG, "onAdFailedToLoad() called with: i = [" + i + "]");
+                }
+
+                @Override
+                public void onAdLeftApplication() {
+                    super.onAdLeftApplication();
+                    Log.d(TAG, "onAdLeftApplication() called");
+                }
+
+                @Override
+                public void onAdOpened() {
+                    super.onAdOpened();
+                    Log.d(TAG, "onAdOpened() called");
+                }
+
+                @Override
+                public void onAdLoaded() {
+                    super.onAdLoaded();
+                }
+            });
+            mAdView.loadAd(request.build());
+        });
     }
 
     @Override
@@ -251,7 +315,9 @@ public class MainActivity extends BaseActivity implements ImageSelectionViewer.I
 
         mProgress = (ProgressBar) findViewById(R.id.pb_main);
 
+        mAdView = (AdView) findViewById(R.id.ad_main);
         mImageSelectionViewer = (ImageSelectionViewer) findViewById(R.id.layout_main_image_selection);
+        mImageSelectionViewer.setOnClickListener(null);
         mImageSelectionViewer.setSelectionClient(this);
 
         mScrollView.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
@@ -264,7 +330,6 @@ public class MainActivity extends BaseActivity implements ImageSelectionViewer.I
 
         ImageDB.getInstance().publishSavedImage();
         ImageDB.getInstance().publishCachedImage();
-        mAdUtil.addAdView(mLayoutAdAnchor, false);
     }
 
     private void initSearchView(SearchView searchView){

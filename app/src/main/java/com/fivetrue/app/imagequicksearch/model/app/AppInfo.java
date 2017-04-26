@@ -8,13 +8,20 @@ import io.realm.RealmObject;
 
 public class AppInfo extends RealmObject{
 
+    private String appName;
     private String packageName;
-    private String targetActivity;
-    private int iconResource;
-    private String name;
+    private String targetClass;
     private long updateDate;
     private int sharedCount;
     private long sharedImageCount;
+
+    public String getAppName() {
+        return appName;
+    }
+
+    public void setAppName(String appName) {
+        this.appName = appName;
+    }
 
     public String getPackageName() {
         return packageName;
@@ -24,12 +31,12 @@ public class AppInfo extends RealmObject{
         this.packageName = packageName;
     }
 
-    public String getTargetActivity() {
-        return targetActivity;
+    public String getTargetClass() {
+        return targetClass;
     }
 
-    public void setTargetActivity(String targetActivity) {
-        this.targetActivity = targetActivity;
+    public void setTargetClass(String targetClass) {
+        this.targetClass = targetClass;
     }
 
     public long getUpdateDate() {
@@ -54,21 +61,5 @@ public class AppInfo extends RealmObject{
 
     public void setSharedImageCount(long sharedImageCount) {
         this.sharedImageCount = sharedImageCount;
-    }
-
-    public int getIconResource() {
-        return iconResource;
-    }
-
-    public void setIconResource(int iconResource) {
-        this.iconResource = iconResource;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 }
