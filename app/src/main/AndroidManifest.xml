@@ -6,6 +6,8 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.GET_TASKS" />
 
     <application
         android:allowBackup="true"
@@ -37,6 +39,28 @@
         <activity android:name=".ui.SettingsActivity"
             android:screenOrientation="portrait">
         </activity>
+
+        <activity android:name=".ui.ImportSearchActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.Transparent">
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="text/plain" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".ui.ChooserActivity"
+            android:screenOrientation="portrait"
+            android:noHistory="true"
+            android:theme="@style/AppTheme.Transparent">
+        </activity>
+
+        <receiver android:name=".receiver.AppCheckReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
 
         <provider android:name=".provider.LocalFileProvider" android:grantUriPermissions="true"
             android:authorities="com.fivetrue.app.imagequicksearch.provider"></provider>

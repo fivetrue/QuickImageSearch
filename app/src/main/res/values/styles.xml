@@ -12,6 +12,15 @@
         <item name="android:windowExitTransition">@transition/default_exit_transition</item>
     </style>
 
+    <style name="AppTheme.Transparent" >
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:colorBackgroundCacheHint">@null</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowEnterTransition">@android:transition/fade</item>
+        <item name="android:windowExitTransition">@android:transition/fade</item>
+    </style>
+
     <style name="ToolbarTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="android:textColorPrimary">@android:color/white</item>
         <item name="android:textColor">@android:color/white</item>

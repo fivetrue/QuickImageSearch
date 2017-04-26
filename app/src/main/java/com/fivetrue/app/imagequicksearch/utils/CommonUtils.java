@@ -14,6 +14,7 @@ import com.fivetrue.app.imagequicksearch.LL;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 /**

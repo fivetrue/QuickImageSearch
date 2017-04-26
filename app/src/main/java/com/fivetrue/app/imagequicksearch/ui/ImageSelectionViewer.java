@@ -184,29 +184,28 @@ public class ImageSelectionViewer extends LinearLayout {
 
     private void internalSend(List<File> files){
         if(LL.D) Log.d(TAG, "internal Send: uri = " + files);
-        if(files != null){
-            Intent intent = null;
-            if(files.size() == 1){
-                intent = new Intent(Intent.ACTION_SEND);
-                intent.putExtra(Intent.EXTRA_STREAM, LocalFileProvider.makeLocalFileUri(files.get(0)))
-                        .setType("image/*");
-            }else if(files.size() > 1){
-                intent = new Intent(Intent.ACTION_SEND_MULTIPLE);
-                ArrayList<Uri> uris = new ArrayList<>(Observable.fromIterable(files)
-                        .map(file -> LocalFileProvider.makeLocalFileUri(file))
-                        .toList().blockingGet());
+//        Intent intent = makeSendIntent(files);
+        ChooserActivity.startActivity(getContext(), files, getResources().getString(R.string.send));
+        mSelectionClient.clearSelection();
+        update();
+    }
 
-                intent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, uris)
-                        .setType("image/*");
-            }
+    private Intent makeSendIntent(List<File> files){
+        Intent intent = null;
+        if (files.size() == 1) {
+            intent = new Intent(Intent.ACTION_SEND);
+            intent.putExtra(Intent.EXTRA_STREAM, LocalFileProvider.makeLocalFileUri(files.get(0)))
+                    .setType("image/*");
+        } else if (files.size() > 1) {
+            intent = new Intent(Intent.ACTION_SEND_MULTIPLE);
+            ArrayList<Uri> uris = new ArrayList<>(Observable.fromIterable(files)
+                    .map(file -> LocalFileProvider.makeLocalFileUri(file))
+                    .toList().blockingGet());
 
-            if(intent != null){
-                getContext().startActivity(Intent.createChooser(intent, getResources().getString(R.string.send)));
-                mSelectionClient.clearSelection();
-                update();
-            }
+            intent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, uris)
+                    .setType("image/*");
         }
-
+        return intent;
     }
 
     public void update(){

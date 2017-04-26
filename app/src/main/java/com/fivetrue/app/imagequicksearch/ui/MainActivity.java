@@ -10,6 +10,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -222,12 +223,6 @@ public class MainActivity extends BaseActivity implements ImageSelectionViewer.I
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-        mAdUtil.addAdView(mLayoutAdAnchor, false);
-    }
-
-    @Override
     protected void onPause() {
         super.onPause();
     }
@@ -269,6 +264,7 @@ public class MainActivity extends BaseActivity implements ImageSelectionViewer.I
 
         ImageDB.getInstance().publishSavedImage();
         ImageDB.getInstance().publishCachedImage();
+        mAdUtil.addAdView(mLayoutAdAnchor, false);
     }
 
     private void initSearchView(SearchView searchView){

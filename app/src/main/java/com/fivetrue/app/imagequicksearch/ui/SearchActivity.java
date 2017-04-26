@@ -45,8 +45,10 @@ public class SearchActivity extends BaseImageListActivity<GoogleImage>{
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mKeyword = getIntent().getStringExtra(KEY_KEYWORD);
-        findKeyword();
+        String keyword = getIntent().getStringExtra(KEY_KEYWORD);
+        if(!TextUtils.isEmpty(keyword)){
+            setKeyword(keyword);
+        }
     }
 
     private void findKeyword(){
@@ -75,6 +77,11 @@ public class SearchActivity extends BaseImageListActivity<GoogleImage>{
             return getAdapter().getData();
         }
         return null;
+    }
+
+    protected void setKeyword(String q){
+        mKeyword = q;
+        findKeyword();
     }
 
 
@@ -200,8 +207,7 @@ public class SearchActivity extends BaseImageListActivity<GoogleImage>{
     @Override
     protected boolean onQueryTextSubmit(String query) {
         getAdapter().clear();
-        mKeyword = query;
-        findKeyword();
+        setKeyword(query);
         return true;
     }
 }

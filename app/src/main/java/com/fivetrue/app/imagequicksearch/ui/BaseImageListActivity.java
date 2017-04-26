@@ -119,6 +119,10 @@ public abstract class BaseImageListActivity <T> extends BaseActivity implements 
         });
     }
 
+    protected void setBackgroundColor(int color){
+        findViewById(R.id.layout_base_image_list).setBackgroundColor(color);
+    }
+
     protected void updateActionBarTitle(){
         getSupportActionBar().setTitle(getKeyword() + " ("+ getData().size() +")");
     }

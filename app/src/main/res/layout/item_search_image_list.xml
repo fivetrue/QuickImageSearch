@@ -7,8 +7,7 @@
         android:id="@+id/layout_item_image_list"
         android:layout_width="match_parent"
         android:layout_height="120dp"
-        android:layout_margin="1dp"
-        android:stateListAnimator="@drawable/selector_state_animator">
+        android:layout_margin="1dp">
         <ImageView
             android:id="@+id/iv_item_image_list"
             android:layout_width="match_parent"
