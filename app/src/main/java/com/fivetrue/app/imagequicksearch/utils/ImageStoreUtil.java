@@ -53,6 +53,7 @@ public class ImageStoreUtil {
         if(savedImage != null){
             if(LL.D)
                 Log.d(TAG, "saveNetworkImage() has StoredImage");
+            ImageDB.get().executeTransaction(realm -> savedImage.setStoredDate(System.currentTimeMillis()));
             return Observable.just(savedImage).map(img -> new File(img.getFilePath()));
         }else{
             if(LL.D)

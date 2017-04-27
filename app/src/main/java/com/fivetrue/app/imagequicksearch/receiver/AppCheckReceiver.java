@@ -7,6 +7,7 @@ import android.util.Log;
 
 import com.fivetrue.app.imagequicksearch.LL;
 import com.fivetrue.app.imagequicksearch.preference.DefaultPreferenceUtil;
+import com.fivetrue.app.imagequicksearch.service.QuickSearchService;
 
 /**
  * Created by kwonojin on 2017. 4. 26..
@@ -31,9 +32,9 @@ public class AppCheckReceiver extends BroadcastReceiver {
     private void onReceiveBootCompleted(Context context, Intent intent){
         if(LL.D)
             Log.d(TAG, "onReceiveBootCompleted() called with: context = [" + context + "], intent = [" + intent + "]");
-        boolean useQuick = DefaultPreferenceUtil.getUseQuickSearch(context);
+        boolean useQuick = DefaultPreferenceUtil.isUsingQuickSearch(context);
         if(useQuick){
-
+            QuickSearchService.startQuickSearchService(context);
         }
     }
 }

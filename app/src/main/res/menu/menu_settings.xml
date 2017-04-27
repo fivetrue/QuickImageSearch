@@ -4,4 +4,9 @@
     <item android:id="@+id/menu_setting_reset_data"
         android:title="@string/reset_data"
         android:icon="@drawable/ic_clear_data_20dp"/>
+
+    <item android:id="@+id/menu_setting_quick_search"
+        android:title="@string/quick_search_menu"
+        android:icon="@drawable/ic_search_20dp"/>
+
 </menu>

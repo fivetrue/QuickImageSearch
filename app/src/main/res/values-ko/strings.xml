@@ -15,6 +15,10 @@
     <string name="like_images">즐겨찾는 사진</string>
     <string name="retrieved_images">검색된 사진</string>
     <string name="reset_data">데이터 초기화</string>
+    <string name="quick_search_menu">빠른 검색메뉴</string>
+    <string name="pull_down_menu">아래로 당겨서 메뉴 보기</string>
+    <string name="last_sent_image">마지막 전송 이미지</string>
+    <string name="send_or_search">보내기 또는 검색</string>
 
     <string name="prepare_images_message">네트워크 이미지 저장 중.</string>
     <string name="use_mobile_network_message">모바일 네트워크를 이용하여 사진을 다운로드 받습니다.</string>

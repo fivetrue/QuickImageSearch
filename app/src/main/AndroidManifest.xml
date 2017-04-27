@@ -42,7 +42,8 @@
         <activity android:name=".ui.ImportSearchActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.Transparent"
-            android:launchMode="singleTop">
+            android:launchMode="singleTop"
+            android:clearTaskOnLaunch="true">
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -55,6 +56,8 @@
             android:noHistory="true"
             android:theme="@style/AppTheme.Transparent">
         </activity>
+
+        <service android:name=".service.QuickSearchService" />
 
         <receiver android:name=".receiver.AppCheckReceiver">
             <intent-filter>

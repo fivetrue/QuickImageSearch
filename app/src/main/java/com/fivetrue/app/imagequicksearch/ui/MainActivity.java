@@ -28,6 +28,7 @@ import com.fivetrue.app.imagequicksearch.database.image.ImageDB;
 import com.fivetrue.app.imagequicksearch.model.image.CachedGoogleImage;
 import com.fivetrue.app.imagequicksearch.model.image.GoogleImage;
 import com.fivetrue.app.imagequicksearch.model.image.SavedImage;
+import com.fivetrue.app.imagequicksearch.service.QuickSearchService;
 import com.fivetrue.app.imagequicksearch.ui.adapter.BaseHeaderFooterAdapter;
 import com.fivetrue.app.imagequicksearch.ui.adapter.image.RetrievedImageListAdapter;
 import com.fivetrue.app.imagequicksearch.ui.adapter.image.SavedImageListAdapter;
@@ -88,6 +89,7 @@ public class MainActivity extends BaseActivity implements ImageSelectionViewer.I
         initData();
         initView();
         initAd();
+        QuickSearchService.startQuickSearchService(this);
     }
 
     @Override

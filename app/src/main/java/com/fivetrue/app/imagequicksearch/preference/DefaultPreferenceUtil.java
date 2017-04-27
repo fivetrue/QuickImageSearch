@@ -30,8 +30,8 @@ public class DefaultPreferenceUtil {
                 .edit().putBoolean(KEY_USE_QUICK_SEARCH, b).commit();
     }
 
-    public static boolean getUseQuickSearch(Context context){
-        return PreferenceManager.getDefaultSharedPreferences(context).getBoolean(KEY_NEW_PRODUCT_PERIOD, true);
+    public static boolean isUsingQuickSearch(Context context){
+        return PreferenceManager.getDefaultSharedPreferences(context).getBoolean(KEY_USE_QUICK_SEARCH, true);
 
     }
 }

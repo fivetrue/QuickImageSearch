@@ -21,6 +21,7 @@ import com.fivetrue.app.imagequicksearch.LL;
 import com.fivetrue.app.imagequicksearch.R;
 import com.fivetrue.app.imagequicksearch.model.image.GoogleImage;
 import com.fivetrue.app.imagequicksearch.provider.LocalFileProvider;
+import com.fivetrue.app.imagequicksearch.service.QuickSearchService;
 import com.fivetrue.app.imagequicksearch.utils.CommonUtils;
 import com.fivetrue.app.imagequicksearch.utils.ImageStoreUtil;
 import com.fivetrue.app.imagequicksearch.utils.SimpleViewUtils;
@@ -185,7 +186,8 @@ public class ImageSelectionViewer extends LinearLayout {
     private void internalSend(List<File> files){
         if(LL.D) Log.d(TAG, "internal Send: uri = " + files);
 //        Intent intent = makeSendIntent(files);
-        ChooserActivity.startActivity(getContext(), files, getResources().getString(R.string.send));
+        QuickSearchService.startQuickSearchService(getContext());
+        ChooserActivity.startActivity(getContext(), files);
         mSelectionClient.clearSelection();
         update();
     }

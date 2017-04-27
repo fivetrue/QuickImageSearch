@@ -46,7 +46,6 @@ public class ChooserActivity extends BaseActivity {
 
     private static final String TAG = "ChooserActivity";
 
-    private static final String KEY_TITLE = "title";
     private static final String KEY_URIS = "uris";
 
     private View mLayoutRecently;
@@ -243,17 +242,29 @@ public class ChooserActivity extends BaseActivity {
         startActivity(intent);
     }
 
-    public static void startActivity(Context context, List<File> files, String title){
-        if(LL.D)
-            Log.d(TAG, "startActivity() called with: context = [" + context + "], files = [" + files + "], title = [" + title + "]");
-        Observable.fromIterable(files)
-                .map(file -> LocalFileProvider.makeLocalFileUri(file))
-                .toList().subscribe(uris -> {
-            Intent intent = new Intent(context, ChooserActivity.class);
-            intent.putExtra(KEY_TITLE , title);
-            intent.putParcelableArrayListExtra(KEY_URIS, new ArrayList<>(uris));
-            context.startActivity(intent);
-        });
 
+    public static Intent makeIntent(Context context, File file){
+        ArrayList<File> arrayList = new ArrayList();
+        arrayList.add(file);
+        return makeIntent(context, arrayList);
+    }
+
+    public static Intent makeIntent(Context context, List<File> files){
+        Intent intent = new Intent(context, ChooserActivity.class);
+        List<Uri> uris = Observable.fromIterable(files)
+                .map(file -> LocalFileProvider.makeLocalFileUri(file))
+                .toList().blockingGet();
+        intent.putParcelableArrayListExtra(KEY_URIS, new ArrayList<>(uris));
+        return intent;
+    }
+
+    public static void startActivity(Context context, File file){
+        ArrayList<File> arrayList = new ArrayList<>();
+        arrayList.add(file);
+        startActivity(context, arrayList);
+    }
+
+    public static void startActivity(Context context, List<File> files){
+        context.startActivity(makeIntent(context, files));
     }
 }

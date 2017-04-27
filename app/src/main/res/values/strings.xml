@@ -15,6 +15,10 @@
     <string name="like_images">Favorite Images</string>
     <string name="retrieved_images">Retrieved Images</string>
     <string name="reset_data">Reset Data</string>
+    <string name="quick_search_menu">Quick Search Menu</string>
+    <string name="pull_down_menu">Pull down to view menu</string>
+    <string name="last_sent_image">Last sent image</string>
+    <string name="send_or_search">Send or Search</string>
 
     <string name="prepare_images_message">Saving and preparing network image</string>
     <string name="use_mobile_network_message">Download images from your mobile network.</string>
