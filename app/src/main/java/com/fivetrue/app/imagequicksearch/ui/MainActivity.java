@@ -72,8 +72,6 @@ public class MainActivity extends BaseActivity implements ImageSelectionViewer.I
     private AdView mAdView;
     private ImageSelectionViewer mImageSelectionViewer;
 
-    private ViewGroup mLayoutAdAnchor;
-
     private ProgressBar mProgress;
     private SearchView mSearchView;
 
@@ -310,8 +308,6 @@ public class MainActivity extends BaseActivity implements ImageSelectionViewer.I
         mSavedImageLayoutSet = (ImageLayoutSet) findViewById(R.id.image_set_main_saved);
         mSavedImageLayoutSet.setLayoutManager(new GridLayoutManager(this, SAVED_IMAGE_ITEM_SPAN_COUNT, LinearLayoutManager.VERTICAL, false));
         mSavedImageLayoutSet.setOnClickMoreListener(view -> startActivity(SavedImageActivity.makeIntent(this)));
-
-        mLayoutAdAnchor = (ViewGroup) findViewById(R.id.layout_main_ad_anchor);
 
         mProgress = (ProgressBar) findViewById(R.id.pb_main);
 
