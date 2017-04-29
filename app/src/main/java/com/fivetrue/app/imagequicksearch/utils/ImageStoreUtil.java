@@ -60,7 +60,11 @@ public class ImageStoreUtil {
                 Log.d(TAG, "saveNetworkImage() try to get network image");
             return Observable.create(emitter -> {
                 if(LL.D) Log.d(TAG, "saveNetworkImage: try to load image");
+
                 Glide.with(mContext).load(image.getOriginalImageUrl()).asBitmap().into(new SimpleTarget<Bitmap>() {
+
+                    boolean mFailed = false;
+
                     @Override
                     public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
                         if(LL.D) Log.d(TAG, "saveNetworkImage: received image");
@@ -85,10 +89,14 @@ public class ImageStoreUtil {
                     @Override
                     public void onLoadFailed(Exception e, Drawable errorDrawable) {
                         super.onLoadFailed(e, errorDrawable);
-//                        if(!failed){
-//                            Glide.with(mContext).load(image.getThumbnailUrl()).asBitmap().into(this);
-//                            failed = true;
-//                        }
+                        Log.e(TAG, "onLoadFailed: ", e);
+                        if(!mFailed){
+                            Log.e(TAG, "onLoadFailed: try again using thumbnail");
+                            Glide.with(mContext).load(image.getThumbnailUrl()).asBitmap().into(this);
+                            mFailed = true;
+                            return;
+                        }
+//                      d
                         emitter.onError(e);
                     }
                 });

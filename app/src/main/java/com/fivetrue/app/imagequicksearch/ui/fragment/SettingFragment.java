@@ -9,6 +9,7 @@ import android.support.v7.app.AlertDialog;
 import com.fivetrue.app.imagequicksearch.BuildConfig;
 import com.fivetrue.app.imagequicksearch.R;
 import com.fivetrue.app.imagequicksearch.database.image.ImageDB;
+import com.fivetrue.app.imagequicksearch.model.image.CachedGoogleImage;
 import com.fivetrue.app.imagequicksearch.model.image.SavedImage;
 import com.fivetrue.app.imagequicksearch.preference.DefaultPreferenceUtil;
 import com.fivetrue.app.imagequicksearch.service.QuickSearchService;
@@ -43,7 +44,8 @@ public class SettingFragment extends PreferenceFragment implements SharedPrefere
                             for(SavedImage image : ImageDB.getInstance().getSavedImages()){
                                 new File(image.getFilePath()).delete();
                             }
-                            ImageDB.get().deleteAll();
+                            ImageDB.get().delete(CachedGoogleImage.class);
+                            ImageDB.get().delete(SavedImage.class);
                             dialogInterface.dismiss();
                             QuickSearchService.startQuickSearchService(getActivity());
                         });

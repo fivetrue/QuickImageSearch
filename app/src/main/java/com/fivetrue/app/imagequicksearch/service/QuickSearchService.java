@@ -115,7 +115,7 @@ public class QuickSearchService extends Service {
             builder.setStyle(bigPictureStyle);
 
             Intent sendIntent = ChooserActivity.makeIntent(this, file);
-            sendIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_NO_HISTORY);
+            sendIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             PendingIntent sendPendingIntent = PendingIntent.getActivity(this, 0, sendIntent, PendingIntent.FLAG_UPDATE_CURRENT);
             builder.addAction(R.drawable.ic_share_accent_20dp, getString(R.string.send), sendPendingIntent);
         }

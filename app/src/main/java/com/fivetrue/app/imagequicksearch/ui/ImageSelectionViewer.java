@@ -19,6 +19,7 @@ import android.widget.Toast;
 
 import com.fivetrue.app.imagequicksearch.LL;
 import com.fivetrue.app.imagequicksearch.R;
+import com.fivetrue.app.imagequicksearch.database.image.ImageDB;
 import com.fivetrue.app.imagequicksearch.model.image.GoogleImage;
 import com.fivetrue.app.imagequicksearch.provider.LocalFileProvider;
 import com.fivetrue.app.imagequicksearch.service.QuickSearchService;
@@ -81,10 +82,13 @@ public class ImageSelectionViewer extends LinearLayout {
         mAction.setOnClickListener(view -> {
             if(mSendAction){
                 if(CommonUtils.isOnline(getContext())){
-                    if(CommonUtils.isMobileConnected(getContext())){
+                    List<GoogleImage> noSavedImages = Observable.fromIterable(mSelectionClient.getSelections())
+                            .filter(image -> ImageDB.getInstance().findSavedImage(image.getOriginalImageUrl()) == null)
+                            .toList().blockingGet();
+                    if(CommonUtils.isMobileConnected(getContext()) && noSavedImages.size() > 0){
                         new AlertDialog.Builder(getContext())
                                 .setTitle(android.R.string.dialog_alert_title)
-                                .setMessage(R.string.use_mobile_network_message)
+                                .setMessage(getResources().getString(R.string.use_mobile_network_message, noSavedImages.size()))
                                 .setPositiveButton(android.R.string.ok, (dialogInterface, i) -> {
                                     dialogInterface.dismiss();
                                     doAction();

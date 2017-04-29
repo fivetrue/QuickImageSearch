@@ -63,7 +63,7 @@
                 android:elevation="3dp"/>
             <View
                 android:layout_width="match_parent"
-                android:layout_height="70dp"/>
+                android:layout_height="100dp"/>
         </LinearLayout>
     </android.support.v4.widget.NestedScrollView>
 

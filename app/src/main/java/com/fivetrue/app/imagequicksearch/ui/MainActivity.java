@@ -7,6 +7,7 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v4.widget.NestedScrollView;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -24,7 +25,9 @@ import android.widget.Toast;
 
 import com.fivetrue.app.imagequicksearch.LL;
 import com.fivetrue.app.imagequicksearch.R;
+import com.fivetrue.app.imagequicksearch.database.app.AppDB;
 import com.fivetrue.app.imagequicksearch.database.image.ImageDB;
+import com.fivetrue.app.imagequicksearch.model.app.AppInfo;
 import com.fivetrue.app.imagequicksearch.model.image.CachedGoogleImage;
 import com.fivetrue.app.imagequicksearch.model.image.GoogleImage;
 import com.fivetrue.app.imagequicksearch.model.image.SavedImage;
@@ -93,6 +96,7 @@ public class MainActivity extends BaseActivity implements ImageSelectionViewer.I
         initView();
         initAd();
         QuickSearchService.startQuickSearchService(this);
+        showRatingGuideDialog();
     }
 
     @Override
@@ -103,6 +107,29 @@ public class MainActivity extends BaseActivity implements ImageSelectionViewer.I
         }
         if(mCachedImageDisposable != null && !mCachedImageDisposable.isDisposed()){
             mCachedImageDisposable.dispose();
+        }
+    }
+
+    private void showRatingGuideDialog(){
+        List<AppInfo> list = AppDB.getInstance().getAppInfoList();
+        if(list != null && list.size() > 0){
+            Observable.fromIterable(list)
+                    .filter(appInfo -> appInfo.getSharedCount() > 3)
+                    .take(1)
+                    .subscribe(appInfos -> {
+                if(DefaultPreferenceUtil.isFirstOpen(this, getString(R.string.rate))){
+                    if(LL.D) Log.d(TAG, "showRatingGuideDialog: show");
+                    new AlertDialog.Builder(this)
+                            .setTitle(R.string.rate)
+                            .setMessage(R.string.app_rate_message)
+                            .setPositiveButton(R.string.rate, (dialogInterface, i) -> {
+                                DefaultPreferenceUtil.setFirstOpen(this, getString(R.string.rate), false);
+                                CommonUtils.goStore(this);
+                                dialogInterface.dismiss();
+                            }).setNegativeButton(android.R.string.cancel, (dialogInterface, i) -> dialogInterface.dismiss())
+                            .show();
+                }
+            });
         }
     }
 
@@ -430,6 +457,10 @@ public class MainActivity extends BaseActivity implements ImageSelectionViewer.I
 
     @Override
     public void onBackPressed() {
+        if(getSupportFragmentManager().getBackStackEntryCount() > 0){
+            getSupportFragmentManager().popBackStackImmediate();
+            return;
+        }
         if(getSelections().size() > 0){
             mSavedImageListAdapter.clearSelection();
             mLikeImageListAdapter.clearSelection();

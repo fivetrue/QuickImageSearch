@@ -24,6 +24,7 @@ import com.fivetrue.app.imagequicksearch.ui.adapter.BaseHeaderFooterAdapter;
 import com.fivetrue.app.imagequicksearch.ui.adapter.BaseRecyclerAdapter;
 import com.fivetrue.app.imagequicksearch.ui.adapter.image.ImageListAdapter;
 import com.fivetrue.app.imagequicksearch.ui.fragment.ImageDetailViewFragment;
+import com.fivetrue.app.imagequicksearch.utils.CommonUtils;
 import com.fivetrue.app.imagequicksearch.utils.DataManager;
 import com.fivetrue.app.imagequicksearch.utils.SimpleViewUtils;
 import com.fivetrue.app.imagequicksearch.utils.TrackingUtil;

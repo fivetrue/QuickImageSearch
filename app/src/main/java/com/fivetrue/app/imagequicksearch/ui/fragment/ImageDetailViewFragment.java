@@ -8,6 +8,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,6 +36,7 @@ public class ImageDetailViewFragment extends BaseFragment {
     private static final String TAG = "ImageDetailViewFragment";
 
     private static final String KEY_IMAGE_URL = "imageUrl";
+    private static final String KEY_THUMBNAIL_URL = "thumbnailUrl";
     private static final String KEY_FILE_PATH = "filePath";
     private static final String KEY_SITE = "site";
     private static final String KEY_SITE_URL = "siteUrl";
@@ -82,10 +84,14 @@ public class ImageDetailViewFragment extends BaseFragment {
         super.onActivityCreated(savedInstanceState);
 
         String imageUrl = getArguments().getString(KEY_IMAGE_URL);
+        String thumbnail = getArguments().getString(KEY_THUMBNAIL_URL);
         String filePath = getArguments().getString(KEY_FILE_PATH);
         Glide.with(getActivity())
                 .load(!TextUtils.isEmpty(filePath) ? filePath : imageUrl)
                 .asBitmap().into(new SimpleTarget<Bitmap>() {
+
+            boolean mFailed = false;
+
             @Override
             public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
                 mImage.setImageBitmap(resource);
@@ -114,14 +120,22 @@ public class ImageDetailViewFragment extends BaseFragment {
                                 });
                     }
                 }
-
                 mProgressBar.setVisibility(View.GONE);
             }
 
             @Override
             public void onLoadFailed(Exception e, Drawable errorDrawable) {
                 super.onLoadFailed(e, errorDrawable);
-                getFragmentManager().popBackStackImmediate();
+                Log.e(TAG, "onLoadFailed: ", e);
+                if(getActivity() != null){
+                    if(!mFailed){
+                        Log.e(TAG, "onLoadFailed: try again using thumbnail");
+                        Glide.with(getActivity()).load(thumbnail).asBitmap().into(this);
+                        mFailed = true;
+                        return;
+                    }
+                    getFragmentManager().popBackStackImmediate();
+                }
             }
         });
         mSite.setText(getArguments().getString(KEY_SITE));
@@ -178,6 +192,7 @@ public class ImageDetailViewFragment extends BaseFragment {
     public static Bundle makeBundle(Context context, GoogleImage image){
         Bundle bundle = new Bundle();
         bundle.putString(KEY_IMAGE_URL, image.getOriginalImageUrl());
+        bundle.putString(KEY_THUMBNAIL_URL, image.getThumbnailUrl());
         bundle.putString(KEY_SITE, image.getSiteTitle());
         bundle.putString(KEY_SITE_URL, image.getSiteUrl());
         bundle.putString(KEY_PAGE, image.getSubject());
@@ -188,6 +203,7 @@ public class ImageDetailViewFragment extends BaseFragment {
     public static Bundle makeBundle(Context context, CachedGoogleImage image){
         Bundle bundle = new Bundle();
         bundle.putString(KEY_IMAGE_URL, image.getImageUrl());
+        bundle.putString(KEY_THUMBNAIL_URL, image.getThumbnailUrl());
         bundle.putString(KEY_SITE, image.getSiteTitle());
         bundle.putString(KEY_SITE_URL, image.getSiteUrl());
         bundle.putString(KEY_PAGE, image.getPageTitle());

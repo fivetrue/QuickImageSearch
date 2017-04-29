@@ -35,6 +35,7 @@ public class AppDB extends RealmDB implements RealmChangeListener {
 
     private AppDB(Context context){
         mContext = context;
+        get().addChangeListener(this);
     }
 
 

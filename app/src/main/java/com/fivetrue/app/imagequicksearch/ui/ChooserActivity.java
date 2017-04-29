@@ -196,11 +196,6 @@ public class ChooserActivity extends BaseActivity {
         }
     }
 
-    private void sendFailure(Intent intent, Throwable throwable){
-        TrackingUtil.getInstance().report(throwable);
-        startActivity(Intent.createChooser(intent, getResources().getString(R.string.send)));
-    }
-
     private void setFavoriteData(Intent intent, List<ResolveInfo> data){
         if(mFavoriteAdapter == null){
             mFavoriteAdapter = new AppListAdapter(data, new BaseHeaderFooterAdapter.OnItemClickListener<ResolveInfo>() {
@@ -278,6 +273,13 @@ public class ChooserActivity extends BaseActivity {
         });
         intent.setClassName(resolveInfo.activityInfo.packageName, resolveInfo.activityInfo.name);
         startActivity(intent);
+        finish();
+    }
+
+    private void sendFailure(Intent intent, Throwable throwable){
+        TrackingUtil.getInstance().report(throwable);
+        startActivity(Intent.createChooser(intent, getResources().getString(R.string.send)));
+        finish();
     }
 
 

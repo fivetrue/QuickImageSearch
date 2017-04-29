@@ -23,9 +23,10 @@
     <string name="last_sent_image">Last sent image</string>
     <string name="send_or_search">Send or Search</string>
     <string name="favorite_share_app">Favorite Share App</string>
+    <string name="rate">Rate now</string>
 
     <string name="prepare_images_message">Saving and preparing network image</string>
-    <string name="use_mobile_network_message">Download images from your mobile network.</string>
+    <string name="use_mobile_network_message">Download %d images from your mobile network.</string>
     <string name="check_network_setting_message">Please check your network settings.</string>
     <string name="delete_cached_images_message">Related images will be deleted.</string>
     <string name="delete_saved_images_message">Selected images will be deleted.</string>
@@ -35,6 +36,7 @@
     <string name="reset_data_message">All saved data will be deleted.</string>
     <string name="favorite_share_app_message">Set up an app that shares images often.</string>
     <string name="application_version_message">Application version information</string>
+    <string name="app_rate_message">A good app rating makes the developer dance.</string>
 
     <string name="spotlight_total_search_message">You can perform integrated search by searching the first screen. If there is already a search result, relevant search images are updated on the screen every time you input. If you want to search for the desired image, just type the word and select the Search button on the input keyboard.</string>
     <string name="spotlight_search_result_message">When you enter another keyword in the search results, the results associated with the keyword are filtered in the search results. You can, of course, search the entered query again. You can delete search results with the delete button on the right.</string>
@@ -43,5 +45,6 @@
     <string name="spotlight_source_message">Selecting a link will take you to the image origin page.</string>
     <string name="spotlight_quick_search_menu_message">You can pin the Quick Search menu on the Notifications panel.</string>
     <string name="spotlight_reset_data_message">You can delete all stored data.</string>
+
 
 </resources>
