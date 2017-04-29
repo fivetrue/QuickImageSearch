@@ -20,10 +20,9 @@
             app:elevation="3dp"/>
     </android.support.design.widget.AppBarLayout>
 
-    <android.support.design.widget.NavigationView
-        android:id="@+id/navi_setting"
+    <fragment
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        app:menu="@menu/menu_settings"/>
+        android:name="com.fivetrue.app.imagequicksearch.ui.fragment.SettingFragment"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
 </android.support.design.widget.CoordinatorLayout>

@@ -22,29 +22,41 @@
     </android.support.design.widget.AppBarLayout>
 
 
+    <View
+        android:id="@+id/view_base_image_list"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_gravity="right|top"
+        android:layout_marginTop="80dp"
+        android:layout_marginRight="10dp"
+        android:visibility="invisible"/>
+
     <android.support.v7.widget.RecyclerView
         android:id="@+id/rv_base_image_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 
-    <com.google.android.gms.ads.AdView
-        android:id="@+id/ad_base_image_list"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
-        app:adSize="BANNER"
-        app:adUnitId="@string/admob_image_list_banner" />
 
-    <com.fivetrue.app.imagequicksearch.ui.ImageSelectionViewer
-        android:id="@+id/layout_base_image_list_selection"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="3dp"
-        android:gravity="center"
         android:layout_gravity="bottom"
-        android:visibility="invisible"
-        android:background="@drawable/rect_rounded_primary"
-        android:elevation="7dp" />
+        android:orientation="vertical">
+        <com.google.android.gms.ads.AdView
+            android:id="@+id/ad_base_image_list"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:adSize="BANNER"
+            app:adUnitId="@string/admob_image_list_banner" />
+        <com.fivetrue.app.imagequicksearch.ui.ImageSelectionViewer
+            android:id="@+id/layout_base_image_list_selection"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="3dp"
+            android:gravity="center"
+            android:visibility="gone"
+            android:background="@drawable/rect_rounded_primary"/>
+    </LinearLayout>
 
     <ProgressBar
         android:id="@+id/pb_base_image_list"

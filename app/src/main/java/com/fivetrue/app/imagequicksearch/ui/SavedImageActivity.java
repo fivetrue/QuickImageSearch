@@ -111,11 +111,6 @@ public class SavedImageActivity extends BaseImageListActivity<SavedImage>{
     }
 
     @Override
-    protected void onItemClick(SavedImage item) {
-        super.onItemClick(item);
-    }
-
-    @Override
     protected boolean onItemLongClick(SavedImage item) {
         addFragment(ImageDetailViewFragment.class, ImageDetailViewFragment.makeBundle(this, item)
                 , android.R.id.content, true);

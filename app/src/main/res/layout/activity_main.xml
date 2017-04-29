@@ -74,21 +74,26 @@
         android:layout_gravity="center"
         android:visibility="gone"/>
 
-    <com.google.android.gms.ads.AdView
-        android:id="@+id/ad_main"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        app:adSize="BANNER"
-        app:adUnitId="@string/admob_image_list_banner"/>
+        android:orientation="vertical">
+        <com.google.android.gms.ads.AdView
+            android:id="@+id/ad_main"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            app:adSize="BANNER"
+            app:adUnitId="@string/admob_image_list_banner"/>
 
-    <com.fivetrue.app.imagequicksearch.ui.ImageSelectionViewer
-        android:id="@+id/layout_main_image_selection"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
-        android:visibility="invisible"
-        android:padding="3dp"
-        android:background="@drawable/rect_rounded_primary"
-        android:elevation="7dp" />
+        <com.fivetrue.app.imagequicksearch.ui.ImageSelectionViewer
+            android:id="@+id/layout_main_image_selection"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:visibility="gone"
+            android:padding="3dp"
+            android:background="@drawable/rect_rounded_primary" />
+    </LinearLayout>
 </android.support.design.widget.CoordinatorLayout>

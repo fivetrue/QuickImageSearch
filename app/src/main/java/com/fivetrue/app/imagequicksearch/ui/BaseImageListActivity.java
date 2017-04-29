@@ -213,7 +213,7 @@ public abstract class BaseImageListActivity <T> extends BaseActivity implements 
                     @Override
                     public void onItemClick(RecyclerView.ViewHolder holder, int pos,  T item) {
                         mImageAdapter.toggle(pos);
-                        BaseImageListActivity.this.onItemClick(item);
+                        BaseImageListActivity.this.onItemClick(holder, pos, item);
                     }
 
                     @Override
@@ -240,7 +240,7 @@ public abstract class BaseImageListActivity <T> extends BaseActivity implements 
         }
     }
 
-    protected void onItemClick(T item){
+    protected void onItemClick(RecyclerView.ViewHolder holder, int pos, T item){
         update();
     }
 
@@ -352,5 +352,13 @@ public abstract class BaseImageListActivity <T> extends BaseActivity implements 
         if(mProgress != null){
             mProgress.setVisibility(View.GONE);
         }
+    }
+
+    protected View getCenterView(){
+        return findViewById(R.id.view_base_image_list);
+    }
+
+    protected RecyclerView getRecyclerView(){
+        return mRecyclerView;
     }
 }

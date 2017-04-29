@@ -5,22 +5,27 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.fivetrue.app.imagequicksearch.LL;
 import com.fivetrue.app.imagequicksearch.R;
 import com.fivetrue.app.imagequicksearch.database.image.ImageDB;
 import com.fivetrue.app.imagequicksearch.model.image.GoogleImage;
+import com.fivetrue.app.imagequicksearch.preference.DefaultPreferenceUtil;
 import com.fivetrue.app.imagequicksearch.ui.adapter.BaseHeaderFooterAdapter;
 import com.fivetrue.app.imagequicksearch.ui.adapter.BaseRecyclerAdapter;
 import com.fivetrue.app.imagequicksearch.ui.adapter.image.ImageListAdapter;
 import com.fivetrue.app.imagequicksearch.ui.fragment.ImageDetailViewFragment;
 import com.fivetrue.app.imagequicksearch.utils.DataManager;
+import com.fivetrue.app.imagequicksearch.utils.SimpleViewUtils;
 import com.fivetrue.app.imagequicksearch.utils.TrackingUtil;
 
 import java.util.List;
@@ -72,6 +77,15 @@ public class SearchActivity extends BaseImageListActivity<GoogleImage>{
     }
 
     @Override
+    protected void onItemClick(RecyclerView.ViewHolder holder, int pos, GoogleImage item) {
+        super.onItemClick(holder, pos, item);
+        if(DefaultPreferenceUtil.isFirstOpen(SearchActivity.this, getString(R.string.long_press))){
+            SimpleViewUtils.showSpotlight(SearchActivity.this, getCenterView(), getString(R.string.long_press)
+                    , getString(R.string.spotlight_long_press_message), s -> DefaultPreferenceUtil.setFirstOpen(this, getString(R.string.long_press), false));
+        }
+    }
+
+    @Override
     protected List<GoogleImage> getData() {
         if(getAdapter() != null){
             return getAdapter().getData();
@@ -91,6 +105,10 @@ public class SearchActivity extends BaseImageListActivity<GoogleImage>{
         return intent;
     }
 
+    @Override
+    public void setData(List<GoogleImage> data) {
+        super.setData(data);
+    }
 
     @Override
     public List<GoogleImage> getSelections() {
@@ -112,6 +130,12 @@ public class SearchActivity extends BaseImageListActivity<GoogleImage>{
 
     @Override
     public void onBackPressed() {
+
+        if(getSupportFragmentManager().getBackStackEntryCount() > 0){
+            getSupportFragmentManager().popBackStackImmediate();
+            return;
+        }
+
         if(getAdapter() != null && getAdapter().getSelections().size() > 0){
             getAdapter().clearSelection();
             getSelectionViewer().update();
@@ -162,6 +186,15 @@ public class SearchActivity extends BaseImageListActivity<GoogleImage>{
     protected void onScrollToPreLoading() {
         super.onScrollToPreLoading();
         loadExtraData();
+    }
+
+    @Override
+    protected void initSearchView(SearchView searchView) {
+        super.initSearchView(searchView);
+        if(DefaultPreferenceUtil.isFirstOpen(SearchActivity.this, getString(R.string.search_result))){
+            SimpleViewUtils.showSpotlight(SearchActivity.this, searchView, getString(R.string.search_result)
+                    , getString(R.string.spotlight_search_result_message), s1 -> DefaultPreferenceUtil.setFirstOpen(SearchActivity.this, getString(R.string.search_result), false));
+        }
     }
 
     @Override

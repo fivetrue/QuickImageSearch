@@ -235,7 +235,7 @@ public class ImageSelectionViewer extends LinearLayout {
 
     public void hide(){
         if(isShown()){
-            SimpleViewUtils.hideView(this, View.INVISIBLE);
+            SimpleViewUtils.hideView(this, View.GONE);
         }
     }
 

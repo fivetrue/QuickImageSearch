@@ -58,7 +58,7 @@ public class ImageDB extends RealmDB implements RealmChangeListener<Realm>{
 
     public List<CachedGoogleImage> findCachedImages(String q){
         if(TextUtils.isEmpty(q)){
-            return getCachedImages();
+            return getCachedImages(Sort.ASCENDING);
         }else{
             return get().where(CachedGoogleImage.class)
                     .contains("siteUrl", q).or()
@@ -85,7 +85,11 @@ public class ImageDB extends RealmDB implements RealmChangeListener<Realm>{
     }
 
     public List<CachedGoogleImage> getCachedImages(){
-        return get().where(CachedGoogleImage.class).findAllSorted("updateDate", Sort.DESCENDING);
+        return getCachedImages(Sort.ASCENDING);
+    }
+
+    public List<CachedGoogleImage> getCachedImages(Sort sort){
+        return get().where(CachedGoogleImage.class).findAllSorted("updateDate", sort);
     }
 
     public List<CachedGoogleImage> getCachedImages(String keyword){
@@ -159,7 +163,7 @@ public class ImageDB extends RealmDB implements RealmChangeListener<Realm>{
     }
 
     public void publishCachedImage(){
-        mCachedImagePublishSubject.onNext(getCachedImages());
+        mCachedImagePublishSubject.onNext(getCachedImages(Sort.ASCENDING));
         mCachedImagePublishSubject.publish();
     }
 

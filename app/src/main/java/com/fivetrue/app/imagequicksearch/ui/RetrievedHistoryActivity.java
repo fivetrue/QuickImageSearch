@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -77,9 +78,9 @@ public class RetrievedHistoryActivity extends BaseImageListActivity<CachedGoogle
     }
 
     @Override
-    protected void onItemClick(CachedGoogleImage item) {
+    protected void onItemClick(RecyclerView.ViewHolder holder, int pos, CachedGoogleImage item) {
         if(getAdapter().isEditMode()){
-            super.onItemClick(item);
+            super.onItemClick(holder, pos, item);
         }else{
             startActivity(SearchActivity.makeIntent(this, item.getKeyword()));
         }

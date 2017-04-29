@@ -3,7 +3,9 @@
 
     <string name="search_hint">Image Search</string>
     <string name="search_result">Search Result</string>
+    <string name="long_press">Long Press</string>
 
+    <string name="data">Data</string>
     <string name="send">Send</string>
     <string name="delete">Delete</string>
     <string name="search">Search</string>
@@ -13,12 +15,14 @@
     <string name="selection_image">%d image(s) selected</string>
     <string name="saved_images">Saved Images</string>
     <string name="like_images">Favorite Images</string>
+    <string name="source">Source</string>
     <string name="retrieved_images">Retrieved Images</string>
     <string name="reset_data">Reset Data</string>
     <string name="quick_search_menu">Quick Search Menu</string>
     <string name="pull_down_menu">Pull down to view menu</string>
     <string name="last_sent_image">Last sent image</string>
     <string name="send_or_search">Send or Search</string>
+    <string name="share_app">Share App</string>
 
     <string name="prepare_images_message">Saving and preparing network image</string>
     <string name="use_mobile_network_message">Download images from your mobile network.</string>
@@ -29,5 +33,15 @@
     <string name="send_image_failure_message">Image transfer failed.</string>
     <string name="save_image_failure_message">Image save filed.</string>
     <string name="reset_data_message">All saved data will be deleted.</string>
+    <string name="share_app_message">Set up an app that shares images often.</string>
+    <string name="application_version_message">Application version information</string>
+
+    <string name="spotlight_total_search_message">You can perform integrated search by searching the first screen. If there is already a search result, relevant search images are updated on the screen every time you input. If you want to search for the desired image, just type the word and select the Search button on the input keyboard.</string>
+    <string name="spotlight_search_result_message">When you enter another keyword in the search results, the results associated with the keyword are filtered in the search results. You can, of course, search the entered query again. You can delete search results with the delete button on the right.</string>
+    <string name="spotlight_long_press_message">You can check the details by pressing and holding the searched photo.</string>
+    <string name="spotlight_like_image_message">You can add your favorite images by selecting hearts. The added image is shown on the first screen.</string>
+    <string name="spotlight_source_message">Selecting a link will take you to the image origin page.</string>
+    <string name="spotlight_quick_search_menu_message">You can pin the Quick Search menu on the Notifications panel.</string>
+    <string name="spotlight_reset_data_message">You can delete all stored data.</string>
 
 </resources>

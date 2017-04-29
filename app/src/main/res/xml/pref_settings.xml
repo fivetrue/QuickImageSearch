@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory
+        android:title="@string/data"
+        android:key="pref_settings_data">
+        <Preference
+            android:key="@string/pref_reset_data"
+            android:icon="@drawable/ic_clear_data_20dp"
+            android:title="@string/reset_data"
+            android:summary="@string/reset_data_message" />
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title="@string/settings"
+        android:key="pref_settings_settings">
+        <CheckBoxPreference
+            android:key="@string/pref_quick_menu"
+            android:icon="@drawable/ic_search_20dp"
+            android:title="@string/quick_search_menu"
+            android:summary="@string/spotlight_quick_search_menu_message"
+            android:defaultValue="true" />
+
+        <Preference
+            android:key="@string/pref_quick_share_app"
+            android:icon="@drawable/ic_share_20dp"
+            android:title="@string/share_app"
+            android:summary="@string/share_app_message"/>
+
+        <Preference
+            android:key="@string/pref_version"
+            android:title="Version"
+            android:summary="@string/application_version_message"
+            android:icon="@drawable/ic_info_24dp" />
+
+        <Preference
+            android:title="@string/Info"
+            android:icon="@drawable/ic_info_24dp">
+            <intent android:action="android.intent.action.VIEW"
+                android:data="https://play.google.com/store/apps/details?id=com.fivetrue.app.imagequicksearch" />
+        </Preference>
+    </PreferenceCategory>
+</PreferenceScreen>

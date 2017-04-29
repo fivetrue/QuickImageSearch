@@ -1,11 +1,11 @@
 package com.fivetrue.app.imagequicksearch.service;
 
 import android.app.Notification;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
@@ -21,9 +21,11 @@ import com.fivetrue.app.imagequicksearch.preference.DefaultPreferenceUtil;
 import com.fivetrue.app.imagequicksearch.ui.ChooserActivity;
 import com.fivetrue.app.imagequicksearch.ui.ImportSearchActivity;
 import com.fivetrue.app.imagequicksearch.ui.MainActivity;
+import com.fivetrue.app.imagequicksearch.ui.SettingsActivity;
 
 import java.io.File;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import io.reactivex.Observable;
 
@@ -39,6 +41,7 @@ public class QuickSearchService extends Service {
     private static final String ACTION_STOP_QUICK_SEARCH_SERVICE = "com.fivetrue.app.quicksearch.service.stop";
 
     private static final int SERVICE_ID = 0x1209;
+    private static final int NOTIFICATION_ID = 0x0205;
 
     private static final int IMAGE_COUNT = 5;
 
@@ -57,7 +60,7 @@ public class QuickSearchService extends Service {
         if(intent != null){
             String action = intent.getAction();
             if(action != null){
-                if(action.equals(ACTION_START_QUICK_SEARCH_SERVICE) && DefaultPreferenceUtil.isUsingQuickSearch(this)){
+                if(action.equals(ACTION_START_QUICK_SEARCH_SERVICE)){
                     onReceivedStart();
                 }else if(action.equals(ACTION_STOP_QUICK_SEARCH_SERVICE)){
                     onReceivedStop();
@@ -69,7 +72,7 @@ public class QuickSearchService extends Service {
 
     private void onReceivedStart(){
         if(LL.D) Log.d(TAG, "onReceivedStart: ");
-        setForeground();
+        prepareService();
 //        setForeground(makeRemoteViews());
     }
 
@@ -78,80 +81,66 @@ public class QuickSearchService extends Service {
         stopSelf();
     }
 
-    private void setForeground() {
-        if(LL.D)
-            if(LL.D) Log.d(TAG, "setForeground() called");
-        Observable.fromIterable(ImageDB.getInstance().getSavedImages())
-                .take(1)
-                .subscribe(savedImage -> {
-                    Bitmap bm = BitmapFactory.decodeFile(savedImage.getFilePath());
-                    NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
-                    builder.setSmallIcon(R.drawable.ic_search_accent_24dp);
-                    builder.setContentTitle(getString(R.string.quick_search_menu));
-                    builder.setContentText(getString(R.string.pull_down_menu));
-                    builder.setColor(getResources().getColor(R.color.colorAccent));
-                    builder.setPriority(Notification.PRIORITY_LOW);
-                    builder.setOngoing(true);
-
-                    NotificationCompat.BigPictureStyle bigPictureStyle = new NotificationCompat.BigPictureStyle();
-                    bigPictureStyle.bigPicture(bm)
-                            .setBigContentTitle(getString(R.string.last_sent_image))
-                            .setSummaryText(getString(R.string.send_or_search));
-                    builder.setStyle(bigPictureStyle);
-
-                    Intent sendIntent = ChooserActivity.makeIntent(this, new File(savedImage.getFilePath()));
-                    sendIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_NO_HISTORY);
-                    PendingIntent sendPendingIntent = PendingIntent.getActivity(this, 0, sendIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-                    builder.addAction(R.drawable.ic_share_20dp, getString(R.string.send), sendPendingIntent);
-
-                    Intent searchIntent = new Intent(this, ImportSearchActivity.class);
-                    searchIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_NO_HISTORY);
-                    PendingIntent searchPendingIntent = PendingIntent.getActivity(this, 0, searchIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-                    builder.addAction(R.drawable.ic_search_accent_24dp, getString(R.string.search), searchPendingIntent);
-
-                    Intent intent = new Intent(this, MainActivity.class);
-                    PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-                    builder.setContentIntent(pendingIntent);
-                    startForeground(SERVICE_ID, builder.build());
-                });
+    private void prepareService() {
+        List<SavedImage> list = ImageDB.getInstance().getSavedImages();
+        if(list != null && !list.isEmpty()){
+            Observable.fromIterable(list)
+                    .take(1)
+                    .timeout(5, TimeUnit.SECONDS)
+                    .subscribe(savedImage -> {
+                        setForeground(savedImage);
+                    }, throwable -> {
+                        Log.e(TAG, "setForeground: ", throwable);
+                        setForeground(null);
+                    });
+        }else{
+            setForeground(null);
+        }
     }
 
-    private RemoteViews makeRemoteViews(){
-        List<SavedImage> images = getImages();
-        RemoteViews remoteViews = new RemoteViews(getPackageName(), R.layout.layout_service_remote_view);
-        for(int i = 0 ; i < images.size() ; i ++){
-            SavedImage image = images.get(i);
-            int imageViewId = REMOTE_IMAGE_VIEWS[i];
-            if(image != null){
-                File file = new File(image.getFilePath());
-                remoteViews.setImageViewBitmap(imageViewId, BitmapFactory.decodeFile(image.getFilePath()));
-                Intent intent = ChooserActivity.makeIntent(this, file);
-                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-                remoteViews.setOnClickPendingIntent(imageViewId, pendingIntent);
-            }
+    private void setForeground(SavedImage image){
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
+        builder.setSmallIcon(R.drawable.ic_search_accent_24dp);
+        builder.setContentTitle(getString(R.string.quick_search_menu));
+        builder.setContentText(getString(R.string.pull_down_menu));
+        builder.setColor(getResources().getColor(R.color.colorAccent));
+        builder.setPriority(Notification.PRIORITY_LOW);
+
+        if(image != null){
+            File file = new File(image.getFilePath());
+            NotificationCompat.BigPictureStyle bigPictureStyle = new NotificationCompat.BigPictureStyle();
+            bigPictureStyle.bigPicture(BitmapFactory.decodeFile(file.getAbsolutePath()))
+                    .setBigContentTitle(getString(R.string.last_sent_image))
+                    .setSummaryText(getString(R.string.send_or_search));
+            builder.setStyle(bigPictureStyle);
+
+            Intent sendIntent = ChooserActivity.makeIntent(this, file);
+            sendIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_NO_HISTORY);
+            PendingIntent sendPendingIntent = PendingIntent.getActivity(this, 0, sendIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+            builder.addAction(R.drawable.ic_share_accent_20dp, getString(R.string.send), sendPendingIntent);
         }
 
-        Intent intent = new Intent(this, ImportSearchActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NO_HISTORY);
+        Intent searchIntent = new Intent(this, ImportSearchActivity.class);
+        searchIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_NO_HISTORY);
+        PendingIntent searchPendingIntent = PendingIntent.getActivity(this, 0, searchIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        builder.addAction(R.drawable.ic_search_accent_24dp, getString(R.string.search), searchPendingIntent);
+
+        Intent settingIntent = new Intent(this, SettingsActivity.class);
+        searchIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_NO_HISTORY);
+        PendingIntent settingPendingIntent = PendingIntent.getActivity(this, 0, settingIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        builder.addAction(R.drawable.ic_settings_accent_24dp, getString(R.string.settings), settingPendingIntent);
+
+        Intent intent = new Intent(this, MainActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-        remoteViews.setOnClickPendingIntent(R.id.iv_service_remote_search, pendingIntent);
-        return remoteViews;
-    }
+        builder.setContentIntent(pendingIntent);
 
-    private List<SavedImage> getImages(){
-//        if(DefaultPreferenceUtil.isSavedQuickPanel(this)){
-            return Observable.fromIterable(ImageDB.getInstance().getSavedImages())
-                    .take(IMAGE_COUNT)
-                    .toList().blockingGet();
+        if(DefaultPreferenceUtil.isUsingQuickSearch(this)){
+            startForeground(SERVICE_ID, builder.build());
+        }else{
+            NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+            nm.notify(NOTIFICATION_ID, builder.build());
+        }
 
-//        }else{
-//            return Observable.fromIterable(ImageDB.getInstance().getCachedImages())
-//                    .filter(CachedGoogleImage::isLike)
-//                    .take(IMAGE_COUNT)
-//                    .map(image -> new GoogleImage(image))
-//                    .toList().blockingGet();
-//        }
     }
 
     @Nullable
@@ -165,7 +154,6 @@ public class QuickSearchService extends Service {
         intent.setAction(ACTION_START_QUICK_SEARCH_SERVICE);
         context.startService(intent);
     }
-
     public static void stopQuickSearchService(Context context){
         Intent intent = new Intent(context, QuickSearchService.class);
         intent.setAction(ACTION_STOP_QUICK_SEARCH_SERVICE);

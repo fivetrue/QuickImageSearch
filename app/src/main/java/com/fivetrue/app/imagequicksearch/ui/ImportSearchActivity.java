@@ -1,26 +1,13 @@
 package com.fivetrue.app.imagequicksearch.ui;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.SearchView;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.widget.Toast;
 
 import com.fivetrue.app.imagequicksearch.LL;
-import com.fivetrue.app.imagequicksearch.R;
-import com.fivetrue.app.imagequicksearch.database.image.ImageDB;
-import com.fivetrue.app.imagequicksearch.model.image.GoogleImage;
-import com.fivetrue.app.imagequicksearch.ui.adapter.BaseHeaderFooterAdapter;
-import com.fivetrue.app.imagequicksearch.ui.adapter.BaseRecyclerAdapter;
-import com.fivetrue.app.imagequicksearch.ui.adapter.image.ImageListAdapter;
-import com.fivetrue.app.imagequicksearch.ui.fragment.ImageDetailViewFragment;
-import com.fivetrue.app.imagequicksearch.utils.DataManager;
 import com.fivetrue.app.imagequicksearch.utils.TrackingUtil;
 
 import java.util.List;
@@ -54,12 +41,11 @@ public class ImportSearchActivity extends SearchActivity{
             if(action != null){
                 if(action.equals(Intent.ACTION_SEND)){
                     onReceivedSendIntent(intent);
-                }else{
-
                 }
             }
         }
     }
+
 
     protected void onReceivedSendIntent(Intent intent){
         if(intent != null && intent.getAction() != null){

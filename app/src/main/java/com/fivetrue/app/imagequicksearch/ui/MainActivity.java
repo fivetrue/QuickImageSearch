@@ -28,6 +28,7 @@ import com.fivetrue.app.imagequicksearch.database.image.ImageDB;
 import com.fivetrue.app.imagequicksearch.model.image.CachedGoogleImage;
 import com.fivetrue.app.imagequicksearch.model.image.GoogleImage;
 import com.fivetrue.app.imagequicksearch.model.image.SavedImage;
+import com.fivetrue.app.imagequicksearch.preference.DefaultPreferenceUtil;
 import com.fivetrue.app.imagequicksearch.service.QuickSearchService;
 import com.fivetrue.app.imagequicksearch.ui.adapter.BaseHeaderFooterAdapter;
 import com.fivetrue.app.imagequicksearch.ui.adapter.image.RetrievedImageListAdapter;
@@ -36,9 +37,11 @@ import com.fivetrue.app.imagequicksearch.ui.fragment.ImageDetailViewFragment;
 import com.fivetrue.app.imagequicksearch.ui.set.ImageLayoutSet;
 import com.fivetrue.app.imagequicksearch.utils.CommonUtils;
 import com.fivetrue.app.imagequicksearch.utils.DataManager;
+import com.fivetrue.app.imagequicksearch.utils.SimpleViewUtils;
 import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
+import com.wooplr.spotlight.SpotlightView;
 
 import java.util.List;
 
@@ -358,6 +361,13 @@ public class MainActivity extends BaseActivity implements ImageSelectionViewer.I
             }
         };
         mSearchView.setOnQueryTextListener(queryTextListener);
+
+        if(DefaultPreferenceUtil.isFirstOpen(this, getString(R.string.search))){
+            SimpleViewUtils.showSpotlight(this, mSearchView, getString(R.string.search)
+                    , getString(R.string.spotlight_total_search_message), s -> {
+                        DefaultPreferenceUtil.setFirstOpen(this, getString(R.string.search), false);
+                    });
+        }
     }
 
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -373,10 +383,6 @@ public class MainActivity extends BaseActivity implements ImageSelectionViewer.I
         switch (item.getItemId()){
             case android.R.id.home :
                 onBackPressed();
-                break;
-
-            case R.id.action_info :
-                CommonUtils.goStore(this);
                 break;
 
             case R.id.action_settings :

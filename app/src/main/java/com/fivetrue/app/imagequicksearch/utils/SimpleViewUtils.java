@@ -1,12 +1,18 @@
 package com.fivetrue.app.imagequicksearch.utils;
 
 import android.animation.Animator;
+import android.app.Activity;
+import android.content.Context;
 import android.os.Build;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewAnimationUtils;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
+
+import com.fivetrue.app.imagequicksearch.R;
+import com.wooplr.spotlight.SpotlightView;
+import com.wooplr.spotlight.utils.SpotlightListener;
 
 /**
  * Created by kwonojin on 16. 8. 5..
@@ -163,6 +169,29 @@ public class SimpleViewUtils {
                 view.setVisibility(visibility);
             }
         }
+    }
+
+    public static void showSpotlight(Activity activity, View view, String header, String message, SpotlightListener ll){
+        new SpotlightView.Builder(activity)
+                .introAnimationDuration(400)
+                .enableRevealAnimation(true)
+                .performClick(true)
+                .fadeinTextDuration(400)
+                .headingTvColor(activity.getResources().getColor(R.color.colorAccent))
+                .headingTvSize(32)
+                .headingTvText(header)
+                .subHeadingTvColor(activity.getResources().getColor(android.R.color.white))
+                .subHeadingTvSize(16)
+                .subHeadingTvText(message)
+                .maskColor(activity.getResources().getColor(R.color.primaryColorAlpha))
+                .target(view)
+                .lineAnimDuration(400)
+                .lineAndArcColor(activity.getResources().getColor(android.R.color.white))
+                .enableDismissAfterShown(true)
+                .setListener(ll)
+                .usageId(System.currentTimeMillis() + "").show(); //UNIQUE ID
+
+
     }
 
 }

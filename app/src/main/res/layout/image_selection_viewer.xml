@@ -9,8 +9,8 @@
         android:gravity="center"
         android:textSize="13dp"
         android:textStyle="bold"
-        android:layout_weight="1"
-        android:textColor="@android:color/white" />
+        android:layout_weight="2"
+        android:textColor="@color/colorAccent" />
 
     <Button
         android:id="@+id/btn_image_selection_viewer_action"
@@ -19,9 +19,9 @@
         android:layout_weight="1"
         android:layout_margin="2dp"
         android:text="@string/send"
-        android:textColor="@color/colorAccent"
+        android:textColor="@color/colorPrimaryDark"
         android:textSize="12dp"
-        android:backgroundTint="@color/colorPrimary"/>
+        android:backgroundTint="@color/colorAccent"/>
 
     <Button
         android:id="@+id/btn_image_selection_viewer_cancel"
@@ -30,7 +30,7 @@
         android:layout_weight="1"
         android:layout_margin="2dp"
         android:text="@android:string/cancel"
-        android:textColor="@color/colorAccent"
+        android:textColor="@color/colorPrimaryDark"
         android:textSize="12dp"
-        android:backgroundTint="@color/colorPrimary"/>
+        android:backgroundTint="@color/colorAccent"/>
 </LinearLayout>

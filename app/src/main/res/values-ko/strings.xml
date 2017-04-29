@@ -3,7 +3,10 @@
 
     <string name="search_hint">이미지 검색</string>
     <string name="search_result">검색결과</string>
+    ㅇ
+    <string name="long_press">길게 누르기</string>
 
+    <string name="data">데이터</string>
     <string name="send">보내기</string>
     <string name="delete">삭제</string>
     <string name="search">검색</string>
@@ -13,12 +16,14 @@
     <string name="selection_image">%d 개의 사진이 선택 되었습니다.</string>
     <string name="saved_images">저장된 사진</string>
     <string name="like_images">즐겨찾는 사진</string>
+    <string name="source">출처</string>
     <string name="retrieved_images">검색된 사진</string>
     <string name="reset_data">데이터 초기화</string>
     <string name="quick_search_menu">빠른 검색메뉴</string>
     <string name="pull_down_menu">아래로 당겨서 메뉴 보기</string>
     <string name="last_sent_image">마지막 전송 이미지</string>
     <string name="send_or_search">보내기 또는 검색</string>
+    <string name="share_app">공유 앱</string>
 
     <string name="prepare_images_message">네트워크 이미지 저장 중.</string>
     <string name="use_mobile_network_message">모바일 네트워크를 이용하여 사진을 다운로드 받습니다.</string>
@@ -29,5 +34,15 @@
     <string name="send_image_failure_message">이미지 전송 실패.</string>
     <string name="save_image_failure_message">이미지 저장 실패.</string>
     <string name="reset_data_message">저장된 모든 데이터가 삭제 됩니다.</string>
+    <string name="share_app_message">이미지를 자주 공유하는 앱을 설정합니다.</string>
+    <string name="application_version_message">어플리케이션 버전 정보</string>
 
+
+    <string name="spotlight_total_search_message">첫 화면의 검색으로 통합 검색을 할 수 있습니다. 이미 검색 결과가 존재한다면 입력 할 때마다 관련있는 검색 이미지들이 화면에 갱신 됩니다. 원하는 이미지를 검색하고 싶을 경우에는 단어를 입력 후 입력 키보드의 검색 버튼을 선택 하면됩니다.</string>
+    <string name="spotlight_search_result_message">검색결과에서 다른 키워드를 입력하면 검색된 검색결과에 키워드와 연관된 결과물이 필터링됩니다. 물론 입력된 검색어를 다시 검색 할 수 있습니다. 오른쪽 삭제버튼으로 검색결과를 삭제 할 수 있습니다.</string>
+    <string name="spotlight_long_press_message">검색된 사진을 길게 누르면 상세정보를 확인 할 수 있습니다.</string>
+    <string name="spotlight_like_image_message">하트를 선택하면 즐겨찾는 이미지로 추가 할 수 있습니다. 추가된 이미지는 첫 화면에서 보여집니다.</string>
+    <string name="spotlight_source_message">링크를 선택하면 이미지 출처 페이지로 이동 할 수 있습니다.</string>
+    <string name="spotlight_quick_search_menu_message">노티피케이션 패널에서 빠른 검색메뉴를 고정 할 수 있습니다.</string>
+    <string name="spotlight_reset_data_message">저장된 데이터를 모두 삭제 할 수 있습니다.</string>
 </resources>

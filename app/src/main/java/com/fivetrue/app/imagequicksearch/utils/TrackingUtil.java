@@ -72,6 +72,12 @@ public class TrackingUtil {
         FirebaseAnalytics.getInstance(mContext).logEvent("DeleteSavedImage", b);
     }
 
+    public void setQuickSearch(boolean b){
+        Bundle bb = new Bundle();
+        bb.putString("enable", b +"");
+        FirebaseAnalytics.getInstance(mContext).logEvent("QuickSearch", bb);
+    }
+
     public void sendIntentFrom(String from, int count){
         Bundle b = new Bundle();
         b.putString("from", from);
