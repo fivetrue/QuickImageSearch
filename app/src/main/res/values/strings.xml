@@ -22,7 +22,7 @@
     <string name="pull_down_menu">Pull down to view menu</string>
     <string name="last_sent_image">Last sent image</string>
     <string name="send_or_search">Send or Search</string>
-    <string name="share_app">Share App</string>
+    <string name="favorite_share_app">Favorite Share App</string>
 
     <string name="prepare_images_message">Saving and preparing network image</string>
     <string name="use_mobile_network_message">Download images from your mobile network.</string>
@@ -33,7 +33,7 @@
     <string name="send_image_failure_message">Image transfer failed.</string>
     <string name="save_image_failure_message">Image save filed.</string>
     <string name="reset_data_message">All saved data will be deleted.</string>
-    <string name="share_app_message">Set up an app that shares images often.</string>
+    <string name="favorite_share_app_message">Set up an app that shares images often.</string>
     <string name="application_version_message">Application version information</string>
 
     <string name="spotlight_total_search_message">You can perform integrated search by searching the first screen. If there is already a search result, relevant search images are updated on the screen every time you input. If you want to search for the desired image, just type the word and select the Search button on the input keyboard.</string>

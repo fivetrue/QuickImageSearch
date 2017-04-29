@@ -7,6 +7,8 @@ import com.fivetrue.app.imagequicksearch.model.app.AppInfo;
 
 import java.util.List;
 
+import io.reactivex.Observable;
+import io.reactivex.subjects.PublishSubject;
 import io.realm.RealmChangeListener;
 import io.realm.Sort;
 
@@ -20,6 +22,8 @@ public class AppDB extends RealmDB implements RealmChangeListener {
 
     private Context mContext;
     private static AppDB sInstance;
+
+    private PublishSubject<List<AppInfo>> mAppInfoPublishSubject = PublishSubject.create();
 
     public static void init(Context context){
         sInstance = new AppDB(context.getApplicationContext());
@@ -46,8 +50,25 @@ public class AppDB extends RealmDB implements RealmChangeListener {
         return get().where(AppInfo.class).equalTo("packageName",packageName).findFirst();
     }
 
+    public boolean isFavoriteApp(String packageName){
+        AppInfo appInfo = getAppInfo(packageName);
+        if(appInfo != null){
+            return getAppInfo(packageName).isFavorite();
+        }
+        return false;
+    }
+
+    public Observable<List<AppInfo>> getObservable(){
+        return mAppInfoPublishSubject;
+    }
+
+
+    public void publishAppInfo(){
+        mAppInfoPublishSubject.onNext(getAppInfoList());
+    }
+
     @Override
     public void onChange(Object element) {
-
+        publishAppInfo();
     }
 }

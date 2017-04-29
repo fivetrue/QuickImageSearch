@@ -95,15 +95,23 @@ public class ImageDetailViewFragment extends BaseFragment {
                     if(DefaultPreferenceUtil.isFirstOpen(getActivity(), getString(R.string.like_images))){
                         SimpleViewUtils.showSpotlight(getActivity(), mLike, getString(R.string.like_images)
                                 , getString(R.string.spotlight_like_image_message), s -> {
-                                    if(getActivity() != null && isAdded()){
+                                    if(getActivity() != null){
                                         DefaultPreferenceUtil.setFirstOpen(getActivity(), getString(R.string.like_images), false);
                                         SimpleViewUtils.showSpotlight(getActivity(), mPageUrl, getString(R.string.source)
-                                                , getString(R.string.spotlight_source_message), s1 -> DefaultPreferenceUtil.setFirstOpen(getActivity(), getString(R.string.source), false));
+                                                , getString(R.string.spotlight_source_message), s1 -> {
+                                                    if(getActivity() != null){
+                                                        DefaultPreferenceUtil.setFirstOpen(getActivity(), getString(R.string.source), false);
+                                                    }
+                                                });
                                     }
                                 });
                     }else if(DefaultPreferenceUtil.isFirstOpen(getActivity(), getString(R.string.source))){
                         SimpleViewUtils.showSpotlight(getActivity(), mPageUrl, getString(R.string.source)
-                                , getString(R.string.spotlight_source_message), s1 -> DefaultPreferenceUtil.setFirstOpen(getActivity(), getString(R.string.source), false));
+                                , getString(R.string.spotlight_source_message), s1 -> {
+                                    if(getActivity() != null){
+                                        DefaultPreferenceUtil.setFirstOpen(getActivity(), getString(R.string.source), false);
+                                    }
+                                });
                     }
                 }
 

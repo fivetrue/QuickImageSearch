@@ -22,9 +22,10 @@
 
         <Preference
             android:key="@string/pref_quick_share_app"
-            android:icon="@drawable/ic_share_20dp"
-            android:title="@string/share_app"
-            android:summary="@string/share_app_message"/>
+            android:icon="@drawable/ic_application_20dp"
+            android:title="@string/favorite_share_app"
+            android:summary="@string/favorite_share_app_message"/>
+
 
         <Preference
             android:key="@string/pref_version"

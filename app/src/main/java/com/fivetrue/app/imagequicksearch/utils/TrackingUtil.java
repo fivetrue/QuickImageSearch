@@ -78,6 +78,12 @@ public class TrackingUtil {
         FirebaseAnalytics.getInstance(mContext).logEvent("QuickSearch", bb);
     }
 
+    public void setFavoriteApp(String packageName){
+        Bundle b = new Bundle();
+        b.putString("packageName", packageName);
+        FirebaseAnalytics.getInstance(mContext).logEvent("FavoriteApp", b);
+    }
+
     public void sendIntentFrom(String from, int count){
         Bundle b = new Bundle();
         b.putString("from", from);

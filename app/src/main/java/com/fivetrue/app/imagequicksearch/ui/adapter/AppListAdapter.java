@@ -3,8 +3,12 @@ package com.fivetrue.app.imagequicksearch.ui.adapter;
 import android.content.Context;
 import android.content.pm.ResolveInfo;
 import android.support.v7.widget.RecyclerView;
+import android.view.View;
 
+import com.fivetrue.app.imagequicksearch.database.app.AppDB;
 import com.fivetrue.app.imagequicksearch.ui.adapter.holder.AppInfoHolder;
+import com.fivetrue.app.imagequicksearch.ui.adapter.holder.FooterHolder;
+import com.fivetrue.app.imagequicksearch.ui.adapter.holder.HeaderHolder;
 
 import java.util.List;
 
@@ -21,12 +25,12 @@ public class AppListAdapter extends BaseHeaderFooterAdapter<ResolveInfo> {
 
     @Override
     protected RecyclerView.ViewHolder onCreateFooterHolder(Context context, int viewType) {
-        return null;
+        return FooterHolder.makeHolder(context);
     }
 
     @Override
     protected RecyclerView.ViewHolder onCreateHeaderHolder(Context context, int viewType) {
-        return null;
+        return HeaderHolder.makeHolder(context);
     }
 
     @Override
@@ -35,8 +39,15 @@ public class AppListAdapter extends BaseHeaderFooterAdapter<ResolveInfo> {
     }
 
     @Override
+    protected void onBindFooterHolder(RecyclerView.ViewHolder holder, int position) {
+        super.onBindFooterHolder(holder, position);
+        ((FooterHolder)holder).progressBar.setVisibility(View.GONE);
+    }
+
+    @Override
     protected void onBindHolder(RecyclerView.ViewHolder holder, int position) {
-        ((AppInfoHolder)holder).setAppInfo(getItem(position));
+        ResolveInfo resolveInfo = getItem(position);
+        ((AppInfoHolder)holder).setAppInfo(resolveInfo);
         ((AppInfoHolder)holder).layout.setOnClickListener(view -> onClickItem(holder, position, getItem(position)));
     }
 

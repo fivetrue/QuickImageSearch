@@ -15,12 +15,22 @@ public class RealmDBMigration implements io.realm.RealmMigration {
 
     private static final String TAG = "RealmDBMigration";
 
-    public static final int DB_VERSION = 1;
+    public static final int DB_VERSION = 2;
 
     @Override
     public void migrate(DynamicRealm realm, long oldVersion, long newVersion) {
         if(LL.D)
             Log.d(TAG, "migrate() called with: realm = [" + realm + "], oldVersion = [" + oldVersion + "], newVersion = [" + newVersion + "]");
+
+        /**
+         * 1.0.6 version 에서 DB 필드 변경
+         */
+        if(oldVersion == 1){
+            RealmSchema schema = realm.getSchema();
+            schema.get("AppInfo")
+                    .addField("favorite", boolean.class);
+            oldVersion++;
+        }
         // DynamicRealm는 편집가능한 스키마를 노출합니다
 //        RealmSchema schema = realm.getSchema();
 //        if (oldVersion == 1) {

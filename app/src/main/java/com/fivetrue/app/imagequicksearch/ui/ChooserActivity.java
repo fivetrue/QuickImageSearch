@@ -13,7 +13,6 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.TextView;
 
 import com.fivetrue.app.imagequicksearch.LL;
 import com.fivetrue.app.imagequicksearch.R;
@@ -21,11 +20,13 @@ import com.fivetrue.app.imagequicksearch.database.app.AppDB;
 import com.fivetrue.app.imagequicksearch.database.image.ImageDB;
 import com.fivetrue.app.imagequicksearch.model.app.AppInfo;
 import com.fivetrue.app.imagequicksearch.model.image.CachedGoogleImage;
+import com.fivetrue.app.imagequicksearch.preference.DefaultPreferenceUtil;
 import com.fivetrue.app.imagequicksearch.provider.LocalFileProvider;
 import com.fivetrue.app.imagequicksearch.ui.adapter.AppListAdapter;
 import com.fivetrue.app.imagequicksearch.ui.adapter.BaseHeaderFooterAdapter;
 import com.fivetrue.app.imagequicksearch.utils.AppUtil;
 import com.fivetrue.app.imagequicksearch.utils.DataManager;
+import com.fivetrue.app.imagequicksearch.utils.SimpleViewUtils;
 import com.fivetrue.app.imagequicksearch.utils.TrackingUtil;
 import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
@@ -36,6 +37,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.reactivex.Observable;
+import io.reactivex.disposables.Disposable;
 import jp.wasabeef.recyclerview.adapters.AlphaInAnimationAdapter;
 
 /**
@@ -48,33 +50,56 @@ public class ChooserActivity extends BaseActivity {
 
     private static final String KEY_URIS = "uris";
 
-    private View mLayoutRecently;
-    private ImageView mRecentlyAppImage;
-    private TextView mRecentlyAppName;
+    private View mLayoutFavorite;
+
+    private ImageView mFavoriteApp;
+    private RecyclerView mFavoriteList;
+    private AppListAdapter mFavoriteAdapter;
 
     private RecyclerView mAppList;
     private AppListAdapter mAdapter;
 
     private AdView mAdView;
 
+    private Disposable mDisposable;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chooser);
+        initData();
         initView();
         initAd();
-        checkIntent();
+        AppDB.getInstance().publishAppInfo();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if(mDisposable != null && !mDisposable.isDisposed()){
+            mDisposable.dispose();
+        }
+    }
+
+    private void initData(){
+        mDisposable = AppDB.getInstance().getObservable()
+                .subscribe(appInfos -> {
+                    checkIntent(appInfos);
+                });
     }
 
     private void initView(){
-        mLayoutRecently = findViewById(R.id.layout_chooser_recently);
-        mRecentlyAppImage = (ImageView) findViewById(R.id.iv_chooser_recently);
-        mRecentlyAppName = (TextView) findViewById(R.id.tv_chooser_recently);
+        mFavoriteApp = (ImageView) findViewById(R.id.iv_chooser_favorite_apps);
+        mLayoutFavorite = findViewById(R.id.layout_chooser_favorite);
+        mFavoriteList = (RecyclerView) findViewById(R.id.rv_chooser_favorite);
+        mFavoriteList.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
 
         mAppList = (RecyclerView) findViewById(R.id.rv_chooser);
         mAppList.setLayoutManager(new GridLayoutManager(this, 4, LinearLayoutManager.VERTICAL, false));
 
         mAdView = (AdView) findViewById(R.id.ad_chooser);
+
+        mFavoriteApp.setOnClickListener(view -> startActivity(new Intent(this, FavoriteAppListActivity.class)));
     }
 
     private void initAd(){
@@ -141,33 +166,34 @@ public class ChooserActivity extends BaseActivity {
         });
     }
 
-    private void checkIntent(){
+    private void checkIntent( List<AppInfo> apps){
         Intent intent = makeSendIntent(getIntent().getParcelableArrayListExtra(KEY_URIS));
         AppUtil.getIntentApps(this, intent)
                 .toList().subscribe(appList -> {
-            List<AppInfo> apps = AppDB.getInstance().getAppInfoList();
-            if(apps != null && apps.size() > 0){
-                AppInfo recentlyApp = apps.get(0);
-                Observable.fromIterable(appList)
-                        .filter(resolveInfo -> resolveInfo.activityInfo.packageName.equals(recentlyApp.getPackageName()))
-                        .subscribe(resolveInfo -> {
-                            setRecentlyData(intent, resolveInfo);
-                        }, throwable -> {
-                            sendFailure(intent, throwable);
-                        });
-                Observable.fromIterable(appList)
-                        .filter(resolveInfo -> !(resolveInfo.activityInfo.packageName.equals(recentlyApp.getPackageName())))
-                        .toList().subscribe(resolveInfo -> {
-                    setData(intent, resolveInfo);
-                }, throwable -> {
-                    sendFailure(intent, throwable);
-                });
-            }else{
-                setData(intent, appList);
-            }
+            showSpotlight();
+            Observable.fromIterable(appList)
+                    .filter(resolveInfo -> {
+                        for(AppInfo app : apps){
+                            if(app.isFavorite() && app.getPackageName().equals(resolveInfo.activityInfo.packageName)){
+                                return true;
+                            }
+                        }
+                        return false;
+                    }).toList().subscribe(resolveInfos -> setFavoriteData(intent, resolveInfos)
+                    , throwable -> mLayoutFavorite.setVisibility(View.GONE));
+            setData(intent, appList);
         }, throwable -> {
             sendFailure(intent, throwable);
         });
+    }
+
+    private void showSpotlight(){
+        if(DefaultPreferenceUtil.isFirstOpen(this, getString(R.string.favorite_share_app))){
+            SimpleViewUtils.showSpotlight(this, mFavoriteApp, getString(R.string.favorite_share_app)
+                    , getString(R.string.favorite_share_app_message), s -> {
+                        DefaultPreferenceUtil.setFirstOpen(this, getString(R.string.favorite_share_app), false);
+                    });
+        }
     }
 
     private void sendFailure(Intent intent, Throwable throwable){
@@ -175,15 +201,27 @@ public class ChooserActivity extends BaseActivity {
         startActivity(Intent.createChooser(intent, getResources().getString(R.string.send)));
     }
 
-    private void setRecentlyData(Intent intent, ResolveInfo data){
-        mLayoutRecently.setVisibility(View.VISIBLE);
-        mLayoutRecently.setOnClickListener(view -> {
-            TrackingUtil.getInstance().sendIntentFrom("Recently"
-                    , getIntent().getParcelableArrayListExtra(KEY_URIS).size());
-            sendIntent(intent, data);
-        });
-        mRecentlyAppImage.setImageDrawable(data.loadIcon(getPackageManager()));
-        mRecentlyAppName.setText(data.loadLabel(getPackageManager()));
+    private void setFavoriteData(Intent intent, List<ResolveInfo> data){
+        if(mFavoriteAdapter == null){
+            mFavoriteAdapter = new AppListAdapter(data, new BaseHeaderFooterAdapter.OnItemClickListener<ResolveInfo>() {
+                @Override
+                public void onItemClick(RecyclerView.ViewHolder holder, int pos, ResolveInfo item) {
+                    TrackingUtil.getInstance().sendIntentFrom("AppListFavorite"
+                            , getIntent().getParcelableArrayListExtra(KEY_URIS).size());
+                    sendIntent(intent, item);
+                }
+
+                @Override
+                public boolean onItemLongClick(RecyclerView.ViewHolder holder, int pos, ResolveInfo item) {
+                    return false;
+                }
+            });
+            AlphaInAnimationAdapter adapter = new AlphaInAnimationAdapter(mFavoriteAdapter);
+            mFavoriteList.setAdapter(adapter);
+        }else{
+            mFavoriteAdapter.setData(data);
+        }
+        mLayoutFavorite.setVisibility(View.VISIBLE);
     }
 
     private void setData(Intent intent, List<ResolveInfo> data){

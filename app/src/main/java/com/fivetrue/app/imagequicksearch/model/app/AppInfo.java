@@ -14,6 +14,7 @@ public class AppInfo extends RealmObject{
     private long updateDate;
     private int sharedCount;
     private long sharedImageCount;
+    private boolean favorite;
 
     public String getAppName() {
         return appName;
@@ -61,5 +62,13 @@ public class AppInfo extends RealmObject{
 
     public void setSharedImageCount(long sharedImageCount) {
         this.sharedImageCount = sharedImageCount;
+    }
+
+    public boolean isFavorite() {
+        return favorite;
+    }
+
+    public void setFavorite(boolean favorite) {
+        this.favorite = favorite;
     }
 }

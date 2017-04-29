@@ -57,6 +57,9 @@
             android:theme="@style/AppTheme.Transparent">
         </activity>
 
+        <activity android:name=".ui.FavoriteAppListActivity"
+            android:screenOrientation="portrait" />
+
         <service android:name=".service.QuickSearchService" />
 
         <receiver android:name=".receiver.AppCheckReceiver">

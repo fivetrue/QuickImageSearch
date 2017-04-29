@@ -1,34 +1,18 @@
 package com.fivetrue.app.imagequicksearch.ui.fragment;
 
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
-import android.graphics.drawable.Drawable;
-import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceFragment;
-import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
-import android.text.TextUtils;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.animation.GlideAnimation;
-import com.bumptech.glide.request.target.SimpleTarget;
 import com.fivetrue.app.imagequicksearch.BuildConfig;
 import com.fivetrue.app.imagequicksearch.R;
 import com.fivetrue.app.imagequicksearch.database.image.ImageDB;
-import com.fivetrue.app.imagequicksearch.model.image.CachedGoogleImage;
-import com.fivetrue.app.imagequicksearch.model.image.GoogleImage;
 import com.fivetrue.app.imagequicksearch.model.image.SavedImage;
 import com.fivetrue.app.imagequicksearch.preference.DefaultPreferenceUtil;
 import com.fivetrue.app.imagequicksearch.service.QuickSearchService;
-import com.fivetrue.app.imagequicksearch.utils.SimpleViewUtils;
+import com.fivetrue.app.imagequicksearch.ui.FavoriteAppListActivity;
 import com.fivetrue.app.imagequicksearch.utils.TrackingUtil;
 
 import java.io.File;
@@ -70,24 +54,9 @@ public class SettingFragment extends PreferenceFragment implements SharedPrefere
         });
 
         getPreferenceScreen().findPreference(getString(R.string.pref_quick_share_app)).setOnPreferenceClickListener(preference -> {
-            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-            builder.setTitle(android.R.string.dialog_alert_title)
-                    .setMessage(R.string.reset_data_message)
-                    .setPositiveButton(android.R.string.ok, (dialogInterface, i) -> {
-                        TrackingUtil.getInstance()
-                                .resetData(ImageDB.getInstance().getCachedImages().size()
-                                        + ImageDB.getInstance().getSavedImages().size());
-                        ImageDB.get().executeTransaction(realm -> {
-                            for(SavedImage image : ImageDB.getInstance().getSavedImages()){
-                                new File(image.getFilePath()).delete();
-                            }
-                            ImageDB.get().deleteAll();
-                            dialogInterface.dismiss();
-                            QuickSearchService.startQuickSearchService(getActivity());
-                        });
-                    }).setNegativeButton(android.R.string.cancel, (dialogInterface, i) -> {
-                dialogInterface.dismiss();
-            }).show();
+            if(getActivity() != null){
+                startActivity(new Intent(getActivity(), FavoriteAppListActivity.class));
+            }
             return true;
         });
     }

@@ -134,10 +134,11 @@ public class QuickSearchService extends Service {
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         builder.setContentIntent(pendingIntent);
 
+        NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         if(DefaultPreferenceUtil.isUsingQuickSearch(this)){
+            nm.cancel(NOTIFICATION_ID);
             startForeground(SERVICE_ID, builder.build());
         }else{
-            NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
             nm.notify(NOTIFICATION_ID, builder.build());
         }
 
@@ -150,12 +151,12 @@ public class QuickSearchService extends Service {
     }
 
     public static void startQuickSearchService(Context context){
-        Intent intent = new Intent(context, QuickSearchService.class);
+        Intent intent = new Intent(context.getApplicationContext(), QuickSearchService.class);
         intent.setAction(ACTION_START_QUICK_SEARCH_SERVICE);
         context.startService(intent);
     }
     public static void stopQuickSearchService(Context context){
-        Intent intent = new Intent(context, QuickSearchService.class);
+        Intent intent = new Intent(context.getApplicationContext(), QuickSearchService.class);
         intent.setAction(ACTION_STOP_QUICK_SEARCH_SERVICE);
         context.startService(intent);
     }
