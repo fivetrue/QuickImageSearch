@@ -88,9 +88,11 @@ public class RetrievedHistoryActivity extends BaseImageListActivity<CachedGoogle
 
     @Override
     protected boolean onItemLongClick(CachedGoogleImage item) {
-        updateDeleteMode();
-        getAdapter().toggle(getAdapter().getData().indexOf(item));
-        getSelectionViewer().update();
+        if(!getAdapter().isEditMode()){
+            updateDeleteMode();
+        }
+//        getAdapter().toggle(getAdapter().getData().indexOf(item));
+//        getSelectionViewer().update();
         return true;
     }
 
@@ -156,11 +158,16 @@ public class RetrievedHistoryActivity extends BaseImageListActivity<CachedGoogle
                     List<CachedGoogleImage> selection = getAdapter().getSelections();
                     for(CachedGoogleImage image : selection){
                         getAdapter().notifyItemRemoved(getData().indexOf(image));
-                        ImageDB.getInstance().deleteCachedImages(image);
                         getAdapter().getData().remove(image);
+                        ImageDB.getInstance().deleteCachedImages(image);
                     }
                     dialogInterface.dismiss();
-                    finish();
+
+                    if(getAdapter().getData().size() == 0){
+                        finish();
+                        return;
+                    }
+                    onBackPressed();
 
                 }).setNegativeButton(android.R.string.cancel, (dialogInterface, i) -> dialogInterface.dismiss())
                 .show();
@@ -169,10 +176,12 @@ public class RetrievedHistoryActivity extends BaseImageListActivity<CachedGoogle
     @Override
     public void onBackPressed() {
         if(getAdapter() != null && getAdapter().isEditMode()){
+            getAdapter().clearSelection();
             getAdapter().setEditMode(false);
             getSelectionViewer().update();
             return;
         }
         super.onBackPressed();
     }
+
 }

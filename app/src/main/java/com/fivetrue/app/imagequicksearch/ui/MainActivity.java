@@ -38,6 +38,7 @@ import com.fivetrue.app.imagequicksearch.ui.adapter.image.RetrievedImageListAdap
 import com.fivetrue.app.imagequicksearch.ui.adapter.image.SavedImageListAdapter;
 import com.fivetrue.app.imagequicksearch.ui.fragment.ImageDetailViewFragment;
 import com.fivetrue.app.imagequicksearch.ui.set.ImageLayoutSet;
+import com.fivetrue.app.imagequicksearch.ui.view.FlingableNestedScrollView;
 import com.fivetrue.app.imagequicksearch.utils.CommonUtils;
 import com.fivetrue.app.imagequicksearch.utils.DataManager;
 import com.fivetrue.app.imagequicksearch.utils.SimpleViewUtils;
@@ -65,7 +66,7 @@ public class MainActivity extends BaseActivity implements ImageSelectionViewer.I
     private static final int RETREIVED_IMAGE_ITEM_SPAN_COUNT = 5;
 
 
-    private NestedScrollView mScrollView;
+    private FlingableNestedScrollView mScrollView;
 
     private ImageLayoutSet mRetrievedImageLayoutSet;
     private RetrievedImageListAdapter mRetrievedImageListAdapter;
@@ -243,6 +244,7 @@ public class MainActivity extends BaseActivity implements ImageSelectionViewer.I
                     onLoadRetrievedImages(Observable.fromIterable(savedImages)
                             .distinct(CachedGoogleImage::getKeyword)
                             .take(RETREIVED_IMAGE_ITEM_COUNT)
+                            .sorted((image, t1) -> image.getUpdateDate() < t1.getUpdateDate() ? 1 : -1)
                             .toList().blockingGet());
 
                     onLoadLikeImages(Observable.fromIterable(savedImages)
@@ -326,7 +328,7 @@ public class MainActivity extends BaseActivity implements ImageSelectionViewer.I
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
-        mScrollView = (NestedScrollView) findViewById(R.id.sv_main);
+        mScrollView = (FlingableNestedScrollView) findViewById(R.id.sv_main);
 
         mRetrievedImageLayoutSet = (ImageLayoutSet) findViewById(R.id.image_set_main_cached);
         mRetrievedImageLayoutSet.setLayoutManager(new GridLayoutManager(this, RETREIVED_IMAGE_ITEM_SPAN_COUNT, LinearLayoutManager.VERTICAL, false));
