@@ -15,7 +15,7 @@ public class GoogleImage implements Parcelable{
     public int cr;
     public String id;
     public String isu;
-    public boolean itg;
+    public String itg;
     public String ity;
     public int oh;
     public String ou;
@@ -60,7 +60,7 @@ public class GoogleImage implements Parcelable{
         cr = in.readInt();
         id = in.readString();
         isu = in.readString();
-        itg = in.readByte() != 0;
+        itg = in.readString();
         ity = in.readString();
         oh = in.readInt();
         ou = in.readString();
@@ -175,7 +175,7 @@ public class GoogleImage implements Parcelable{
         parcel.writeInt(cr);
         parcel.writeString(id);
         parcel.writeString(isu);
-        parcel.writeByte((byte) (itg ? 1 : 0));
+        parcel.writeString(itg);
         parcel.writeString(ity);
         parcel.writeInt(oh);
         parcel.writeString(ou);
