@@ -23,6 +23,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.gif.GifDrawable;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
+import com.fivetrue.app.imagequicksearch.LL;
 import com.fivetrue.app.imagequicksearch.R;
 import com.fivetrue.app.imagequicksearch.database.image.ImageDB;
 import com.fivetrue.app.imagequicksearch.model.image.CachedGoogleImage;
@@ -64,11 +65,18 @@ public class ImageDetailViewFragment extends BaseFragment {
     private FloatingActionButton mLoadGif;
     private ProgressBar mProgressBar;
 
-    private boolean mFailed;
+    private String mImageUrl;
+    private String mThumbUrl;
+    private String mFilePath;
+    private String mMimeType;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mImageUrl = getArguments().getString(KEY_IMAGE_URL);
+        mThumbUrl = getArguments().getString(KEY_THUMBNAIL_URL);
+        mFilePath = getArguments().getString(KEY_FILE_PATH);
+        mMimeType = getArguments().getString(KEY_MIME_TYPE);
     }
 
     @Nullable
@@ -128,13 +136,9 @@ public class ImageDetailViewFragment extends BaseFragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-
-        String imageUrl = getArguments().getString(KEY_IMAGE_URL);
-        String filePath = getArguments().getString(KEY_FILE_PATH);
-        String mimeType = getArguments().getString(KEY_MIME_TYPE);
-        boolean isGif = mimeType != null && mimeType.equalsIgnoreCase("gif");
+        boolean isGif = mMimeType != null && mMimeType.equalsIgnoreCase("gif");
         Glide.with(getActivity())
-                .load(!TextUtils.isEmpty(filePath) ? filePath : imageUrl)
+                .load(!TextUtils.isEmpty(mFilePath) ? mFilePath : mImageUrl)
                 .asBitmap().into(new SimpleTarget<Bitmap>() {
 
             @Override
@@ -146,7 +150,9 @@ public class ImageDetailViewFragment extends BaseFragment {
             public void onLoadFailed(Exception e, Drawable errorDrawable) {
                 super.onLoadFailed(e, errorDrawable);
                 Log.e(TAG, "onLoadFailed: ", e);
-                onFailedLoadImage(this);
+                if(getActivity() != null){
+                    Glide.with(getActivity()).load(mThumbUrl).into(mImage);
+                }
             }
         });
 
@@ -155,43 +161,44 @@ public class ImageDetailViewFragment extends BaseFragment {
             mLoadGif.setOnClickListener(view1 -> {
                 mProgressBar.setVisibility(View.VISIBLE);
                 SimpleViewUtils.hideView(mLoadGif, View.GONE);
-                Glide.with(getActivity()).load(!TextUtils.isEmpty(filePath) ? filePath : imageUrl)
-                        .asGif().into(new SimpleTarget<GifDrawable>() {
-                    @Override
-                    public void onResourceReady(GifDrawable resource, GlideAnimation<? super GifDrawable> glideAnimation) {
-                        setImage(null, resource);
-                    }
+                try{
+                    String gifUrl = !TextUtils.isEmpty(mFilePath) ? mImageUrl : mImageUrl;
+                    if(LL.D) Log.d(TAG, "onClick Gif: load gifUrl = " + gifUrl);
+                    Glide.with(getActivity()).load(gifUrl)
+                            .asGif().into(new SimpleTarget<GifDrawable>() {
+                        @Override
+                        public void onResourceReady(GifDrawable resource, GlideAnimation<? super GifDrawable> glideAnimation) {
+                            setImage(null, resource);
+                        }
 
-                    @Override
-                    public void onLoadFailed(Exception e, Drawable errorDrawable) {
-                        super.onLoadFailed(e, errorDrawable);
-                        Log.e(TAG, "onLoadFailed: ", e);
-                        SimpleViewUtils.showView(mLoadGif, View.VISIBLE);
-                        mProgressBar.setVisibility(View.GONE);
-                        onFailedLoadImage(this);
-                    }
-                });
+                        @Override
+                        public void onLoadFailed(Exception e, Drawable errorDrawable) {
+                            super.onLoadFailed(e, errorDrawable);
+                            Log.e(TAG, "onLoadFailed: ", e);
+                            mProgressBar.setVisibility(View.GONE);
+                        }
+                    });
+                }catch (Exception e){
+                    mLoadGif.setVisibility(View.GONE);
+                    mProgressBar.setVisibility(View.GONE);
+                }
             });
         }
         mSite.setText(getArguments().getString(KEY_SITE));
-//        mSiteUrl.setText(getArguments().getString(KEY_SITE_URL));
         mPage.setText(getArguments().getString(KEY_PAGE));
         mPageUrl.setText(getArguments().getString(KEY_PAGE_URL));
-
-//        mSiteUrl.setOnClickListener(view -> goUrlPage(mSiteUrl.getText().toString()));
         mPageUrl.setOnClickListener(view -> goUrlPage(mPageUrl.getText().toString()));
-
         updateLike();
 
         mLike.setOnClickListener(view -> {
             if(view.isSelected()){
-                CachedGoogleImage image = ImageDB.getInstance().findCachedImage(imageUrl);
+                CachedGoogleImage image = ImageDB.getInstance().findCachedImage(mImageUrl);
                 ImageDB.get().executeTransaction(realm -> {
                     image.setLike(false);
                     updateLike();
                 });
             }else{
-                CachedGoogleImage image = ImageDB.getInstance().findCachedImage(imageUrl);
+                CachedGoogleImage image = ImageDB.getInstance().findCachedImage(mImageUrl);
                 ImageDB.get().executeTransaction(realm -> {
                     image.setLike(true);
                     updateLike();
@@ -210,40 +217,37 @@ public class ImageDetailViewFragment extends BaseFragment {
             gif.start();
         }
         if(getActivity() != null){
-            if(DefaultPreferenceUtil.isFirstOpen(getActivity(), getString(R.string.like_images))){
-                SimpleViewUtils.showSpotlight(getActivity(), mLike, getString(R.string.like_images)
-                        , getString(R.string.spotlight_like_image_message), s -> {
-                            if(getActivity() != null){
-                                DefaultPreferenceUtil.setFirstOpen(getActivity(), getString(R.string.like_images), false);
-                                SimpleViewUtils.showSpotlight(getActivity(), mPageUrl, getString(R.string.source)
-                                        , getString(R.string.spotlight_source_message), s1 -> {
-                                            if(getActivity() != null){
-                                                DefaultPreferenceUtil.setFirstOpen(getActivity(), getString(R.string.source), false);
-                                            }
-                                        });
-                            }
-                        });
-            }else if(DefaultPreferenceUtil.isFirstOpen(getActivity(), getString(R.string.source))){
-                SimpleViewUtils.showSpotlight(getActivity(), mPageUrl, getString(R.string.source)
-                        , getString(R.string.spotlight_source_message), s1 -> {
-                            if(getActivity() != null){
-                                DefaultPreferenceUtil.setFirstOpen(getActivity(), getString(R.string.source), false);
-                            }
-                        });
+            boolean show = true;
+            if(getParentFragment() != null && getParentFragment() instanceof ImagePagerViewFragment){
+                show =((ImagePagerViewFragment) getParentFragment())
+                        .getCurrentImage().getOriginalImageUrl().equals(mImageUrl);
+            }
+            if(show){
+                if(DefaultPreferenceUtil.isFirstOpen(getActivity(), getString(R.string.like_images))){
+                    SimpleViewUtils.showSpotlight(getActivity(), mLike, getString(R.string.like_images)
+                            , getString(R.string.spotlight_like_image_message), s -> {
+                                if(getActivity() != null){
+                                    DefaultPreferenceUtil.setFirstOpen(getActivity(), getString(R.string.like_images), false);
+                                    SimpleViewUtils.showSpotlight(getActivity(), mPageUrl, getString(R.string.source)
+                                            , getString(R.string.spotlight_source_message), s1 -> {
+                                                if(getActivity() != null){
+                                                    DefaultPreferenceUtil.setFirstOpen(getActivity(), getString(R.string.source), false);
+                                                }
+                                            });
+                                }
+                            });
+                }else if(DefaultPreferenceUtil.isFirstOpen(getActivity(), getString(R.string.source))){
+                    SimpleViewUtils.showSpotlight(getActivity(), mPageUrl, getString(R.string.source)
+                            , getString(R.string.spotlight_source_message), s1 -> {
+                                if(getActivity() != null){
+                                    DefaultPreferenceUtil.setFirstOpen(getActivity(), getString(R.string.source), false);
+                                }
+                            });
+                }
             }
         }
         mProgressBar.setVisibility(View.GONE);
 
-    }
-    private void onFailedLoadImage(SimpleTarget simpleTarget){
-        if(getActivity() != null){
-            if(!mFailed){
-                Log.e(TAG, "onLoadFailed: try again using thumbnail");
-                Glide.with(getActivity()).load(getArguments().getString(KEY_THUMBNAIL_URL)).asBitmap().into(simpleTarget);
-                mFailed = true;
-                return;
-            }
-        }
     }
 
     private void updateLike(){

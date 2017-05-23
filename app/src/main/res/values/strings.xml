@@ -24,6 +24,7 @@
     <string name="send_or_search">Send or Search</string>
     <string name="favorite_share_app">Favorite Share App</string>
     <string name="rate">Rate now</string>
+    <string name="gif">GIF</string>
 
     <string name="prepare_images_message">Saving and preparing network image</string>
     <string name="use_mobile_network_message">Download %d images from your mobile network.</string>

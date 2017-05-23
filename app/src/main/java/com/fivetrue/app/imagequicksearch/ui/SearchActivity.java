@@ -11,8 +11,6 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.fivetrue.app.imagequicksearch.LL;
@@ -23,14 +21,11 @@ import com.fivetrue.app.imagequicksearch.preference.DefaultPreferenceUtil;
 import com.fivetrue.app.imagequicksearch.ui.adapter.BaseHeaderFooterAdapter;
 import com.fivetrue.app.imagequicksearch.ui.adapter.BaseRecyclerAdapter;
 import com.fivetrue.app.imagequicksearch.ui.adapter.image.ImageListAdapter;
-import com.fivetrue.app.imagequicksearch.ui.fragment.ImageDetailViewFragment;
 import com.fivetrue.app.imagequicksearch.ui.fragment.ImagePagerViewFragment;
-import com.fivetrue.app.imagequicksearch.utils.CommonUtils;
 import com.fivetrue.app.imagequicksearch.utils.DataManager;
 import com.fivetrue.app.imagequicksearch.utils.SimpleViewUtils;
 import com.fivetrue.app.imagequicksearch.utils.TrackingUtil;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import io.reactivex.Observable;
@@ -49,6 +44,8 @@ public class SearchActivity extends BaseImageListActivity<GoogleImage>{
     private boolean mCanLoad = true;
     private String mKeyword;
     private String mInputText;
+
+    private boolean mOnlyGIf;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -124,11 +121,10 @@ public class SearchActivity extends BaseImageListActivity<GoogleImage>{
     }
 
     @Override
-    protected boolean onItemLongClick(GoogleImage item) {
+    protected boolean onItemLongClick(int pos, GoogleImage item) {
         addFragment(ImagePagerViewFragment.class,
-                ImagePagerViewFragment.makeBundle(this, getKeyword(), getData().indexOf(item)), android.R.id.content, true);
-//        addFragment(ImageDetailViewFragment.class
-//                , ImageDetailViewFragment.makeBundle(this, item), android.R.id.content, true);
+                ImagePagerViewFragment.makeBundle(this, getKeyword(), getData().indexOf(item), mOnlyGIf)
+                , android.R.id.content, true);
         hideSoftKey();
         return true;
     }
@@ -206,6 +202,12 @@ public class SearchActivity extends BaseImageListActivity<GoogleImage>{
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_search, menu);
         initSearchView((SearchView) menu.findItem(R.id.action_search).getActionView());
+        menu.findItem(R.id.action_gif).setOnMenuItemClickListener(menuItem -> {
+            menuItem.setChecked(!menuItem.isChecked());
+            mOnlyGIf = menuItem.isChecked();
+            onQueryTextChange(getKeyword());
+            return false;
+        });
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -237,6 +239,12 @@ public class SearchActivity extends BaseImageListActivity<GoogleImage>{
         mInputText = newText;
         Observable.fromIterable(ImageDB.getInstance().findCachedImages(mInputText))
                 .filter(image -> image.getKeyword().equalsIgnoreCase(getKeyword()))
+                .filter(image -> {
+                    if(mOnlyGIf){
+                        return image.getMimeType().equalsIgnoreCase("gif");
+                    }
+                    return true;
+                })
                 .map(image -> new GoogleImage(image))
                 .toList().subscribe(images -> setData(images));
         return true;

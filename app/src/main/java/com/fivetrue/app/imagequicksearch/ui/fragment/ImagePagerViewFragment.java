@@ -5,6 +5,7 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -31,12 +32,14 @@ import io.reactivex.Observable;
  * Created by kwonojin on 2017. 5. 22..
  */
 
-public class ImagePagerViewFragment extends BaseFragment {
+public class ImagePagerViewFragment extends BaseFragment{
 
     private static final String TAG = "ImagePagerViewFragment";
 
     private static final String KEY_KEYWORD = "keyword";
     private static final String KEY_IMAGE_POS = "image_position";
+    private static final String KEY_SAVED_IMAGE = "savedImage";
+    private static final String KEY_ONLY_GIF = "onlyGif";
 
     private ViewPager mViewPager;
     private ImagePagerFragmentAdapter mAdapter;
@@ -44,17 +47,38 @@ public class ImagePagerViewFragment extends BaseFragment {
     private AdView mAdView;
 
 
+    private String mKeyword;
+    private boolean mOnlyGif;
     private List<GoogleImage> mData;
     private int mPos;
 
     @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+    }
+
+    @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        String keyword = getArguments().getString(KEY_KEYWORD);
+        mKeyword = getArguments().getString(KEY_KEYWORD);
+        mOnlyGif = getArguments().getBoolean(KEY_ONLY_GIF);
+        boolean isSaved = getArguments().getBoolean(KEY_SAVED_IMAGE);
         mPos = getArguments().getInt(KEY_IMAGE_POS);
-        mData = Observable.fromIterable(ImageDB.getInstance().getCachedImages(keyword))
-                .map(image ->  new GoogleImage(image))
-                .toList().blockingGet();
+        Observable<GoogleImage> observable = isSaved ? Observable.fromIterable(ImageDB.getInstance().getSavedImages())
+                .map(image ->  new GoogleImage(image)) :
+                Observable.fromIterable(ImageDB.getInstance().getCachedImages(mKeyword))
+                .map(image ->  new GoogleImage(image));
+        mData = observable.filter(image -> {
+            if(mOnlyGif){
+                return image.isGif();
+            }
+            return true;
+        }).toList().blockingGet();
     }
 
     @Nullable
@@ -68,7 +92,7 @@ public class ImagePagerViewFragment extends BaseFragment {
         super.onViewCreated(view, savedInstanceState);
         mAdView = (AdView) view.findViewById(R.id.ad_fragment_image_pager);
         mViewPager = (ViewPager) view.findViewById(R.id.vp_fragment_image_pager_view);
-        mAdapter = new ImagePagerFragmentAdapter(mData, getFragmentManager());
+        mAdapter = new ImagePagerFragmentAdapter(mKeyword, mData, getChildFragmentManager());
         mViewPager.setAdapter(mAdapter);
         mViewPager.setCurrentItem(mPos, false);
         initAd();
@@ -148,10 +172,20 @@ public class ImagePagerViewFragment extends BaseFragment {
         return 0;
     }
 
-    public static Bundle makeBundle(Context context, String keyword, int pos){
+    public static Bundle makeBundle(Context context, String keyword, int pos, boolean onlyGif){
+        return makeBundle(context, keyword, pos, false, onlyGif);
+    }
+
+    public static Bundle makeBundle(Context context, String keyword, int pos, boolean isSaved, boolean onlyGif){
         Bundle b = new Bundle();
         b.putString(KEY_KEYWORD, keyword);
         b.putInt(KEY_IMAGE_POS, pos);
+        b.putBoolean(KEY_SAVED_IMAGE, isSaved);
+        b.putBoolean(KEY_ONLY_GIF, onlyGif);
         return b;
+    }
+
+    public GoogleImage getCurrentImage(){
+        return mData.get(mViewPager.getCurrentItem());
     }
 }

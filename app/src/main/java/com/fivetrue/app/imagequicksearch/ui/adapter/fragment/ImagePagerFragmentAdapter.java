@@ -15,9 +15,11 @@ import java.util.List;
 public class ImagePagerFragmentAdapter extends BaseFragmentPagerAdapter {
 
     private List<GoogleImage> mData;
+    private String mKeyword;
 
-    public ImagePagerFragmentAdapter(List<GoogleImage> data, FragmentManager fm) {
+    public ImagePagerFragmentAdapter(String keyword, List<GoogleImage> data, FragmentManager fm) {
         super(fm);
+        mKeyword = keyword;
         mData = data;
     }
 
@@ -41,5 +43,10 @@ public class ImagePagerFragmentAdapter extends BaseFragmentPagerAdapter {
     @Override
     public int getCount() {
         return mData.size();
+    }
+
+    @Override
+    protected String makeFragmentName(int viewId, long id) {
+        return super.makeFragmentName(viewId, id) + mKeyword;
     }
 }

@@ -25,6 +25,7 @@
     <string name="send_or_search">보내기 또는 검색</string>
     <string name="favorite_share_app">즐겨찾는 공유 앱</string>
     <string name="rate">평가하기</string>
+    <string name="gif">움짤</string>
 
     <string name="prepare_images_message">네트워크 이미지 저장 중.</string>
     <string name="use_mobile_network_message">모바일 네트워크를 이용하여 %d 개의 사진을 다운로드 받습니다.</string>

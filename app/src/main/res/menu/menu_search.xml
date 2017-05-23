@@ -13,7 +13,15 @@
     <item
         android:id="@+id/action_delete"
         android:icon="@drawable/ic_trash_accent_24dp"
-        app:showAsAction="always"
+        app:showAsAction="withText"
         android:title="@string/delete"/>
+
+    <item
+        android:id="@+id/action_gif"
+        android:icon="@drawable/ic_gif_accent_20dp"
+        app:showAsAction="withText"
+        android:checkable="true"
+        android:checked="false"
+        android:title="@string/gif"/>
 
 </menu>

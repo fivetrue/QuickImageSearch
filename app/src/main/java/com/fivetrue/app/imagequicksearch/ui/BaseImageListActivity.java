@@ -219,7 +219,7 @@ public abstract class BaseImageListActivity <T> extends BaseActivity implements 
                     @Override
                     public boolean onItemLongClick(RecyclerView.ViewHolder holder, int pos,  T item) {
                         if(holder != null && item != null){
-                            return BaseImageListActivity.this.onItemLongClick(item);
+                            return BaseImageListActivity.this.onItemLongClick(pos, item);
                         }
                         return false;
                     }
@@ -249,7 +249,7 @@ public abstract class BaseImageListActivity <T> extends BaseActivity implements 
 
     }
 
-    protected boolean onItemLongClick(T item){
+    protected boolean onItemLongClick(int pos, T item){
         return false;
     }
 

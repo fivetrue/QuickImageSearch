@@ -15,6 +15,7 @@ import com.fivetrue.app.imagequicksearch.ui.adapter.BaseHeaderFooterAdapter;
 import com.fivetrue.app.imagequicksearch.ui.adapter.BaseRecyclerAdapter;
 import com.fivetrue.app.imagequicksearch.ui.adapter.image.SavedImageListAdapter;
 import com.fivetrue.app.imagequicksearch.ui.fragment.ImageDetailViewFragment;
+import com.fivetrue.app.imagequicksearch.ui.fragment.ImagePagerViewFragment;
 import com.fivetrue.app.imagequicksearch.utils.TrackingUtil;
 
 import java.io.File;
@@ -31,6 +32,9 @@ public class SavedImageActivity extends BaseImageListActivity<SavedImage>{
 
     private static final String TAG = "SavedImageActivity";
 
+    private String mKeyword;
+    private boolean mOnlyGIf;
+
     @Override
     protected BaseRecyclerAdapter<SavedImage> makeAdapter(List<SavedImage> data, BaseHeaderFooterAdapter.OnItemClickListener<SavedImage> ll) {
         return new SavedImageListAdapter(data, ll);
@@ -38,7 +42,14 @@ public class SavedImageActivity extends BaseImageListActivity<SavedImage>{
 
     @Override
     protected List<SavedImage> getData() {
-        return ImageDB.getInstance().getSavedImages();
+        return Observable.fromIterable(ImageDB.getInstance().findSavedImages(mKeyword))
+                .filter(savedImage -> {
+                    if(mOnlyGIf){
+                        return savedImage.getMimeType() != null
+                                && savedImage.getMimeType().equalsIgnoreCase("gif");
+                    }
+                    return true;
+                }).toList().blockingGet();
     }
 
     @Override
@@ -101,6 +112,12 @@ public class SavedImageActivity extends BaseImageListActivity<SavedImage>{
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_search, menu);
         initSearchView((SearchView) menu.findItem(R.id.action_search).getActionView());
+        menu.findItem(R.id.action_gif).setOnMenuItemClickListener(menuItem -> {
+            menuItem.setChecked(!menuItem.isChecked());
+            mOnlyGIf = menuItem.isChecked();
+            onQueryTextChange(mKeyword);
+            return false;
+        });
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -109,11 +126,10 @@ public class SavedImageActivity extends BaseImageListActivity<SavedImage>{
         return Observable.fromIterable(getAdapter().getSelections())
                 .map(savedImage -> new GoogleImage(savedImage)).toList().blockingGet();
     }
-
     @Override
-    protected boolean onItemLongClick(SavedImage item) {
-        addFragment(ImageDetailViewFragment.class, ImageDetailViewFragment.makeBundle(this, item)
-                , android.R.id.content, true);
+    protected boolean onItemLongClick(int pos, SavedImage item) {
+        addFragment(ImagePagerViewFragment.class,
+                ImagePagerViewFragment.makeBundle(this, item.getKeyword(), getData().indexOf(item), true), android.R.id.content, true);
         hideSoftKey();
         return true;
     }
@@ -132,7 +148,8 @@ public class SavedImageActivity extends BaseImageListActivity<SavedImage>{
     @Override
     protected boolean onQueryTextChange(String newText) {
         clearSelection();
-        setData(ImageDB.getInstance().findSavedImages(newText));
+        mKeyword = newText;
+        setData(getData());
         return true;
     }
 }

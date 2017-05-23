@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
-import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
@@ -18,7 +17,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ProgressBar;
 import android.widget.Toast;
@@ -37,6 +35,7 @@ import com.fivetrue.app.imagequicksearch.ui.adapter.BaseHeaderFooterAdapter;
 import com.fivetrue.app.imagequicksearch.ui.adapter.image.RetrievedImageListAdapter;
 import com.fivetrue.app.imagequicksearch.ui.adapter.image.SavedImageListAdapter;
 import com.fivetrue.app.imagequicksearch.ui.fragment.ImageDetailViewFragment;
+import com.fivetrue.app.imagequicksearch.ui.fragment.ImagePagerViewFragment;
 import com.fivetrue.app.imagequicksearch.ui.set.ImageLayoutSet;
 import com.fivetrue.app.imagequicksearch.ui.view.FlingableNestedScrollView;
 import com.fivetrue.app.imagequicksearch.utils.CommonUtils;
@@ -146,8 +145,8 @@ public class MainActivity extends BaseActivity implements ImageSelectionViewer.I
 
                     @Override
                     public boolean onItemLongClick(RecyclerView.ViewHolder holder, int pos, SavedImage item) {
-                        addFragment(ImageDetailViewFragment.class
-                                , ImageDetailViewFragment.makeBundle(MainActivity.this, item), android.R.id.content, true);
+                        addFragment(ImagePagerViewFragment.class,
+                                ImagePagerViewFragment.makeBundle(MainActivity.this, item.getKeyword(), pos , true, false), android.R.id.content, true);
                         return true;
                     }
                 });
@@ -178,6 +177,8 @@ public class MainActivity extends BaseActivity implements ImageSelectionViewer.I
 
                     @Override
                     public boolean onItemLongClick(RecyclerView.ViewHolder holder, int pos, CachedGoogleImage item) {
+                        addFragment(ImagePagerViewFragment.class,
+                                ImagePagerViewFragment.makeBundle(MainActivity.this, item.getKeyword(), 0, false), android.R.id.content, true);
                         Toast.makeText(MainActivity.this
                                 , CommonUtils.getDate(MainActivity.this, "yyyy-MM-dd hh:mm", item.getUpdateDate())
                                 , Toast.LENGTH_SHORT).show();
@@ -459,15 +460,13 @@ public class MainActivity extends BaseActivity implements ImageSelectionViewer.I
 
     @Override
     public void onBackPressed() {
-        if(getSupportFragmentManager().getBackStackEntryCount() > 0){
-            getSupportFragmentManager().popBackStackImmediate();
-            return;
-        }
-        if(getSelections().size() > 0){
-            mSavedImageListAdapter.clearSelection();
-            mLikeImageListAdapter.clearSelection();
-            mImageSelectionViewer.update();
-            return;
+        if(getSupportFragmentManager().getBackStackEntryCount() == 0){
+            if(getSelections().size() > 0){
+                mSavedImageListAdapter.clearSelection();
+                mLikeImageListAdapter.clearSelection();
+                mImageSelectionViewer.update();
+                return;
+            }
         }
         super.onBackPressed();
     }

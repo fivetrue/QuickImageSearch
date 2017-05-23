@@ -87,7 +87,7 @@ public class RetrievedHistoryActivity extends BaseImageListActivity<CachedGoogle
     }
 
     @Override
-    protected boolean onItemLongClick(CachedGoogleImage item) {
+    protected boolean onItemLongClick(int pos, CachedGoogleImage item) {
         if(!getAdapter().isEditMode()){
             updateDeleteMode();
         }
