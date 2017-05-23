@@ -13,10 +13,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
 
-        <ImageView
-            android:id="@+id/iv_fragment_image_detail"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
 
         <ImageView
             android:id="@+id/iv_fragment_image_detail_like"
@@ -44,6 +40,12 @@
             android:layout_margin="10dp"
             android:layout_alignParentLeft="true"
             android:src="@drawable/selector_close"/>
+
+        <ImageView
+            android:id="@+id/iv_fragment_image_detail"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@id/iv_fragment_image_detail_like"/>
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -104,7 +106,6 @@
         android:layout_gravity="center"
         android:src="@drawable/ic_gif_20dp"
         android:visibility="gone"
-        app:backgroundTint="@color/colorPrimary"
         app:fabSize="normal"/>
 
     <ProgressBar

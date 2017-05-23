@@ -125,12 +125,8 @@ public class SearchActivity extends BaseImageListActivity<GoogleImage>{
 
     @Override
     protected boolean onItemLongClick(GoogleImage item) {
-        ArrayList<GoogleImage> images = new ArrayList<>();
-        for(GoogleImage image : getData()){
-            images.add(image);
-        }
         addFragment(ImagePagerViewFragment.class,
-                ImagePagerViewFragment.makeBundle(this, images, item), android.R.id.content, true);
+                ImagePagerViewFragment.makeBundle(this, getKeyword(), getData().indexOf(item)), android.R.id.content, true);
 //        addFragment(ImageDetailViewFragment.class
 //                , ImageDetailViewFragment.makeBundle(this, item), android.R.id.content, true);
         hideSoftKey();

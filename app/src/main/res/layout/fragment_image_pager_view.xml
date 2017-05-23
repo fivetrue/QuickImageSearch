@@ -1,13 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     android:background="@android:color/black">
+
+    <com.google.android.gms.ads.AdView
+        android:id="@+id/ad_fragment_image_pager"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        app:adSize="LARGE_BANNER"
+        app:adUnitId="@string/admob_app_chooser_banner" />
 
     <android.support.v4.view.ViewPager
         android:id="@+id/vp_fragment_image_pager_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"></android.support.v4.view.ViewPager>
+        android:layout_height="match_parent"
+        android:layout_above="@id/ad_fragment_image_pager"></android.support.v4.view.ViewPager>
 
-</android.support.design.widget.CoordinatorLayout>
+</RelativeLayout>

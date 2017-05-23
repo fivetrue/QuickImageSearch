@@ -243,7 +243,6 @@ public class ImageDetailViewFragment extends BaseFragment {
                 mFailed = true;
                 return;
             }
-            getFragmentManager().popBackStackImmediate();
         }
     }
 
