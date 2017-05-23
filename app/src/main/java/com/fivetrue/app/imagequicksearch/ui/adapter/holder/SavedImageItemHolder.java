@@ -17,12 +17,14 @@ public class SavedImageItemHolder extends RecyclerView.ViewHolder {
     public final View layout;
     public final ImageView image;
     public final ImageView check;
+    public final ImageView gif;
 
     public SavedImageItemHolder(View itemView) {
         super(itemView);
         layout = itemView.findViewById(R.id.layout_item_image_list);
         image = (ImageView) itemView.findViewById(R.id.iv_item_image_list);
         check = (ImageView) itemView.findViewById(R.id.iv_item_image_list_check);
+        gif = (ImageView) itemView.findViewById(R.id.iv_item_image_list_gif);
     }
 
     public static SavedImageItemHolder makeHolder(Context context){

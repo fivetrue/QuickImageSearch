@@ -19,12 +19,14 @@ public class ImageItemHolder extends RecyclerView.ViewHolder {
     public final View layout;
     public final ImageView image;
     public final ImageView check;
+    public final ImageView gif;
 
     public ImageItemHolder(View itemView) {
         super(itemView);
         layout = itemView.findViewById(R.id.layout_item_image_list);
         image = (ImageView) itemView.findViewById(R.id.iv_item_image_list);
         check = (ImageView) itemView.findViewById(R.id.iv_item_image_list_check);
+        gif = (ImageView) itemView.findViewById(R.id.iv_item_image_list_gif);
     }
 
     public static ImageItemHolder makeHolder(Context context){
@@ -33,5 +35,6 @@ public class ImageItemHolder extends RecyclerView.ViewHolder {
 
     public void setImage(GoogleImage image){
         Glide.with(this.image.getContext()).load(image.getThumbnailUrl()).into(this.image);
+        gif.setVisibility(image.isGif() ? View.VISIBLE : View.GONE);
     }
 }

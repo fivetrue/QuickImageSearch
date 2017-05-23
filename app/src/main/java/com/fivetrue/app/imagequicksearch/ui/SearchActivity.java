@@ -24,11 +24,13 @@ import com.fivetrue.app.imagequicksearch.ui.adapter.BaseHeaderFooterAdapter;
 import com.fivetrue.app.imagequicksearch.ui.adapter.BaseRecyclerAdapter;
 import com.fivetrue.app.imagequicksearch.ui.adapter.image.ImageListAdapter;
 import com.fivetrue.app.imagequicksearch.ui.fragment.ImageDetailViewFragment;
+import com.fivetrue.app.imagequicksearch.ui.fragment.ImagePagerViewFragment;
 import com.fivetrue.app.imagequicksearch.utils.CommonUtils;
 import com.fivetrue.app.imagequicksearch.utils.DataManager;
 import com.fivetrue.app.imagequicksearch.utils.SimpleViewUtils;
 import com.fivetrue.app.imagequicksearch.utils.TrackingUtil;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import io.reactivex.Observable;
@@ -123,8 +125,14 @@ public class SearchActivity extends BaseImageListActivity<GoogleImage>{
 
     @Override
     protected boolean onItemLongClick(GoogleImage item) {
-        addFragment(ImageDetailViewFragment.class
-                , ImageDetailViewFragment.makeBundle(this, item), android.R.id.content, true);
+        ArrayList<GoogleImage> images = new ArrayList<>();
+        for(GoogleImage image : getData()){
+            images.add(image);
+        }
+        addFragment(ImagePagerViewFragment.class,
+                ImagePagerViewFragment.makeBundle(this, images, item), android.R.id.content, true);
+//        addFragment(ImageDetailViewFragment.class
+//                , ImageDetailViewFragment.makeBundle(this, item), android.R.id.content, true);
         hideSoftKey();
         return true;
     }

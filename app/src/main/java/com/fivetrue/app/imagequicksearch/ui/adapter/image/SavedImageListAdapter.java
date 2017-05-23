@@ -41,7 +41,10 @@ public class SavedImageListAdapter extends BaseRecyclerAdapter<SavedImage> {
         SavedImageItemHolder imageItemHolder = (SavedImageItemHolder)holder;
         Glide.with(imageItemHolder.image.getContext())
                 .load(item.getFilePath())
+                .asBitmap()
                 .into(imageItemHolder.image);
+        imageItemHolder.gif.setVisibility(item.getMimeType() != null && item.getMimeType().equalsIgnoreCase("gif")
+                ?View.VISIBLE : View.GONE);
         imageItemHolder.layout.setOnClickListener(view -> onClickItem(imageItemHolder, position, item));
         imageItemHolder.layout.setOnLongClickListener(view -> onLongClickItem(imageItemHolder, position, item));
 

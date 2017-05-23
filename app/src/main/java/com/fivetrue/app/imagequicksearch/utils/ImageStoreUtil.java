@@ -6,6 +6,7 @@ import android.graphics.drawable.Drawable;
 import android.util.Log;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.gif.GifDrawable;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.fivetrue.app.imagequicksearch.LL;
@@ -60,46 +61,85 @@ public class ImageStoreUtil {
                 Log.d(TAG, "saveNetworkImage() try to get network image");
             return Observable.create(emitter -> {
                 if(LL.D) Log.d(TAG, "saveNetworkImage: try to load image");
+                if(image.isGif()){
+                    Glide.with(mContext).load(image.getOriginalImageUrl()).asGif().into(new SimpleTarget<GifDrawable>() {
 
-                Glide.with(mContext).load(image.getOriginalImageUrl()).asBitmap().into(new SimpleTarget<Bitmap>() {
+                        boolean mFailed = false;
 
-                    boolean mFailed = false;
-
-                    @Override
-                    public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
-                        if(LL.D) Log.d(TAG, "saveNetworkImage: received image");
-                        if(LL.D) Log.d(TAG, "saveNetworkImage: try to save image");
-                        Observable.just(resource)
-                                .map(bitmap -> {
-                                    File imageFile = new File(mFileDir, System.currentTimeMillis() + ".png");
-                                    FileOutputStream out = new FileOutputStream(imageFile);
-                                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
-                                    out.close();
-                                    if(LL.D) Log.d(TAG, "saveNetworkImage: save image path = " + imageFile.getAbsolutePath());
-                                    return imageFile;
-                                })
-                                .observeOn(AndroidSchedulers.mainThread())
-                                .subscribeOn(Schedulers.newThread())
-                                .subscribe(file ->{
-                                    if(LL.D) Log.d(TAG, "saveNetworkImage: insert saved image to StoredImage");
-                                    ImageDB.getInstance().insertSavedImage(image.parseStoreImage(q, file));
-                                    emitter.onNext(file);
-                                });
-                    }
-                    @Override
-                    public void onLoadFailed(Exception e, Drawable errorDrawable) {
-                        super.onLoadFailed(e, errorDrawable);
-                        Log.e(TAG, "onLoadFailed: ", e);
-                        if(!mFailed){
-                            Log.e(TAG, "onLoadFailed: try again using thumbnail");
-                            Glide.with(mContext).load(image.getThumbnailUrl()).asBitmap().into(this);
-                            mFailed = true;
-                            return;
+                        @Override
+                        public void onResourceReady(GifDrawable resource, GlideAnimation<? super GifDrawable> glideAnimation) {
+                            if(LL.D) Log.d(TAG, "saveNetworkImage: received image");
+                            if(LL.D) Log.d(TAG, "saveNetworkImage: try to save image");
+                            Observable.just(resource)
+                                    .map(gif -> {
+                                        File imageFile = new File(mFileDir, System.currentTimeMillis() + ".gif");
+                                        FileOutputStream out = new FileOutputStream(imageFile);
+                                        out.write(gif.getData());
+                                        out.close();
+                                        if(LL.D) Log.d(TAG, "saveNetworkImage: save image path = " + imageFile.getAbsolutePath());
+                                        return imageFile;
+                                    })
+                                    .observeOn(AndroidSchedulers.mainThread())
+                                    .subscribeOn(Schedulers.newThread())
+                                    .subscribe(file ->{
+                                        if(LL.D) Log.d(TAG, "saveNetworkImage: insert saved image to StoredImage");
+                                        ImageDB.getInstance().insertSavedImage(image.parseStoreImage(q, file));
+                                        emitter.onNext(file);
+                                    });
                         }
-//                      d
-                        emitter.onError(e);
-                    }
-                });
+                        @Override
+                        public void onLoadFailed(Exception e, Drawable errorDrawable) {
+                            super.onLoadFailed(e, errorDrawable);
+                            Log.e(TAG, "onLoadFailed: ", e);
+                            if(!mFailed){
+                                Log.e(TAG, "onLoadFailed: try again using thumbnail");
+                                Glide.with(mContext).load(image.getThumbnailUrl()).asGif().into(this);
+                                mFailed = true;
+                                return;
+                            }
+                            emitter.onError(e);
+                        }
+                    });
+                }else{
+                    Glide.with(mContext).load(image.getOriginalImageUrl()).asBitmap().into(new SimpleTarget<Bitmap>() {
+
+                        boolean mFailed = false;
+
+                        @Override
+                        public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
+                            if(LL.D) Log.d(TAG, "saveNetworkImage: received image");
+                            if(LL.D) Log.d(TAG, "saveNetworkImage: try to save image");
+                            Observable.just(resource)
+                                    .map(bitmap -> {
+                                        File imageFile = new File(mFileDir, System.currentTimeMillis() + ".png");
+                                        FileOutputStream out = new FileOutputStream(imageFile);
+                                        bitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
+                                        out.close();
+                                        if(LL.D) Log.d(TAG, "saveNetworkImage: save image path = " + imageFile.getAbsolutePath());
+                                        return imageFile;
+                                    })
+                                    .observeOn(AndroidSchedulers.mainThread())
+                                    .subscribeOn(Schedulers.newThread())
+                                    .subscribe(file ->{
+                                        if(LL.D) Log.d(TAG, "saveNetworkImage: insert saved image to StoredImage");
+                                        ImageDB.getInstance().insertSavedImage(image.parseStoreImage(q, file));
+                                        emitter.onNext(file);
+                                    });
+                        }
+                        @Override
+                        public void onLoadFailed(Exception e, Drawable errorDrawable) {
+                            super.onLoadFailed(e, errorDrawable);
+                            Log.e(TAG, "onLoadFailed: ", e);
+                            if(!mFailed){
+                                Log.e(TAG, "onLoadFailed: try again using thumbnail");
+                                Glide.with(mContext).load(image.getThumbnailUrl()).asBitmap().into(this);
+                                mFailed = true;
+                                return;
+                            }
+                            emitter.onError(e);
+                        }
+                    });
+                }
             });
         }
     }

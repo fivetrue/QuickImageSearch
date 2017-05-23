@@ -143,6 +143,10 @@ public class GoogleImage implements Parcelable{
         return th;
     };
 
+    public boolean isGif(){
+        return ity != null && ity.equalsIgnoreCase("GIF");
+    }
+
     @Override
     public String toString() {
         return "GoogleImage{" +

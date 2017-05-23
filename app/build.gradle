@@ -15,8 +15,8 @@ apply plugin: 'me.tatarka.retrolambda'
 
 android {
 
-    def BASE_VERSION = "1.1"
-    def VERSION_CODE = 8
+    def BASE_VERSION = "1.2"
+    def VERSION_CODE = 9
     def VERSION_TYPE = "R"  // Set this to BETA, RELEASE, etc.
 
     def BOOLEAN = "boolean"
