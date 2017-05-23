@@ -129,7 +129,7 @@ public class SavedImageActivity extends BaseImageListActivity<SavedImage>{
     @Override
     protected boolean onItemLongClick(int pos, SavedImage item) {
         addFragment(ImagePagerViewFragment.class,
-                ImagePagerViewFragment.makeBundle(this, item.getKeyword(), getData().indexOf(item), true), android.R.id.content, true);
+                ImagePagerViewFragment.makeBundle(this, item.getKeyword(), getData().indexOf(item), true, mOnlyGIf), android.R.id.content, true);
         hideSoftKey();
         return true;
     }
