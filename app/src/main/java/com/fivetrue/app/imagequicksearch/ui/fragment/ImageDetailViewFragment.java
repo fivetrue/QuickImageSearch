@@ -100,7 +100,11 @@ public class ImageDetailViewFragment extends BaseFragment {
         mLoadGif = (FloatingActionButton) view.findViewById(R.id.fab_fragment_image_detail_gif_load);
         view.setOnClickListener(null);
         mClose.setOnClickListener(view1 -> {
-            getFragmentManager().popBackStackImmediate();
+            if(getParentFragment() != null && getParentFragment() instanceof ImagePagerViewFragment){
+                getParentFragment().getFragmentManager().popBackStackImmediate();
+            }else{
+                getFragmentManager().popBackStackImmediate();
+            }
         });
 
         mShare.setOnClickListener(view1 -> {

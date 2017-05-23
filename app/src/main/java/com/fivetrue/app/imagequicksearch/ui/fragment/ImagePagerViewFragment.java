@@ -11,6 +11,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.fivetrue.app.imagequicksearch.LL;
 import com.fivetrue.app.imagequicksearch.R;
@@ -42,6 +43,7 @@ public class ImagePagerViewFragment extends BaseFragment{
     private static final String KEY_ONLY_GIF = "onlyGif";
 
     private ViewPager mViewPager;
+    private TextView mPageCount;
     private ImagePagerFragmentAdapter mAdapter;
 
     private AdView mAdView;
@@ -92,9 +94,27 @@ public class ImagePagerViewFragment extends BaseFragment{
         super.onViewCreated(view, savedInstanceState);
         mAdView = (AdView) view.findViewById(R.id.ad_fragment_image_pager);
         mViewPager = (ViewPager) view.findViewById(R.id.vp_fragment_image_pager_view);
+        mPageCount = (TextView) view.findViewById(R.id.tv_fragment_image_pager_view);
+        mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+                mPageCount.setText((position + 1) + " / " + mData.size());
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
         mAdapter = new ImagePagerFragmentAdapter(mKeyword, mData, getChildFragmentManager());
         mViewPager.setAdapter(mAdapter);
         mViewPager.setCurrentItem(mPos, false);
+        mPageCount.setText((mPos + 1) + " / " + mData.size());
         initAd();
     }
 
